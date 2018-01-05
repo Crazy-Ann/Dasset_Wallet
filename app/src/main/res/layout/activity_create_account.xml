@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.dasset.wallet.ui.activity.CreateAccountActivity">
+
+    <include
+        android:id="@+id/inToolbar"
+        layout="@layout/view_toolbar"/>
+
+    <include layout="@layout/view_line"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_10"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+
+        <include layout="@layout/view_line"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginStart="@dimen/dp_10"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="@string/account_name"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/sp_14"/>
+
+            <RelativeLayout
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="@dimen/dp_48"
+                android:layout_weight="3">
+
+                <EditText
+                    android:id="@+id/etAccountName"
+                    style="@style/edit_content"
+                    android:hint="@string/hint_account_name"
+                    android:inputType="text"
+                    android:maxLength="20"/>
+
+                <ImageButton
+                    android:id="@+id/ibAccountNameEmpty"
+                    style="@style/edit_content_delete1"
+                    android:contentDescription="@null"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <include layout="@layout/view_line"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+
+        <include layout="@layout/view_line"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginStart="@dimen/dp_10"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="@string/transaction_password"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/sp_14"/>
+
+            <RelativeLayout
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="@dimen/dp_48"
+                android:layout_weight="3">
+
+                <EditText
+                    android:id="@+id/etTransactionPassword"
+                    style="@style/edit_content"
+                    android:hint="@string/hint_transaction_password"
+                    android:inputType="textPassword"
+                    android:maxLength="20"/>
+
+                <ImageButton
+                    android:id="@+id/ibTransactionPasswordDisplay"
+                    android:layout_width="@dimen/dp_36"
+                    android:layout_height="@dimen/dp_36"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_10"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@null"
+                    android:padding="@dimen/dp_5"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/icon_eye_on"/>
+
+                <ImageButton
+                    android:id="@+id/ibTransactionPasswordEmpty"
+                    style="@style/edit_content_delete2"
+                    android:layout_toStartOf="@id/ibTransactionPasswordDisplay"
+                    android:contentDescription="@null"/>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <include layout="@layout/view_line"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="vertical">
+
+            <include layout="@layout/view_line"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_48"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_marginStart="@dimen/dp_10"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="@dimen/dp_0"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="@string/transaction_password"
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/sp_14"/>
+
+                <RelativeLayout
+                    android:layout_width="@dimen/dp_0"
+                    android:layout_height="@dimen/dp_48"
+                    android:layout_weight="3">
+
+                    <EditText
+                        android:id="@+id/etConfirmPassword"
+                        style="@style/edit_content"
+                        android:hint="@string/hint_confirm_password"
+                        android:inputType="textPassword"
+                        android:maxLength="20"/>
+
+                    <ImageButton
+                        android:id="@+id/ibConfirmPasswordDisplay"
+                        android:layout_width="@dimen/dp_36"
+                        android:layout_height="@dimen/dp_36"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="@dimen/dp_10"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="@null"
+                        android:padding="@dimen/dp_5"
+                        android:scaleType="centerCrop"
+                        android:src="@mipmap/icon_eye_on"/>
+
+                    <ImageButton
+                        android:id="@+id/ibConfirmPasswordEmpty"
+                        style="@style/edit_content_delete2"
+                        android:layout_toStartOf="@id/ibConfirmPasswordDisplay"
+                        android:contentDescription="@null"/>
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <include layout="@layout/view_line"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dp_20"
+            android:text="@string/prompt_create_account1"
+            android:textColor="@color/color_9b9b9b"
+            android:textSize="@dimen/sp_12"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_20"
+            android:layout_marginEnd="@dimen/dp_20"
+            android:layout_marginStart="@dimen/dp_20"
+            android:text="@string/prompt_create_account2"
+            android:textColor="@color/color_7b7bfd"
+            android:textSize="@dimen/sp_12"/>
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/rectangle_b7b7fa"
+            android:enabled="false"
+            android:text="@string/create_account_submit"
+            android:textColor="@color/color_d1d1fb"/>
+    </LinearLayout>
+</LinearLayout>

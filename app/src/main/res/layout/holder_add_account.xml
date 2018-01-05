@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llAddAccount"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/dp_10"
+    android:background="@drawable/rectangle_ffffff"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvAddAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawablePadding="@dimen/dp_10"
+        android:drawableTop="@mipmap/icon_add_black"
+        android:gravity="center"
+        android:padding="@dimen/dp_30"
+        android:text="@string/add_account"
+        android:textColor="@color/color_9b9b9b"
+        android:textSize="@dimen/sp_16"/>
+
+</LinearLayout>

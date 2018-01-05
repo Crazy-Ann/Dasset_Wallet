@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_383856"
+    android:orientation="vertical"
+    tools:context="com.dasset.wallet.ui.activity.CreateAccountResultActivity">
+
+    <include
+        android:id="@+id/inToolbar"
+        layout="@layout/view_toolbar"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="@dimen/dp_20"
+                android:drawablePadding="@dimen/dp_10"
+                android:drawableTop="@mipmap/icon_create_account_success"
+                android:text="@string/create_account_success"
+                android:textColor="@color/color_f5a623"
+                android:textSize="@dimen/sp_18"/>
+
+            <TextView
+                android:id="@+id/tvSerialNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_margin="@dimen/dp_10"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/sp_16"/>
+
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_marginStart="@dimen/dp_10"
+                android:background="@drawable/rectangle_000000"
+                android:padding="@dimen/dp_20"
+                android:textColor="@color/color_f5a623"
+                android:textSize="@dimen/sp_18"/>
+
+            <TextView
+                android:id="@+id/tvAddressQRCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_margin="@dimen/dp_10"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/sp_16"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_marginStart="@dimen/dp_10"
+                android:background="@drawable/rectangle_000000"
+                android:padding="@dimen/dp_20">
+
+                <ImageView
+                    android:id="@+id/ivAddressQRCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:contentDescription="@null"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp_10"
+                android:text="@string/prompt_create_account5"
+                android:textColor="@color/color_828295"
+                android:textSize="@dimen/sp_12"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

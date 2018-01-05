@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.dasset.wallet.ui.activity.UserProtocolActivity">
+
+    <include
+        android:id="@+id/inToolbar"
+        layout="@layout/view_toolbar" />
+
+    <WebView
+        android:id="@+id/wbUserProtocol"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/btnUserProtocol"
+        android:layout_alignParentTop="true"/>
+
+    <Button
+        android:id="@+id/btnUserProtocol"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_48"
+        android:layout_alignParentBottom="true"
+        android:background="@color/color_5757ff"
+        android:text="@string/accept_and_agree"
+        android:textColor="@android:color/white"/>
+
+</RelativeLayout>

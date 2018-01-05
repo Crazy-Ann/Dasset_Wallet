@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">Dasset_Wallet</string>
+    <string name="prompt_quit">是否退出当前应用？</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
+    <string name="done">完成</string>
+    <string name="backups">备份</string>
+    <string name="later">以后再说</string>
+    <string name="splash_enter">闪耀开启</string>
+    <string name="user_protocol">用户协议</string>
+    <string name="accept_and_agree">接受并同意</string>
+    <string name="create_account">创建新账户</string>
+    <string name="account_name">账户名称</string>
+    <string name="hint_account_name">请为你的账户命名</string>
+    <string name="prompt_account_name">账户名称不能为空</string>
+    <string name="transaction_password">交易密码</string>
+    <string name="hint_transaction_password">请创建交易密码</string>
+    <string name="confirm_password">确认密码</string>
+    <string name="hint_confirm_password">请确认交易密码</string>
+    <string name="prompt_transaction_password1">交易密码不能为空</string>
+    <string name="prompt_transaction_password2">两次输入密码不一致</string>
+    <string name="create_account_submit">提交</string>
+    <string name="prompt_create_account1">请创新Dasset账户的交易密码，8–18位数字字母组合。</string>
+    <string name="prompt_create_account2">该密码将用于账户金额的消费及转账，请您务必妥善保存，丢失密码将没有任何方法找回。</string>
+    <string name="prompt_create_account3">请妥善保管您设置的交易密码，丢失将无法找回。是否确认提交？</string>
+    <string name="prompt_create_account4">为避免账户丢失，请备份好密钥文件，是否立即备份？</string>
+    <string name="prompt_create_account5">
+        账户已经绑定在Dasset里，请务必保存备份好您的账户。\n\nDasset仅有个人保管，需妥善保存，一旦丢失Dasset密钥文件将无法找回。
+    </string>
+    <string name="prompt_create_account6">正在创建账户，请稍后</string>
+    <string name="create_account_success">创建账户成功</string>
+    <string name="address">地址</string>
+    <string name="add_account">添加账户资产</string>
+    <string name="dialog_prompt_wallet">为了保护您的比特币\n\n&#042;&#160;&#160;请不要卸载钱包\n\n&#042;&#160;&#160;不要清除钱包数据\n\n&#042;&#160;&#160;请牢记您的密码</string>
+    <string name="dialog_prompt">提示</string>
+    <string name="dialog_prompt_setting">设置</string>
+    <string name="dialog_prompt_cancel">取消</string>
+    <string name="dialog_prompt_confirm">确定</string>
+    <string name="dialog_prompt_known">知道了</string>
+    <string name="dialog_prompt_net_work_error">网络不可用,请先设置网络!</string>
+    <string name="dialog_prompt_permission_error">
+        我们需要的一些权限被您拒绝或者系统发生错误申请失败，请您到设置页面手动授权，否则功能无法正常使用！
+    </string>
+    <string name="request_data_error">网络交互异常</string>
+    <string name="dialog_prompt_import_account">1.将其他设备上（PC\移动端）的账户文件备份导出。\n\n2.通过其他应用传输该账户文件到当前手机，并保存。\n\n3.通过文件管理器找到存储路径，选择导入。</string>
+    <string name="dialog_prompt_create_account_error">资产帐户建立异常</string>
+    <string name="dialog_prompt_account_info_error">账户信息为空异常</string>
+    <string name="dialog_prompt_unknow_error">未知错误</string>
+</resources>

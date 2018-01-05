@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.activity.SplashActivity">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vpSplash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <RelativeLayout
+        android:id="@+id/rlSplash"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:gravity="center">
+
+        <Button
+            android:visibility="invisible"
+            android:id="@+id/btnEnter"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_36"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/dp_20"
+            android:background="@drawable/rectangle_5757ff"
+            android:paddingEnd="@dimen/dp_64"
+            android:paddingStart="@dimen/dp_64"
+            android:text="@string/splash_enter"
+            android:textColor="@android:color/white"/>
+
+        <com.dasset.wallet.components.widget.tablayout.TabLayout
+            android:id="@+id/tbSplash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnEnter"
+            android:layout_centerHorizontal="true"
+            android:clipToPadding="false"
+            app:tl_customTabTextLayoutId="@layout/view_rectangle"
+            app:tl_defaultTabTextColor="@color/color_ddddff"
+            app:tl_defaultTabTextHorizontalPadding="@dimen/dp_8"
+            app:tl_dividerColor="@android:color/transparent"
+            app:tl_dividerThickness="@dimen/dp_10"
+            app:tl_indicatorColor="@color/color_5757ff"
+            app:tl_indicatorCornerRadius="@dimen/dp_3"
+            app:tl_indicatorGravity="center"
+            app:tl_indicatorInterpolation="smart"
+            app:tl_indicatorThickness="@dimen/dp_2"
+            app:tl_underlineColor="@android:color/transparent"
+            app:tl_underlineThickness="@dimen/dp_0"/>
+    </RelativeLayout>
+
+</RelativeLayout>
