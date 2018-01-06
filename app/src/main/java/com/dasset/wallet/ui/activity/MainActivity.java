@@ -25,8 +25,8 @@ import com.dasset.wallet.ecc.AccountStorageFactory;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.MainContract;
 import com.dasset.wallet.ui.activity.presenter.MainPresenter;
-import com.dasset.wallet.ui.adapter.MainAdapter;
-import com.dasset.wallet.ui.binder.MainBinder;
+import com.dasset.wallet.ui.adapter.AccountAdapter;
+import com.dasset.wallet.ui.binder.AccountBinder;
 import com.dasset.wallet.ui.dialog.PromptDialog;
 
 import java.util.List;
@@ -35,9 +35,9 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
     private MainPresenter mainPresenter;
 
-    private RecyclerView recycleView;
+    private RecyclerView           recycleView;
     private FixedStickyViewAdapter fixedStickyViewAdapter;
-    private LinearLayoutManager linearLayoutManager;
+    private LinearLayoutManager    linearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +61,9 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
         mainPresenter = new MainPresenter(this, this);
         mainPresenter.initialize();
         setBasePresenterImplement(mainPresenter);
-        fixedStickyViewAdapter = new MainAdapter(this, new MainBinder(this, recycleView), true);
+        fixedStickyViewAdapter = new AccountAdapter(this, new AccountBinder(this, recycleView), false);
         linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recycleView.setHasFixedSize(true);
         recycleView.setHasFixedSize(true);
         recycleView.setLayoutManager(linearLayoutManager);
         recycleView.setAdapter(fixedStickyViewAdapter);

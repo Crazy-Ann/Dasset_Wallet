@@ -9,12 +9,12 @@ import com.dasset.wallet.base.sticky.adapter.FixedStickyHeaderAdapter;
 import com.dasset.wallet.base.sticky.binder.BaseViewBinder;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.model.AccountInfo;
-import com.dasset.wallet.ui.holder.MainHolder;
+import com.dasset.wallet.ui.holder.AccountHolder;
 
-public class MainAdapter extends FixedStickyHeaderAdapter<AccountInfo, MainHolder> {
+public class AccountAdapter extends FixedStickyHeaderAdapter<AccountInfo, AccountHolder> {
 
-    public MainAdapter(Context ctx, BaseViewBinder binder, boolean groupable) {
-        super(ctx, binder, groupable);
+    public AccountAdapter(Context ctx, BaseViewBinder baseViewBinder, boolean groupable) {
+        super(ctx, baseViewBinder, groupable);
     }
 
     @Override

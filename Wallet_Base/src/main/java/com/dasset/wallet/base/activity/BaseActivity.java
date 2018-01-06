@@ -31,11 +31,11 @@ import java.util.HashMap;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    protected Toolbar inToolbar;
+    protected Toolbar   inToolbar;
     protected ImageView ivLeftIconEvent;
-    protected TextView tvTitle;
+    protected TextView  tvTitle;
     protected ImageView ivTitle;
-    protected TextView tvRightTextEvent;
+    protected TextView  tvRightTextEvent;
     protected ImageView ivRightIconEvent;
 
     protected void initializeToolbar(int toolbarColorId, int titleColorId, boolean isTitleClickable, String title, OnTitleEventListener onTitleEventListener) {
@@ -48,6 +48,13 @@ public abstract class BaseActivity extends AppCompatActivity {
                           true, titleColorId, false, title, Constant.View.DEFAULT_RESOURCE, null,
                           false, Constant.View.DEFAULT_RESOURCE, null, null,
                           false, Constant.View.DEFAULT_RESOURCE, null);
+    }
+
+    protected void initializeToolbar(int toolbarColorId, boolean hasLeftIconEvent, int leftIconId, OnLeftIconEventListener onLeftIconEventListener, int titleColorId, String title, boolean hasRightIconEvent, int rightIconId, OnRightIconEventListener onRightIconEventListener) {
+        initializeToolbar(toolbarColorId, hasLeftIconEvent, leftIconId, onLeftIconEventListener,
+                          true, titleColorId, false, title, Constant.View.DEFAULT_RESOURCE, null,
+                          false, Constant.View.DEFAULT_RESOURCE, null, null,
+                          hasRightIconEvent, rightIconId, onRightIconEventListener);
     }
 
     protected void initializeToolbar(int toolbarColorId, int titleColorId, String title, int rightTextColorId, String rightText, OnRightTextEventListener onRightTextEventListener) {

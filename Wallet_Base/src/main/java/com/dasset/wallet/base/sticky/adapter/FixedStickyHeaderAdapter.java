@@ -21,8 +21,8 @@ public class FixedStickyHeaderAdapter<T extends OnGroupListener, V extends Recyc
 
     protected static final int GROUP_ID_UNAVAILABLE = -1;
 
-    public FixedStickyHeaderAdapter(Context ctx, BaseViewBinder binder, boolean groupable) {
-        super(binder);
+    public FixedStickyHeaderAdapter(Context ctx, BaseViewBinder baseViewBinder, boolean groupable) {
+        super(baseViewBinder);
         this.context = ctx;
         this.groupable = groupable;
     }
@@ -37,14 +37,14 @@ public class FixedStickyHeaderAdapter<T extends OnGroupListener, V extends Recyc
         if (!groupable) {
             return GROUP_ID_UNAVAILABLE;
         }
-        Object obj = getItem(position);
-        if (obj != null) {
-            int numHeaders = headerViews.size();
-            int numItems = items.size();
-            if (position < numHeaders || position >= numHeaders + numItems) {
+        Object object = getItem(position);
+        if (object != null) {
+            int headers = headerViews.size();
+            int items   = this.items.size();
+            if (position < headers || position >= headers + items) {
                 return GROUP_ID_UNAVAILABLE;
             }
-            return ((OnGroupListener) obj).getGroupId();
+            return ((OnGroupListener) object).getGroupId();
         }
         return GROUP_ID_UNAVAILABLE;
     }

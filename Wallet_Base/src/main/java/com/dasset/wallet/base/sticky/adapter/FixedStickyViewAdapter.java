@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.dasset.wallet.base.sticky.binder.BaseViewBinder;
 import com.dasset.wallet.base.sticky.listener.OnEventClickListener;
 import com.dasset.wallet.base.sticky.listener.OnItemClickListener;
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,20 +17,20 @@ import java.util.List;
 public abstract class FixedStickyViewAdapter<T, V extends RecyclerView.ViewHolder> extends RecyclerView.Adapter {
 
 
-    public static final int TYPE_HEADER_VIEW = 0x5001;
-    public static final int TYPE_CONTENT_VIEW = 0x5003;
-    public static final int TYPE_FOOTER_VIEW = 0x5004;
+    public static final  int TYPE_HEADER_VIEW       = 0x5001;
+    public static final  int TYPE_CONTENT_VIEW      = 0x5003;
+    public static final  int TYPE_FOOTER_VIEW       = 0x5004;
     private static final int NOTIFY_TIP_UNAVAILABLE = -1;
     private int notifyTip;
 
-    protected ArrayList<FixedStickyView> headerViews = new ArrayList<>();
-    protected ArrayList<FixedStickyView> footerViews = new ArrayList<>();
+    protected ArrayList<FixedStickyView> headerViews = Lists.newArrayList();
+    protected ArrayList<FixedStickyView> footerViews = Lists.newArrayList();
 
     private SparseArray<FixedViewHoldGenerator> generators = new SparseArray<>();
     private BaseViewBinder baseViewBinder;
 
-    protected List<T> items = new ArrayList<>();
-    protected OnItemClickListener onItemClickListener;
+    protected List<T> items = Lists.newArrayList();
+    protected OnItemClickListener  onItemClickListener;
     protected OnEventClickListener onEventClickListener;
 
     public FixedStickyViewAdapter(BaseViewBinder binder) {
@@ -183,10 +184,10 @@ public abstract class FixedStickyViewAdapter<T, V extends RecyclerView.ViewHolde
     protected abstract void onBindHeaderOrFooter(RecyclerView.ViewHolder holder, Object object);
 
     public static class FixedStickyView {
-        public int id;
-        public int viewType;
-        public int fixedStickyViewType;
-        public int layoutId;
+        public int    id;
+        public int    viewType;
+        public int    fixedStickyViewType;
+        public int    layoutId;
         public Object object;
     }
 

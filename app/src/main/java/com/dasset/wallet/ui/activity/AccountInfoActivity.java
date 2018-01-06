@@ -4,9 +4,16 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.sticky.adapter.FixedStickyViewAdapter;
 import com.dasset.wallet.base.sticky.listener.OnEventClickListener;
@@ -14,25 +21,36 @@ import com.dasset.wallet.base.sticky.listener.OnItemClickListener;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.base.toolbar.listener.OnRightIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
+import com.dasset.wallet.components.utils.GlideUtil;
+import com.dasset.wallet.components.utils.InputUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
+import com.dasset.wallet.components.widget.sticky.LinearLayoutDividerItemDecoration;
+import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
 import com.dasset.wallet.constant.Constant;
 import com.dasset.wallet.ecc.AccountStorageFactory;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.AccountInfoContract;
 import com.dasset.wallet.ui.activity.presenter.AccountInfoPresenter;
-import com.dasset.wallet.ui.adapter.MainAdapter;
-import com.dasset.wallet.ui.binder.MainBinder;
+import com.dasset.wallet.ui.adapter.AccountAdapter;
+import com.dasset.wallet.ui.adapter.TransactionRecordAdapter;
+import com.dasset.wallet.ui.binder.AccountBinder;
+import com.dasset.wallet.ui.binder.TransactionRecordBinder;
 
 import java.util.List;
 
-public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContract.Presenter> implements AccountInfoContract.View, OnLeftIconEventListener, OnRightIconEventListener, OnItemClickListener, OnEventClickListener/*, SwipeRefreshLayout.OnRefreshListener */ {
+public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContract.Presenter> implements AccountInfoContract.View, View.OnClickListener, OnLeftIconEventListener, OnRightIconEventListener, OnItemClickListener, OnEventClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private AccountInfoPresenter accountInfoPresenter;
 
-    private RecyclerView recycleView;
+    private TextView               tvAddress;
+    private Button                 btnSend;
+    private ImageView              ivAddressQRCode;
+    private TextView               tvAmount;
+    private SwipeRefreshLayout     swipeRefreshLayout;
+    private RecyclerView           recycleView;
     private FixedStickyViewAdapter fixedStickyViewAdapter;
-    private LinearLayoutManager linearLayoutManager;
+    private LinearLayoutManager    linearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,34 +65,41 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     @Override
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
+        tvAddress = ViewUtil.getInstance().findView(this, R.id.tvAddress);
+        btnSend = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnSend, this);
+        ivAddressQRCode = ViewUtil.getInstance().findView(this, R.id.ivAddressQRCode);
+        tvAmount = ViewUtil.getInstance().findView(this, R.id.tvAmount);
+        swipeRefreshLayout = ViewUtil.getInstance().findView(this, R.id.swipeRefreshLayout);
         recycleView = ViewUtil.getInstance().findView(this, R.id.recycleView);
     }
 
     @Override
     protected void initialize(Bundle savedInstanceState) {
-        initializeToolbar(R.color.color_383856, true, R.mipmap.icon_scan_white, this, R.color.color_383856, false, R.mipmap.icon_title_logo, null, true, R.mipmap.icon_add_white, this);
         accountInfoPresenter = new AccountInfoPresenter(this, this);
         accountInfoPresenter.initialize();
+        initializeToolbar(R.color.color_383856, true, R.mipmap.icon_back_white, this, android.R.color.white, String.format("账户%s", accountInfoPresenter.getAccountInfo().getSerialNumber()), true, R.mipmap.icon_more, this);
         setBasePresenterImplement(accountInfoPresenter);
-        fixedStickyViewAdapter = new MainAdapter(this, new MainBinder(this, recycleView), true);
+        tvAddress.setText(accountInfoPresenter.getAccountInfo().getAddress());
+        GlideUtil.getInstance().with(this, QRCodeEncode.createQRCode(accountInfoPresenter.getAccountInfo().getAddress(), ViewUtil.getInstance().dp2px(this, 160)), ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
+        tvAmount.setText("1000");
+
+        fixedStickyViewAdapter = new TransactionRecordAdapter(new TransactionRecordBinder(this, recycleView));
         linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recycleView.setHasFixedSize(true);
-        recycleView.setHasFixedSize(true);
         recycleView.setLayoutManager(linearLayoutManager);
+        recycleView.addItemDecoration(new LinearLayoutDividerItemDecoration(getResources().getColor(R.color.color_e4e4e4), 2, LinearLayoutManager.VERTICAL));
         recycleView.setAdapter(fixedStickyViewAdapter);
+        swipeRefreshLayout.setColorSchemeResources(R.color.color_c9c9c9);
+        swipeRefreshLayout.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             accountInfoPresenter.checkPermission(new PermissionCallback() {
 
                 @Override
                 public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                    try {
-                        fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
-                    } catch (Exception e) {
-                        fixedStickyViewAdapter.setData(null);
-                        e.printStackTrace();
-                    }
+                    fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
                 }
 
                 @Override
@@ -83,12 +108,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                 }
             });
         } else {
-            try {
-                fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
-            } catch (Exception e) {
-                fixedStickyViewAdapter.setData(null);
-                e.printStackTrace();
-            }
+            fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
         }
     }
 
@@ -96,6 +116,8 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     protected void setListener() {
         fixedStickyViewAdapter.setOnItemClickListener(this);
         fixedStickyViewAdapter.setOnEventClickListener(this);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
     }
 
     @Override
@@ -109,12 +131,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
 
                         @Override
                         public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                            try {
-                                fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
-                            } catch (Exception e) {
-                                fixedStickyViewAdapter.setData(null);
-                                e.printStackTrace();
-                            }
+                            fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
                         }
 
                         @Override
@@ -123,12 +140,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                         }
                     });
                 } else {
-                    try {
-                        fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
-                    } catch (Exception e) {
-                        fixedStickyViewAdapter.setData(null);
-                        e.printStackTrace();
-                    }
+                    fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
                 }
             default:
                 break;
@@ -178,22 +190,49 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     }
 
     @Override
-    public void OnLeftIconEvent() {
+    public void setSwipeRefreshLayout(boolean isRefresh) {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(isRefresh);
+        }
+    }
 
+
+    @Override
+    public void onClick(View v) {
+        if (InputUtil.getInstance().isDoubleClick()) {
+            return;
+        }
+        switch (v.getId()) {
+            case R.id.btnSend:
+                //todo
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void OnLeftIconEvent() {
+        onFinish("OnLeftIconEvent");
     }
 
     @Override
     public void OnRightIconEvent() {
-        
+        //TODO
     }
 
     @Override
     public void onItemClick(int position) {
-        
+
     }
 
     @Override
     public void onnEventClick() {
-        
+
+    }
+
+    @Override
+    public void onRefresh() {
+        //todo
     }
 }

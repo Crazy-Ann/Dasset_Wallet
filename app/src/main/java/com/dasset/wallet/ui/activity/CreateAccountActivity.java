@@ -18,6 +18,7 @@ import com.dasset.wallet.R;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.GlideUtil;
+import com.dasset.wallet.components.utils.InputUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ToastUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
@@ -110,6 +111,9 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
 
     @Override
     public void onClick(View view) {
+        if (InputUtil.getInstance().isDoubleClick()) {
+            return;
+        }
         switch (view.getId()) {
             case R.id.ibAccountNameEmpty:
                 etAccountName.setText(null);

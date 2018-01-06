@@ -28,7 +28,7 @@ public final class Account implements Parcelable {
         this.publicKey = publicKey;
         this.address = address;
         this.password = password;
-        this.timestamp = new SimpleDateFormat(Regex.DATE_FORMAT_ALL.getRegext(), Locale.getDefault()).format(new Date(System.currentTimeMillis()));
+        this.timestamp = new SimpleDateFormat(Regex.UTC_DATE_FORMAT_ALL.getRegext(), Locale.getDefault()).format(new Date(System.currentTimeMillis()));
     }
 
     public String getSerialNumber() {

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:padding="@dimen/dp_20">
+
+    <TextView
+        android:id="@+id/tvAssetName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:singleLine="true"
+        android:textColor="@color/color_3e3e3e"
+        android:textSize="@dimen/sp_10"/>
+
+    <TextView
+        android:id="@+id/tvAssetType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tvAssetName"
+        android:singleLine="true"
+        android:textColor="@color/color_c9c9c9"
+        android:textSize="@dimen/sp_10"/>
+
+    <TextView
+        android:id="@+id/tvAssetAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:singleLine="true"
+        android:textColor="@color/color_3e3e3e"
+        android:textSize="@dimen/sp_10"/>
+
+    <TextView
+        android:id="@+id/tvTransactionDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/tvAssetAmount"
+        android:singleLine="true"
+        android:textColor="@color/color_c9c9c9"
+        android:textSize="@dimen/sp_10"/>
+
+</RelativeLayout>

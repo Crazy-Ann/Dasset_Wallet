@@ -10,6 +10,7 @@ import android.widget.Button;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
+import com.dasset.wallet.components.utils.InputUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.UserProtocolContract;
@@ -70,6 +71,9 @@ public class UserProtocolActivity extends ActivityViewImplement<UserProtocolCont
 
     @Override
     public void onClick(View view) {
+        if (InputUtil.getInstance().isDoubleClick()) {
+            return;
+        }
         switch (view.getId()) {
             case R.id.btnUserProtocol:
                 startActivity(CreateAccountActivity.class);

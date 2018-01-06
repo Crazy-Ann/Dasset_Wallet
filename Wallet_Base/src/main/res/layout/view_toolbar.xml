@@ -8,6 +8,7 @@
         android:id="@+id/ivLeftIconEvent"
         android:layout_width="@dimen/dp_36"
         android:layout_height="@dimen/dp_36"
+        android:layout_gravity="start"
         android:contentDescription="@null"
         android:padding="@dimen/dp_5"
         android:visibility="gone"/>
@@ -36,13 +37,14 @@
         android:layout_width="@dimen/dp_24"
         android:layout_height="@dimen/dp_24"
         android:layout_gravity="center"
+        android:contentDescription="@null"
         android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tvRightTextEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:layout_marginEnd="@dimen/dp_13"
         android:maxLines="1"
         android:padding="@dimen/dp_5"
@@ -53,7 +55,7 @@
         android:id="@+id/ivRightIconEvent"
         android:layout_width="@dimen/dp_36"
         android:layout_height="@dimen/dp_36"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:contentDescription="@null"
         android:padding="@dimen/dp_5"
         android:visibility="gone"/>

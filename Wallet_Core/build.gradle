@@ -57,11 +57,10 @@ dependencies {
 //    api deps.spongycastle_bctls_jdk15on
 //    api deps.ethereumj_core
 //    api deps.solcJ_all
-    implementation deps.slf4j
     api deps.annotation_java5
     api deps.jsr305
     api deps.scrypt
-    api deps.geth
+    implementation deps.slf4j
     implementation 'org.apache.httpcomponents:httpclient:4.5@jar'
     implementation 'org.apache.httpcomponents:httpmime:4.3.6@jar'
     implementation 'org.apache.httpcomponents:httpcore:4.4.5@jar'

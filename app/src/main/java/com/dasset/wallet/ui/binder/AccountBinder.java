@@ -8,25 +8,25 @@ import com.dasset.wallet.R;
 import com.dasset.wallet.base.sticky.binder.BaseViewBinder;
 import com.dasset.wallet.model.AccountInfo;
 import com.dasset.wallet.ui.holder.AddAccountHolder;
-import com.dasset.wallet.ui.holder.MainHolder;
+import com.dasset.wallet.ui.holder.AccountHolder;
 
-public class MainBinder extends BaseViewBinder {
+public class AccountBinder extends BaseViewBinder {
 
     private Context context;
     private RecyclerView recyclerView;
 
-    public MainBinder(Context context, RecyclerView recyclerView) {
+    public AccountBinder(Context context, RecyclerView recyclerView) {
         this.context = context;
         this.recyclerView = recyclerView;
     }
 
     @Override
     public void bind(RecyclerView.ViewHolder viewHolder, Object object, int position, boolean checkable) {
-        if (viewHolder instanceof MainHolder) {
-            MainHolder mainHolder = (MainHolder) viewHolder;
-            AccountInfo accountInfo = (AccountInfo) object;
-            mainHolder.tvAddress.setText(accountInfo.getAddress());
-            mainHolder.tvSerialNumber.setText(String.format("账户%s", accountInfo.getSerialNumber()));
+        if (viewHolder instanceof AccountHolder) {
+            AccountHolder accountHolder = (AccountHolder) viewHolder;
+            AccountInfo   accountInfo   = (AccountInfo) object;
+            accountHolder.tvAddress.setText(accountInfo.getAddress());
+            accountHolder.tvSerialNumber.setText(String.format("账户%s", accountInfo.getSerialNumber()));
         } else if (viewHolder instanceof AddAccountHolder) {
             //TODO
         }
@@ -34,6 +34,6 @@ public class MainBinder extends BaseViewBinder {
 
     @Override
     public RecyclerView.ViewHolder getViewHolder(int type) {
-        return new MainHolder(LayoutInflater.from(context).inflate(R.layout.holder_account, recyclerView, false));
+        return new AccountHolder(LayoutInflater.from(context).inflate(R.layout.holder_account, recyclerView, false));
     }
 }
