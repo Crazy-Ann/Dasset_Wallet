@@ -31,30 +31,31 @@ public final class CameraManager {
         SDK_INT = sdkInt;
     }
 
-    private final Context context;
-    private final CameraConfigurationManager configManager;
-    private static Camera camera;
-    private Rect framingRect;
-    private Rect framingRectInPreview;
-    private boolean initialized;
-    private boolean previewing;
-    private final boolean useOneShotPreviewCallback;
+    private final  Context                    context;
+    private final  CameraConfigurationManager configManager;
+    private static Camera                     camera;
+    private        Rect                       framingRect;
+    private        Rect                       framingRectInPreview;
+    private        boolean                    initialized;
+    private        boolean                    previewing;
+    private final  boolean                    useOneShotPreviewCallback;
     /**
      * Preview frames are delivered here, which we pass on to the registered
      * handler. Make sure to clear the handler so it will only receive one
      * message.
      */
-    private final PreviewCallback previewCallback;
+    private final  PreviewCallback            previewCallback;
     /**
      * Autofocus callbacks arrive here, and are dispatched to the Handler which
      * requested them.
      */
-    private final AutoFocusCallback autoFocusCallback;
+    private final  AutoFocusCallback          autoFocusCallback;
 
     /**
      * Initializes this static object with the Context of the calling Activity.
      *
-     * @param context The Activity which wants to use the camera.
+     * @param context
+     *         The Activity which wants to use the camera.
      */
     public static void initialize(Context context) {
         if (cameraManager == null) {
@@ -86,10 +87,12 @@ public final class CameraManager {
     /**
      * Opens the camera driver and initializes the hardware parameters.
      *
-     * @param holder The surface object which the camera will draw preview frames
-     *               into.
+     * @param holder
+     *         The surface object which the camera will draw preview frames
+     *         into.
      *
-     * @throws IOException Indicates the camera driver failed to open.
+     * @throws IOException
+     *         Indicates the camera driver failed to open.
      */
     public void openDriver(SurfaceHolder holder) throws IOException {
         if (camera == null) {
@@ -169,8 +172,10 @@ public final class CameraManager {
      * will arrive as byte[] in the message.obj field, with width and height
      * encoded as message.arg1 and message.arg2, respectively.
      *
-     * @param handler The handler to send the message to.
-     * @param message The what field of the message to be sent.
+     * @param handler
+     *         The handler to send the message to.
+     * @param message
+     *         The what field of the message to be sent.
      */
     public void requestPreviewFrame(Handler handler, int message) {
         if (camera != null && previewing) {
@@ -186,8 +191,10 @@ public final class CameraManager {
     /**
      * Asks the camera hardware to perform an autofocus.
      *
-     * @param handler The Handler to notify when the autofocus completes.
-     * @param message The message to deliver.
+     * @param handler
+     *         The Handler to notify when the autofocus completes.
+     * @param message
+     *         The message to deliver.
      */
     public void requestAutoFocus(Handler handler, int message) {
         if (camera != null && previewing) {
@@ -214,12 +221,12 @@ public final class CameraManager {
             if (camera == null) {
                 return null;
             }
-            int width = screenResolution.x * 5 / 8;
+            int width  = screenResolution.x * 5 / 8;
             int height = screenResolution.x * 5 / 8;
             LogUtil.getInstance().print("scan_frame width:" + width);
             LogUtil.getInstance().print("scan_frame height:" + height);
             int leftOffset = (screenResolution.x - width) / 2;
-            int topOffset = (screenResolution.y - height) / 5 * 2 - DensityUtil.getInstance(context).px2dp(100);
+            int topOffset  = (screenResolution.y - height) / 5 * 2 - DensityUtil.getInstance(context).px2dp(100);
             framingRect = new Rect(leftOffset, topOffset, leftOffset + width,
                                    topOffset + height);
             LogUtil.getInstance().print("scan_frame x:" + screenResolution.x);
@@ -238,17 +245,17 @@ public final class CameraManager {
      */
     private Rect getFramingRectInPreview() {
         if (framingRectInPreview == null) {
-            Rect rect = new Rect(getFramingRect());
+            Rect  rect             = new Rect(getFramingRect());
             Point cameraResolution = configManager.getCameraResolution();
             Point screenResolution = configManager.getScreenResolution();
             rect.left = rect.left * cameraResolution.y / screenResolution.x;
             rect.right = rect.right * cameraResolution.y / screenResolution.x;
             rect.top = rect.top * cameraResolution.x / screenResolution.y;
             rect.bottom = rect.bottom * cameraResolution.x / screenResolution.y;
-            LogUtil.getInstance().print("rect.lef" + rect.left);
-            LogUtil.getInstance().print("rect.right" + rect.right);
-            LogUtil.getInstance().print("rect.top" + rect.top);
-            LogUtil.getInstance().print("rect.bottom" + rect.bottom);
+            LogUtil.getInstance().print("rect.left:" + rect.left);
+            LogUtil.getInstance().print("rect.right:" + rect.right);
+            LogUtil.getInstance().print("rect.top:" + rect.top);
+            LogUtil.getInstance().print("rect.bottom:" + rect.bottom);
             framingRectInPreview = rect;
         }
         return framingRectInPreview;
@@ -259,15 +266,18 @@ public final class CameraManager {
      * A factory method to build the appropriate LuminanceSource object based on
      * the format of the preview buffers, as described by Camera.Parameters.
      *
-     * @param data   A preview frame.
-     * @param width  The width of the image.
-     * @param height The height of the image.
+     * @param data
+     *         A preview frame.
+     * @param width
+     *         The width of the image.
+     * @param height
+     *         The height of the image.
      *
      * @return A PlanarYUVLuminanceSource instance.
      */
     public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
-        Rect rect = getFramingRectInPreview();
-        int previewFormat = configManager.getPreviewFormat();
+        Rect   rect                = getFramingRectInPreview();
+        int    previewFormat       = configManager.getPreviewFormat();
         String previewFormatString = configManager.getPreviewFormatString();
         switch (previewFormat) {
             case PixelFormat.YCbCr_420_SP:

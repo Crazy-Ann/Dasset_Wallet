@@ -48,7 +48,7 @@ public enum Regex {
     FILE_TYPE("application/vnd.android.package-archive"),
     PACKAGE("package:"),
     IMAGE_JPG(".jpg"),
-    IMAGE_PATH("image/*"),
+    IMAGE_DIRECTORY("image/*"),
     ZIP(".zip"),
     ASMX(".asmx"),
     HTTP("http://"),

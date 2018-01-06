@@ -105,7 +105,7 @@ public class UserProtocolActivity extends ActivityViewImplement<UserProtocolCont
     }
 
     @Override
-    public void OnLeftIconEvent() {
-        onFinish("OnLeftIconEvent");
+    public void onLeftIconEvent() {
+        onFinish("onLeftIconEvent");
     }
 }

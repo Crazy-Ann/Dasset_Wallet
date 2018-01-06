@@ -92,7 +92,7 @@ public abstract class BaseFragment extends Fragment {
                     ivLeftIconEvent = ViewUtil.getInstance().findViewAttachOnclick(inToolbar, R.id.ivLeftIconEvent, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            onLeftIconEventListener.OnLeftIconEvent();
+                            onLeftIconEventListener.onLeftIconEvent();
                         }
                     });
                 }
@@ -136,7 +136,7 @@ public abstract class BaseFragment extends Fragment {
                     tvRightTextEvent = ViewUtil.getInstance().findViewAttachOnclick(inToolbar, R.id.tvRightTextEvent, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            onRightTextEventListener.OnRightTextEvent();
+                            onRightTextEventListener.onRightTextEvent();
                         }
                     });
                 }

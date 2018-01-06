@@ -64,6 +64,13 @@ public abstract class BaseActivity extends AppCompatActivity {
                           false, Constant.View.DEFAULT_RESOURCE, null);
     }
 
+    protected void initializeToolbar(int toolbarColorId, boolean hasLeftIconEvent, int leftIconId, OnLeftIconEventListener onLeftIconEventListener, int titleColorId, String title, int rightTextColorId, String rightText, OnRightTextEventListener onRightTextEventListener) {
+        initializeToolbar(toolbarColorId, hasLeftIconEvent, leftIconId, onLeftIconEventListener,
+                          true, titleColorId, false, title, Constant.View.DEFAULT_RESOURCE, null,
+                          true, rightTextColorId, rightText, onRightTextEventListener,
+                          false, Constant.View.DEFAULT_RESOURCE, null);
+    }
+
     protected void initializeToolbar(int toolbarColorId, boolean hasLeftIconEvent, int leftIconId, OnLeftIconEventListener onLeftIconEventListener
             , int titleColorId, boolean isTitleClickable, String title, OnTitleEventListener onTitleEventListener
             , int rightTextColorId, String rightText, OnRightTextEventListener onRightTextEventListener) {
@@ -105,7 +112,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                     ivLeftIconEvent = ViewUtil.getInstance().findViewAttachOnclick(inToolbar, com.dasset.wallet.base.R.id.ivLeftIconEvent, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            onLeftIconEventListener.OnLeftIconEvent();
+                            onLeftIconEventListener.onLeftIconEvent();
                         }
                     });
                 }
@@ -166,7 +173,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                     tvRightTextEvent = ViewUtil.getInstance().findViewAttachOnclick(inToolbar, R.id.tvRightTextEvent, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            onRightTextEventListener.OnRightTextEvent();
+                            onRightTextEventListener.onRightTextEvent();
                         }
                     });
                 }

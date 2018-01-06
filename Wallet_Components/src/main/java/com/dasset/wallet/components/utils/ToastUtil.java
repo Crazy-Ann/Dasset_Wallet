@@ -27,9 +27,9 @@ public class ToastUtil {
         }
     }
 
-    public void showToast(Context mContext, CharSequence message, int duration) {
+    public void showToast(Context context, CharSequence message, int duration) {
         if (toast == null) {
-            toast = Toast.makeText(mContext, message, duration);
+            toast = Toast.makeText(context, message, duration);
         } else {
             toast.setText(message);
         }
@@ -37,9 +37,9 @@ public class ToastUtil {
         toast.show();
     }
 
-    public void showToast(Context mContext, int resId, int duration) {
+    public void showToast(Context context, int resId, int duration) {
         if (toast == null) {
-            toast = Toast.makeText(mContext, resId, duration);
+            toast = Toast.makeText(context, resId, duration);
         } else {
             toast.setText(resId);
         }

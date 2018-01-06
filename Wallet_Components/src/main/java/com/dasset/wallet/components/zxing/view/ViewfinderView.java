@@ -23,17 +23,17 @@ public final class ViewfinderView extends View {
 
     //    private static final int[] SCANNER_ALPHA = {0, 64, 128, 192, 255, 192, 128, 64};
     private static final int[] SCANNER_ALPHA = {255, 255, 255, 255, 255, 255, 255, 255};
-    private static final int OPAQUE = 0xFF;
+    private static final int   OPAQUE        = 0xFF;
 
-    private final Paint paint;
-    private Bitmap resultBitmap;
-    private final int maskColor;
-    private final int resultColor;
-    private final int frameColor;
-    private final int laserColor;
-    private final int borderColor;
-    private int scannerAlpha;
-    private Collection<ResultPoint> possibleResultPoints;
+    private final Paint                   paint;
+    private       Bitmap                  resultBitmap;
+    private final int                     maskColor;
+    private final int                     resultColor;
+    private final int                     frameColor;
+    private final int                     laserColor;
+    private final int                     borderColor;
+    private       int                     scannerAlpha;
+    private       Collection<ResultPoint> possibleResultPoints;
     private boolean laserLinePortrait = true;
     int i = 0;
     private int laserLineTop;// 扫描线最顶端位置
@@ -60,7 +60,7 @@ public final class ViewfinderView extends View {
             return;
         }
 
-        int width = canvas.getWidth();
+        int width  = canvas.getWidth();
         int height = canvas.getHeight();
 
         paint.setColor(resultBitmap != null ? resultColor : maskColor);
@@ -97,13 +97,12 @@ public final class ViewfinderView extends View {
 //                    i = 0;
 //                }
                 //图片资源文件转为 Bitmap
-                Bitmap laserLineBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.icon_scan_net);
-                int heightBitmap = laserLineBitmap.getHeight();//取原图高
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.icon_scan_net);
 
                 @SuppressLint("DrawAllocation") RectF dstRectF = new RectF(frame.left, frame.top, frame.right, laserLineTop);
-                @SuppressLint("DrawAllocation") Rect srcRect = new Rect(0, (int) (heightBitmap - dstRectF.height())
-                        , laserLineBitmap.getWidth(), height);
-                canvas.drawBitmap(laserLineBitmap, srcRect, dstRectF, paint);
+                @SuppressLint("DrawAllocation") Rect srcRect = new Rect(0, (int) (bitmap.getHeight() - dstRectF.height())
+                        , bitmap.getWidth(), height);
+                canvas.drawBitmap(bitmap, srcRect, dstRectF, paint);
                 moveLaserSpeed(frame);
 
             } else {

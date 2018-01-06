@@ -3,6 +3,7 @@ package com.dasset.wallet.components.zxing.decode;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.zxing.listener.OnScannerCompletionListener;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -23,9 +24,9 @@ import java.util.Map;
 
 public final class QRCodeDecode {
 
-    public static final int MAX_FRAME_WIDTH = 1200; // = 5/8 * 1920
-    public static final int MAX_FRAME_HEIGHT = 675; // = 5/8 * 1080
-    public static final Map<DecodeHintType, Object> HINTS = new EnumMap<DecodeHintType, Object>(DecodeHintType.class);
+    public static final int                         MAX_FRAME_WIDTH  = 1200; // = 5/8 * 1920
+    public static final int                         MAX_FRAME_HEIGHT = 675; // = 5/8 * 1080
+    public static final Map<DecodeHintType, Object> HINTS            = new EnumMap<DecodeHintType, Object>(DecodeHintType.class);
 
     static {
         List<BarcodeFormat> formats = new ArrayList<BarcodeFormat>();
@@ -37,69 +38,46 @@ public final class QRCodeDecode {
     private QRCodeDecode() {
     }
 
-    public static void decodeQR(String picturePath, OnScannerCompletionListener listener) {
-        try {
-            decodeQR(loadBitmap(picturePath), listener);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    public static void decodeQR(String path, OnScannerCompletionListener onScannerCompletionListener) throws FileNotFoundException, FormatException, ChecksumException, NotFoundException {
+        decodeQR(loadBitmap(path), onScannerCompletionListener);
+    }
+
+    public static void decodeQR(Bitmap bitmap, final OnScannerCompletionListener onScannerCompletionListener) throws FormatException, ChecksumException, NotFoundException {
+        if (bitmap != null) {
+            int   width  = bitmap.getWidth();
+            int   height = bitmap.getHeight();
+            int[] pixels = new int[width * height];
+            bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+            RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixels);
+            BinaryBitmap       binaryBitmap       = new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource));
+            QRCodeReader       qrCodeReader       = new QRCodeReader();
+            if (onScannerCompletionListener != null) {
+                onScannerCompletionListener.OnScannerCompletion(qrCodeReader.decode(binaryBitmap, HINTS), bitmap);
+            }
         }
     }
 
-    /**
-     * 解析二维码图片
-     *
-     * @param srcBitmap
-     * @param listener
-     *
-     * @return
-     */
-    public static void decodeQR(Bitmap srcBitmap, final OnScannerCompletionListener listener) {
-        Result result = null;
-        try {
-            if (srcBitmap != null) {
-                int width = srcBitmap.getWidth();
-                int height = srcBitmap.getHeight();
-                int[] pixels = new int[width * height];
-                srcBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-                //新建一个RGBLuminanceSource对象
-                RGBLuminanceSource source = new RGBLuminanceSource(width, height, pixels);
-                //将图片转换成二进制图片
-                BinaryBitmap binaryBitmap = new BinaryBitmap(new GlobalHistogramBinarizer(source));
-                QRCodeReader qrCodeReader = new QRCodeReader();
-                result = qrCodeReader.decode(binaryBitmap, HINTS);
-            }
-            if (listener != null) {
-                listener.OnScannerCompletion(result, srcBitmap);
-            }
-        } catch (NotFoundException | ChecksumException | FormatException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static Bitmap loadBitmap(String picturePath) throws FileNotFoundException {
+    private static Bitmap loadBitmap(String path) throws FileNotFoundException {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        // 获取到这个图片的原始宽度和高度
-        int width = options.outWidth;
-        int height = options.outHeight;
-        // 获取画布中间方框的宽度和高度
-        int screenWidth = MAX_FRAME_WIDTH;
+        int width        = options.outWidth;
+        int height       = options.outHeight;
+        int screenWidth  = MAX_FRAME_WIDTH;
         int screenHeight = MAX_FRAME_HEIGHT;
-        // isSampleSize是表示对图片的缩放程度，比如值为2图片的宽度和高度都变为以前的1/2
         options.inSampleSize = 1;
-        // 根据屏的大小和图片大小计算出缩放比例
         if (width > height) {
-            if (width > screenWidth)
+            if (width > screenWidth) {
                 options.inSampleSize = width / screenWidth;
+            }
         } else {
-            if (height > screenHeight)
+            if (height > screenHeight) {
                 options.inSampleSize = height / screenHeight;
+            }
         }
-        // 生成有像素经过缩放了的bitmap
         options.inJustDecodeBounds = false;
-        Bitmap bitmap = BitmapFactory.decodeFile(picturePath, options);
+        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
         if (bitmap == null) {
-            throw new FileNotFoundException("Couldn't open " + picturePath);
+            throw new FileNotFoundException("Couldn't open " + path);
         }
         return bitmap;
     }

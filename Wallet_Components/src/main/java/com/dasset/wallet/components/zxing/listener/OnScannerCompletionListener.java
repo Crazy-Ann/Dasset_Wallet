@@ -7,5 +7,5 @@ import com.google.zxing.Result;
 
 public interface OnScannerCompletionListener {
     
-    void OnScannerCompletion(Result rawResult, Bitmap barcode);
+    void OnScannerCompletion(Result result, Bitmap barcode);
 }

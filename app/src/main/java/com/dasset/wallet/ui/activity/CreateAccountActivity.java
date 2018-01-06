@@ -186,6 +186,7 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
                 } else {
                     //TODO
                 }
+                break;
             case Constant.RequestCode.CREATE_ACCOUNT:
                 switch (resultCode) {
                     case Constant.ResultCode.CREATE_ACCOUNT:
@@ -239,7 +240,7 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
     }
 
     @Override
-    public void OnLeftIconEvent() {
-        onFinish("OnLeftIconEvent");
+    public void onLeftIconEvent() {
+        onFinish("onLeftIconEvent");
     }
 }

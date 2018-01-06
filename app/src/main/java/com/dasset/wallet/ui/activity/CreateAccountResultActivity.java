@@ -175,7 +175,7 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
     }
 
     @Override
-    public void OnRightTextEvent() {
+    public void onRightTextEvent() {
         PromptDialog.createBuilder(getSupportFragmentManager())
                 .setTitle(getString(R.string.dialog_prompt))
                 .setPrompt(getString(R.string.prompt_create_account4))

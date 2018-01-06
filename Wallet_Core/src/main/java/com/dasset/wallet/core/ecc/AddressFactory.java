@@ -32,9 +32,9 @@ public final class AddressFactory {
                 byteArrayOutputStream.write(ripemdHashedKey);
                 byte[] hashedKeyWithID = byteArrayOutputStream.toByteArray();
                 //Calculate checksum
-                byte[] firstSHAHash = sha256Hash(hashedKeyWithID);
+                byte[] firstSHAHash  = sha256Hash(hashedKeyWithID);
                 byte[] secondSHAHash = sha256Hash(firstSHAHash);
-                byte[] checksum = Arrays.copyOfRange(secondSHAHash, 0, 4);
+                byte[] checksum      = Arrays.copyOfRange(secondSHAHash, 0, 4);
                 //Add checksum to end to get binary Bitcoin address
                 byteArrayOutputStream.write(checksum);
                 byte[] binaryAddress = byteArrayOutputStream.toByteArray();
@@ -64,9 +64,9 @@ public final class AddressFactory {
                 byteArrayOutputStream.write(ripemdHashedKey);
                 byte[] hashedKeyWithID = byteArrayOutputStream.toByteArray();
                 //Calculate checksum
-                byte[] firstSHAHash = sha256Hash(hashedKeyWithID);
+                byte[] firstSHAHash  = sha256Hash(hashedKeyWithID);
                 byte[] secondSHAHash = sha256Hash(firstSHAHash);
-                byte[] checksum = Arrays.copyOfRange(secondSHAHash, 0, 4);
+                byte[] checksum      = Arrays.copyOfRange(secondSHAHash, 0, 4);
                 //Add checksum to end to get binary Bitcoin address
                 byteArrayOutputStream.write(checksum);
                 byte[] binaryAddress = byteArrayOutputStream.toByteArray();
@@ -94,15 +94,15 @@ public final class AddressFactory {
     }
 
     private static String encodeBase58(byte[] input) {
-        char[] ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
-        int leadingZeroes = 0;
+        char[] ALPHABET      = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
+        int    leadingZeroes = 0;
         while (leadingZeroes < input.length && input[leadingZeroes] == 0) {
             ++leadingZeroes;
         }
         //Set array size to maximum possible size
-        byte[] temp = new byte[input.length * 2];
-        int j = temp.length;
-        int startAt = leadingZeroes;
+        byte[] temp    = new byte[input.length * 2];
+        int    j       = temp.length;
+        int    startAt = leadingZeroes;
         while (startAt < input.length) {
             byte mod = divmod58(input, startAt);
             if (input[startAt] == 0) {
@@ -124,7 +124,7 @@ public final class AddressFactory {
         int remainder = 0;
         for (int i = startAt; i < number.length; i++) {
             int digit256 = (int) number[i] & 0xFF;
-            int temp = remainder * 256 + digit256;
+            int temp     = remainder * 256 + digit256;
             number[i] = (byte) (temp / 58);
             remainder = temp % 58;
         }

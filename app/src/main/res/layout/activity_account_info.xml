@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/color_f8f8f8"
     android:orientation="vertical"
-    tools:context="com.dasset.wallet.ui.activity.MainActivity">
+    tools:context="com.dasset.wallet.ui.activity.AccountInfoActivity">
 
     <include
         android:id="@+id/inToolbar"

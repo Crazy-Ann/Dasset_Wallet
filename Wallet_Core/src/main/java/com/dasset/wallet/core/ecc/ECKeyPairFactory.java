@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 public final class ECKeyPairFactory {
 
     private BigInteger privateKey;
-    private byte[] publicKey;
+    private byte[]     publicKey;
 
     private ECKeyPairFactory(@Nullable BigInteger privateKey, @Nullable byte[] publicKey, boolean compressed) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
         if (privateKey == null && publicKey == null) {
@@ -79,9 +79,9 @@ public final class ECKeyPairFactory {
 
     private static byte[] generatePublicKey(BigInteger privateKey, boolean compressed) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         if (privateKey != null) {
-            X9ECParameters x9ECParameters = SECNamedCurves.getByName("secp256k1");
+            X9ECParameters     x9ECParameters     = SECNamedCurves.getByName("secp256k1");
             ECDomainParameters ecDomainParameters = new ECDomainParameters(x9ECParameters.getCurve(), x9ECParameters.getG(), x9ECParameters.getN(), x9ECParameters.getH());
-            ECPoint ecPoint = ecDomainParameters.getG().multiply(privateKey);
+            ECPoint            ecPoint            = ecDomainParameters.getG().multiply(privateKey);
             return new ECPoint.Fp(ecDomainParameters.getCurve(), ecPoint.getX(), ecPoint.getY(), compressed).getEncoded();
         }
         return null;
@@ -92,7 +92,7 @@ public final class ECKeyPairFactory {
 //        Security.addProvider(new BouncyCastleProvider());
         Security.insertProviderAt(new BouncyCastleProvider(), 1);
         //Generate key pair
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("ECDSA", "SC");
+        KeyPairGenerator   keyPairGenerator   = KeyPairGenerator.getInstance("ECDSA", "SC");
         ECGenParameterSpec ecGenParameterSpec = new ECGenParameterSpec("secp256k1");
         keyPairGenerator.initialize(ecGenParameterSpec, new SecureRandom());
         //Convert KeyPair to ECKeyPairFactory, to store keys as BigIntegers

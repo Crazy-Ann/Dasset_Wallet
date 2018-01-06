@@ -142,6 +142,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                 } else {
                     fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
                 }
+                break;
             default:
                 break;
         }
@@ -212,8 +213,8 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     }
 
     @Override
-    public void OnLeftIconEvent() {
-        onFinish("OnLeftIconEvent");
+    public void onLeftIconEvent() {
+        onFinish("onLeftIconEvent");
     }
 
     @Override

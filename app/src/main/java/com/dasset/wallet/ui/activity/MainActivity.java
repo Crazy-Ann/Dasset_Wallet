@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.widget.Toast;
 
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.application.BaseApplication;
@@ -19,6 +20,7 @@ import com.dasset.wallet.base.toolbar.listener.OnRightIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.ActivityUtil;
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.ToastUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
 import com.dasset.wallet.ecc.AccountStorageFactory;
@@ -31,7 +33,7 @@ import com.dasset.wallet.ui.dialog.PromptDialog;
 
 import java.util.List;
 
-public class MainActivity extends ActivityViewImplement<MainContract.Presenter> implements MainContract.View, OnLeftIconEventListener, OnRightIconEventListener, OnItemClickListener, OnEventClickListener/*, SwipeRefreshLayout.OnRefreshListener */ {
+public class MainActivity extends ActivityViewImplement<MainContract.Presenter> implements MainContract.View, OnLeftIconEventListener, OnRightIconEventListener, OnItemClickListener, OnEventClickListener {
 
     private MainPresenter mainPresenter;
 
@@ -115,9 +117,14 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                 } else {
                     fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
                 }
+                break;
             case Constant.RequestCode.CREATE_ACCOUNT:
-                LogUtil.getInstance().print("setData");
                 fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
+                break;
+            case Constant.RequestCode.QRCODE_RECOGNITION:
+                if (data != null) {
+                    ToastUtil.getInstance().showToast(this, data.getStringExtra(Constant.BundleKey.QRCODE_RESULT), Toast.LENGTH_SHORT);
+                }
                 break;
             default:
                 break;
@@ -220,8 +227,8 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     }
 
     @Override
-    public void OnLeftIconEvent() {
-
+    public void onLeftIconEvent() {
+        startActivityForResult(QRCodeRecognitionActivity.class, Constant.RequestCode.QRCODE_RECOGNITION);
     }
 
     @Override
