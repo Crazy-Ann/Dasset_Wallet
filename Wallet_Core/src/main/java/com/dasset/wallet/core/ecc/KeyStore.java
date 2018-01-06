@@ -23,9 +23,8 @@ import java.util.TimeZone;
 
 public final class KeyStore {
 
-    private File     keystoreDirectory;
+    private File keystoreDirectory;
     //    private File     backupsDirectory;
-    private Accounts accounts;
 
     public File getKeystoreDirectory() {
         return keystoreDirectory;
@@ -35,12 +34,7 @@ public final class KeyStore {
 //        return backupsDirectory;
 //    }
 
-    public Accounts getAccounts() {
-        return accounts;
-    }
-
     public KeyStore(File keystoreDirectory) {
-        this.accounts = new Accounts();
         this.keystoreDirectory = keystoreDirectory;
     }
 
@@ -58,7 +52,6 @@ public final class KeyStore {
                 bufferedWriter = new BufferedWriter(new FileWriter(file));
                 bufferedWriter.write(keyStoreData);
                 bufferedWriter.flush();
-                accounts.add(account);
             } catch (IOException e) {
                 e.printStackTrace();
                 deleteAccount(account.getAddress());

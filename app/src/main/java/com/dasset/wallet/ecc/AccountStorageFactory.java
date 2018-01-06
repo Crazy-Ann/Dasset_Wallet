@@ -108,20 +108,6 @@ public final class AccountStorageFactory {
         }
     }
 
-    public Account getAccount(String address) throws Exception {
-        if (keyStore != null) {
-            Accounts accounts = keyStore.getAccounts();
-            for (int i = 0; i < accounts.size(); i++) {
-                if (accounts.get(i).getAddress().equals(address)) {
-                    return accounts.get(i);
-                }
-            }
-        } else {
-            LogUtil.getInstance().print(String.format("Is keyStore forget initialized?"));
-        }
-        return null;
-    }
-
 //    public List<AccountInfo> getAccountInfos(File keystoreDirectory, File backupsDirectory) {
 //        if (keyStore != null) {
 //            try {
