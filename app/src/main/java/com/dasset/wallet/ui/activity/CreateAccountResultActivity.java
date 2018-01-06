@@ -28,9 +28,9 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
 
     private CreateAccountResultPresenter createAccountResultPresenter;
 
-    private TextView tvAccountNumber;
-    private TextView tvAddress;
-    private TextView tvAddressQRCode;
+    private TextView  tvAccountNumber;
+    private TextView  tvAddress;
+    private TextView  tvAddressQRCode;
     private ImageView ivAddressQRCode;
 
     @Override
@@ -40,6 +40,26 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
         findViewById();
         initialize(savedInstanceState);
         setListener();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            createAccountResultPresenter.checkPermission(new PermissionCallback() {
+                @Override
+                public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
+                    //TODO
+                }
+
+                @Override
+                public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+                    showPermissionPromptDialog();
+                }
+            });
+        } else {
+            //TODO
+        }
     }
 
     @Override
@@ -57,23 +77,9 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
         createAccountResultPresenter = new CreateAccountResultPresenter(this, this);
         createAccountResultPresenter.initialize();
         setBasePresenterImplement(createAccountResultPresenter);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            createAccountResultPresenter.checkPermission(new PermissionCallback() {
-                @Override
-                public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                    //TODO
-                }
 
-                @Override
-                public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
-                    showPermissionPromptDialog();
-                }
-            });
-        } else {
-            //TODO
-        }
-        tvAccountNumber.setText(String.format("账户%s", createAccountResultPresenter.getAccount().getSerialNumber()));
-        tvAddressQRCode.setText(String.format("账户%s 二维码", createAccountResultPresenter.getAccount().getSerialNumber()));
+        tvAccountNumber.setText(String.format("账户%s", createAccountResultPresenter.getAccount().getAccountName()));
+        tvAddressQRCode.setText(String.format("账户%s 二维码", createAccountResultPresenter.getAccount().getAccountName()));
         tvAddress.setText(createAccountResultPresenter.getAccount().getAddress());
         GlideUtil.getInstance().with(this, QRCodeEncode.createQRCode(createAccountResultPresenter.getAccount().getAddress(), ViewUtil.getInstance().dp2px(this, 160)), ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
     }

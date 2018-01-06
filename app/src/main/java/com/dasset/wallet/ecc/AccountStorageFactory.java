@@ -1,5 +1,8 @@
 package com.dasset.wallet.ecc;
 
+import android.net.Uri;
+import android.support.v4.content.FileProvider;
+
 import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.utils.IOUtil;
@@ -20,9 +23,9 @@ import java.util.List;
 public final class AccountStorageFactory {
 
     private static AccountStorageFactory accountStorageFactory;
-    private File keystoreDirectory;
-    private File backupFileDirectory;
-    private KeyStore keyStore;
+    private        File                  keystoreDirectory;
+    //    private        File                  backupsDirectory;
+    private        KeyStore              keyStore;
 
     private AccountStorageFactory() {
         // cannot be instantiated
@@ -45,15 +48,16 @@ public final class AccountStorageFactory {
         return keystoreDirectory;
     }
 
-    public File getBackupFileDirectory() {
-        return backupFileDirectory;
-    }
+//    public File getBackupsDirectory() {
+//        return backupsDirectory;
+//    }
 
     public void initialize() throws Exception {
         keystoreDirectory = IOUtil.getInstance().forceMkdir(BaseApplication.getInstance().getFilesDir() + Regex.LEFT_SLASH.getRegext() + Constant.Configuration.KEYSTORE);
-        backupFileDirectory = IOUtil.getInstance().getExternalStorageDirectory(Constant.Configuration.KEYSTORE);
+//        backupsDirectory = IOUtil.getInstance().getExternalStorageDirectory(Constant.Configuration.KEYSTORE);
         keyStore = new KeyStore(keystoreDirectory);
-        LogUtil.getInstance().print(String.format("There have %s accounts with KeyStore", Long.toString(getAccountInfos().size())));
+//        keyStore = new KeyStore(keystoreDirectory, backupsDirectory);
+        LogUtil.getInstance().print(String.format("There have %s accounts with KeyStore", Long.toString(getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).size())));
     }
 
     public void deleteAccount(String address, String password) throws Exception {
@@ -64,10 +68,10 @@ public final class AccountStorageFactory {
         }
     }
 
-    public Account createAccount(String serialNumber, String accountName, String privateKey, String publicKey, String address, String password) throws Exception {
+    public Account createAccount(String accountName, String privateKey, String publicKey, String address, String password) throws Exception {
         if (keyStore != null) {
-            LogUtil.getInstance().print(String.format("Trying to generate wallet in %s", keyStore.getDirectory()));
-            Account account = keyStore.createAccount(serialNumber, accountName, privateKey, publicKey, address, password);
+            LogUtil.getInstance().print(String.format("Trying to generate wallet in %s", keyStore.getKeystoreDirectory()));
+            Account account = keyStore.createAccount(accountName, privateKey, publicKey, address, password);
             PasswordManagerFactory.put(BaseApplication.getInstance(), account.getAddress(), account.getPassword());
             return account;
         } else {
@@ -76,17 +80,29 @@ public final class AccountStorageFactory {
         }
     }
 
-    public void exportAccount(String address, String password) throws PasswordException, IOException {
-        if (keyStore != null && backupFileDirectory != null && backupFileDirectory.isDirectory() && backupFileDirectory.exists()) {
-            keyStore.exportAccount(backupFileDirectory, address, password);
+//    public void exportAccountToExternalStorageDirectory(String address, String password) throws PasswordException, IOException {
+//        if (keyStore != null && backupsDirectory != null && backupsDirectory.isDirectory() && backupsDirectory.exists()) {
+//            keyStore.exportAccount(backupsDirectory, address, password);
+//        } else {
+//            throw new NullPointerException("Please check whether the keyStore is initialized!");
+//        }
+//    }
+
+    public Uri exportAccountToThird(String address, String password) throws PasswordException, IOException {
+        return FileProvider.getUriForFile(BaseApplication.getInstance(), com.dasset.wallet.constant.Constant.FILE_PROVIDER_AUTHORITY, keyStore.exportAccount(address, password));
+    }
+
+    public void importAccount(File file) throws PasswordException, IOException {
+        if (keyStore != null) {
+            keyStore.importAccount(file);
         } else {
             throw new NullPointerException("Please check whether the keyStore is initialized!");
         }
     }
 
-    public void importAccount(String address, String password) throws PasswordException, IOException {
+    public void renameAccount(String address, String accountName) throws PasswordException, IOException {
         if (keyStore != null) {
-            keyStore.importAccount(address, password);
+            keyStore.renameAccount(address, accountName);
         } else {
             throw new NullPointerException("Please check whether the keyStore is initialized!");
         }
@@ -106,25 +122,64 @@ public final class AccountStorageFactory {
         return null;
     }
 
-    public List<AccountInfo> getAccountInfos() {
+//    public List<AccountInfo> getAccountInfos(File keystoreDirectory, File backupsDirectory) {
+//        if (keyStore != null) {
+//            try {
+//                List<AccountInfo> accountInfos = Lists.newArrayList();
+//                File              directory;
+//                if (keystoreDirectory.listFiles().length > backupsDirectory.listFiles().length) {
+//                    directory = keystoreDirectory;
+//                } else {
+//                    directory = backupsDirectory;
+//                }
+//                for (File file : keyStore.directoryTraversal(directory)) {
+//                    Account account = keyStore.getAccount(file);
+//                    if (account != null) {
+//                        AccountInfo accountInfo = new AccountInfo();
+//                        accountInfo.setAccountName(account.getAccountName());
+//                        accountInfo.setAddress(account.getAddress());
+//                        accountInfo.setPrivateKey(account.getPrivateKey());
+//                        accountInfo.setPublicKey(account.getPublicKey());
+//                        accountInfo.setPassword(account.getPassword());
+//                        accountInfo.setTimestamp(account.getTimestamp());
+//                        LogUtil.getInstance().print(accountInfo.toString());
+//                        accountInfos.add(accountInfo);
+//                    }
+//                }
+//                return accountInfos;
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                return null;
+//            }
+//        } else {
+//            LogUtil.getInstance().print(String.format("Is keyStore forget initialized?"));
+//            return null;
+//        }
+//    }
+
+    public List<AccountInfo> getAccountInfos(File keystoreDirectory) {
         if (keyStore != null) {
-            List<AccountInfo> accountInfos = Lists.newArrayList();
-            for (File file : keyStore.directoryTraversal(AccountStorageFactory.getInstance().getKeystoreDirectory())) {
-                Account account = keyStore.getAccount(file);
-                if (account != null) {
-                    AccountInfo accountInfo = new AccountInfo();
-                    accountInfo.setSerialNumber(account.getSerialNumber());
-                    accountInfo.setAccountName(account.getAccountName());
-                    accountInfo.setAddress(account.getAddress());
-                    accountInfo.setPrivateKey(account.getPrivateKey());
-                    accountInfo.setPublicKey(account.getPublicKey());
-                    accountInfo.setPassword(account.getPassword());
-                    accountInfo.setTimestamp(account.getTimestamp());
-                    LogUtil.getInstance().print(accountInfo.toString());
-                    accountInfos.add(accountInfo);
+            try {
+                List<AccountInfo> accountInfos = Lists.newArrayList();
+                for (File file : keyStore.directoryTraversal(keystoreDirectory)) {
+                    Account account = keyStore.getAccount(file);
+                    if (account != null) {
+                        AccountInfo accountInfo = new AccountInfo();
+                        accountInfo.setAccountName(account.getAccountName());
+                        accountInfo.setAddress(account.getAddress());
+                        accountInfo.setPrivateKey(account.getPrivateKey());
+                        accountInfo.setPublicKey(account.getPublicKey());
+                        accountInfo.setPassword(account.getPassword());
+                        accountInfo.setTimestamp(account.getTimestamp());
+                        LogUtil.getInstance().print(accountInfo.toString());
+                        accountInfos.add(accountInfo);
+                    }
                 }
+                return accountInfos;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
             }
-            return accountInfos;
         } else {
             LogUtil.getInstance().print(String.format("Is keyStore forget initialized?"));
             return null;

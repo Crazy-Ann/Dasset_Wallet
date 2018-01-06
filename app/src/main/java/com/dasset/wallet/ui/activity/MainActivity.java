@@ -1,5 +1,6 @@
 package com.dasset.wallet.ui.activity;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,13 +18,16 @@ import com.dasset.wallet.base.sticky.listener.OnEventClickListener;
 import com.dasset.wallet.base.sticky.listener.OnItemClickListener;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.base.toolbar.listener.OnRightIconEventListener;
+import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.ActivityUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ToastUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
+import com.dasset.wallet.core.exception.PasswordException;
 import com.dasset.wallet.ecc.AccountStorageFactory;
+import com.dasset.wallet.model.AccountInfo;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.MainContract;
 import com.dasset.wallet.ui.activity.presenter.MainPresenter;
@@ -31,6 +35,8 @@ import com.dasset.wallet.ui.adapter.AccountAdapter;
 import com.dasset.wallet.ui.binder.AccountBinder;
 import com.dasset.wallet.ui.dialog.PromptDialog;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class MainActivity extends ActivityViewImplement<MainContract.Presenter> implements MainContract.View, OnLeftIconEventListener, OnRightIconEventListener, OnItemClickListener, OnEventClickListener {
@@ -52,6 +58,28 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mainPresenter.checkPermission(new PermissionCallback() {
+
+                @Override
+                public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
+                    loadAccountData();
+                }
+
+                @Override
+                public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+                    showPermissionPromptDialog();
+                }
+            });
+        } else {
+            loadAccountData();
+        }
+
+    }
+
+    @Override
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
         recycleView = ViewUtil.getInstance().findView(this, R.id.recycleView);
@@ -70,23 +98,6 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
         recycleView.setLayoutManager(linearLayoutManager);
         recycleView.setAdapter(fixedStickyViewAdapter);
         setAddAccountView();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mainPresenter.checkPermission(new PermissionCallback() {
-
-                @Override
-                public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                    fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
-                }
-
-                @Override
-                public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
-                    showPermissionPromptDialog();
-                }
-            });
-        } else {
-            fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
-        }
     }
 
     @Override
@@ -106,7 +117,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
                         @Override
                         public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                            fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
+                            loadAccountData();
                         }
 
                         @Override
@@ -115,16 +126,22 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                         }
                     });
                 } else {
-                    fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
+                    loadAccountData();
                 }
                 break;
             case Constant.RequestCode.CREATE_ACCOUNT:
-                fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos());
+                loadAccountData();
                 break;
             case Constant.RequestCode.QRCODE_RECOGNITION:
                 if (data != null) {
                     ToastUtil.getInstance().showToast(this, data.getStringExtra(Constant.BundleKey.QRCODE_RESULT), Toast.LENGTH_SHORT);
                 }
+                break;
+            case Constant.RequestCode.ACCOUNT_RENAME:
+                loadAccountData();
+                break;
+            case Constant.RequestCode.FILE_MANAGER:
+                mainPresenter.importAccount(data);
                 break;
             default:
                 break;
@@ -159,8 +176,25 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                 BaseApplication.getInstance().releaseInstance();
                 ActivityUtil.removeAll();
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT:
-                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_IMPORT_ACCOUNT");
+            case Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT1:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_IMPORT_ACCOUNT1");
+                try {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType(Regex.UNLIMITED_DIRECTORY_TYPE.getRegext());
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    startActivityForResult(intent, Constant.RequestCode.FILE_MANAGER);
+                } catch (ActivityNotFoundException e) {
+                    showPromptDialog(R.string.dialog_prompt_file_manager_error, false, false, Constant.RequestCode.DIALOG_PROMPT_FILE_MANAGER_ERROR);
+                }
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT2:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_IMPORT_ACCOUNT2");
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR");
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_FILE_MANAGER_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_FILE_MANAGER_ERROR");
                 break;
             default:
                 break;
@@ -180,7 +214,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
             case Constant.RequestCode.DIALOG_PROMPT_QUIT:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_QUIT");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT:
+            case Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT1:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_IMPORT_ACCOUNT");
                 break;
             default:
@@ -218,12 +252,19 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     public void showImportAccountPromptDialog() {
         PromptDialog.createBuilder(getSupportFragmentManager())
                 .setTitle(getString(R.string.dialog_prompt))
-                .setPrompt(getString(R.string.dialog_prompt_import_account))
+                .setPrompt(getString(R.string.dialog_prompt_import_account1))
                 .setPositiveButtonText(this, R.string.dialog_prompt_known)
                 .setCancelable(false)
                 .setCancelableOnTouchOutside(false)
-                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT1)
                 .showAllowingStateLoss(this);
+    }
+
+    @Override
+    public void loadAccountData() {
+        if (fixedStickyViewAdapter != null) {
+            fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()));
+        }
     }
 
     @Override
@@ -238,13 +279,24 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
     @Override
     public void onItemClick(int position) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, AccountStorageFactory.getInstance().getAccountInfos().get(position));
-        startActivity(AccountInfoActivity.class, bundle);
+//        Bundle bundle = new Bundle();
+//        bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position));
+//        startActivity(AccountInfoActivity.class, bundle);
+//        Bundle bundle = new Bundle();
+//        bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position));
+//        startActivityForResult(AccountRenameActivity.class, Constant.RequestCode.ACCOUNT_RENAME, bundle);
+        try {
+            AccountInfo accountInfo = AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position);
+            AccountStorageFactory.getInstance().deleteAccount(accountInfo.getAddress(), accountInfo.getPassword());
+            loadAccountData();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onnEventClick() {
-        startActivityForResult(CreateAccountActivity.class, Constant.RequestCode.CREATE_ACCOUNT);
+//        startActivityForResult(CreateAccountActivity.class, Constant.RequestCode.CREATE_ACCOUNT);
+        showImportAccountPromptDialog();
     }
 }

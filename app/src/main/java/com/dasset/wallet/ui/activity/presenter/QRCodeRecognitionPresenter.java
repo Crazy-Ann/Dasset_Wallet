@@ -23,8 +23,6 @@ import android.view.SurfaceView;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.handler.ActivityHandler;
 import com.dasset.wallet.components.constant.Regex;
-import com.dasset.wallet.components.utils.BitmapUtil;
-import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.MessageUtil;
 import com.dasset.wallet.components.utils.ThreadPoolUtil;
 import com.dasset.wallet.components.zxing.camera.CameraManager;
@@ -71,46 +69,17 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
         protected void handleMessage(QRCodeRecognitionActivity activity, final Message message) {
             if (activity != null) {
                 switch (message.what) {
-                    case Constant.StateCode.GET_QRCODE_BITMAP_SUCCESS:
-                        final String path = message.obj.toString();
-                        view.showLoadingPromptDialog(R.string.prompt_qrcode_recognition, Constant.RequestCode.DIALOG_PROGRESS_QRCODE_RECOGNITION);
-                        ThreadPoolUtil.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    QRCodeDecode.decodeQR(path, new OnScannerCompletionListener() {
-
-                                        @Override
-                                        public void OnScannerCompletion(Result result, Bitmap barcode) {
-                                            if (!TextUtils.isEmpty(result.getText())) {
-                                                sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_SUCCESS, result));
-                                            } else {
-                                                sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED));
-                                            }
-                                        }
-                                    });
-                                } catch (NotFoundException | ChecksumException | FileNotFoundException | FormatException e) {
-                                    e.printStackTrace();
-                                    sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
-                                }
-                            }
-                        });
-                        break;
-                    case Constant.StateCode.GET_QRCODE_BITMAP_FAILED:
-                        stopScan();
-                        activity.showPromptDialog(context.getString(R.string.dialog_prompt_get_qrcode_bitmap_error), false, false, Constant.RequestCode.DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR);
-                        break;
                     case Constant.StateCode.QRCODE_RECOGNITION_SUCCESS:
                         activity.hideLoadingPromptDialog();
                         Intent intent = new Intent();
                         intent.putExtra(Constant.BundleKey.QRCODE_RESULT, ((Result) message.obj).getText());
-                        ((Activity) view).setResult(Constant.ResultCode.QRCODE_RECOGNITION, intent);
-                        ((Activity) view).finish();
+                        ((QRCodeRecognitionActivity) view).setResult(Constant.ResultCode.QRCODE_RECOGNITION, intent);
+                        ((QRCodeRecognitionActivity) view).onFinish("QRCODE_RECOGNITION_SUCCESS");
                         break;
                     case Constant.StateCode.QRCODE_RECOGNITION_FAILED:
                         stopScan();
                         activity.hideLoadingPromptDialog();
-                        activity.showPromptDialog(context.getString(R.string.dialog_prompt_qrcode_recognition_error), false, false, Constant.RequestCode.DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR);
+                        activity.showPromptDialog(R.string.dialog_prompt_qrcode_recognition_error, false, false, Constant.RequestCode.DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR);
                         break;
                     default:
                         break;
@@ -288,21 +257,37 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
 
     @Override
     public void getQRCodeBitmap(final Intent data) {
+        view.showLoadingPromptDialog(R.string.dialog_prompt_qrcode_recognition, Constant.RequestCode.DIALOG_PROGRESS_QRCODE_RECOGNITION);
         ThreadPoolUtil.execute(new Runnable() {
             @Override
             public void run() {
                 if (data != null) {
                     Uri uri = data.getData();
                     if (uri != null) {
-                        String path = generatorPathFromUri(uri);
-                        if (!TextUtils.isEmpty(path)) {
-                            qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.GET_QRCODE_BITMAP_SUCCESS, path));
-                        } else {
-                            qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.GET_QRCODE_BITMAP_FAILED));
+                        try {
+                            String path = generatorPathFromUri(uri);
+                            if (!TextUtils.isEmpty(path)) {
+                                QRCodeDecode.decodeQR(path, new OnScannerCompletionListener() {
+
+                                    @Override
+                                    public void OnScannerCompletion(Result result, Bitmap barcode) {
+                                        if (!TextUtils.isEmpty(result.getText())) {
+                                            qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_SUCCESS, result));
+                                        } else {
+                                            qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED));
+                                        }
+                                    }
+                                });
+                            } else {
+                                qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED));
+                            }
+                        } catch (NotFoundException | ChecksumException | FileNotFoundException | FormatException e) {
+                            e.printStackTrace();
+                            qrCodeRecognitionHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                         }
+                    } else {
+                        qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED));
                     }
-                } else {
-                    qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.GET_QRCODE_BITMAP_FAILED));
                 }
             }
         });

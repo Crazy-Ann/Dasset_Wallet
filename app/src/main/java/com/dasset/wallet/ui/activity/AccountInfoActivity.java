@@ -63,36 +63,8 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     }
 
     @Override
-    protected void findViewById() {
-        inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
-        tvAddress = ViewUtil.getInstance().findView(this, R.id.tvAddress);
-        btnSend = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnSend, this);
-        ivAddressQRCode = ViewUtil.getInstance().findView(this, R.id.ivAddressQRCode);
-        tvAmount = ViewUtil.getInstance().findView(this, R.id.tvAmount);
-        swipeRefreshLayout = ViewUtil.getInstance().findView(this, R.id.swipeRefreshLayout);
-        recycleView = ViewUtil.getInstance().findView(this, R.id.recycleView);
-    }
-
-    @Override
-    protected void initialize(Bundle savedInstanceState) {
-        accountInfoPresenter = new AccountInfoPresenter(this, this);
-        accountInfoPresenter.initialize();
-        initializeToolbar(R.color.color_383856, true, R.mipmap.icon_back_white, this, android.R.color.white, String.format("账户%s", accountInfoPresenter.getAccountInfo().getSerialNumber()), true, R.mipmap.icon_more, this);
-        setBasePresenterImplement(accountInfoPresenter);
-        tvAddress.setText(accountInfoPresenter.getAccountInfo().getAddress());
-        GlideUtil.getInstance().with(this, QRCodeEncode.createQRCode(accountInfoPresenter.getAccountInfo().getAddress(), ViewUtil.getInstance().dp2px(this, 160)), ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
-        tvAmount.setText("1000");
-
-        fixedStickyViewAdapter = new TransactionRecordAdapter(new TransactionRecordBinder(this, recycleView));
-        linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recycleView.setHasFixedSize(true);
-        recycleView.setLayoutManager(linearLayoutManager);
-        recycleView.addItemDecoration(new LinearLayoutDividerItemDecoration(getResources().getColor(R.color.color_e4e4e4), 2, LinearLayoutManager.VERTICAL));
-        recycleView.setAdapter(fixedStickyViewAdapter);
-        swipeRefreshLayout.setColorSchemeResources(R.color.color_c9c9c9);
-        swipeRefreshLayout.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
-
+    protected void onResume() {
+        super.onResume();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             accountInfoPresenter.checkPermission(new PermissionCallback() {
@@ -113,11 +85,42 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     }
 
     @Override
+    protected void findViewById() {
+        inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
+        tvAddress = ViewUtil.getInstance().findView(this, R.id.tvAddress);
+        btnSend = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnSend, this);
+        ivAddressQRCode = ViewUtil.getInstance().findView(this, R.id.ivAddressQRCode);
+        tvAmount = ViewUtil.getInstance().findView(this, R.id.tvAmount);
+        swipeRefreshLayout = ViewUtil.getInstance().findView(this, R.id.swipeRefreshLayout);
+        recycleView = ViewUtil.getInstance().findView(this, R.id.recycleView);
+    }
+
+    @Override
+    protected void initialize(Bundle savedInstanceState) {
+        accountInfoPresenter = new AccountInfoPresenter(this, this);
+        accountInfoPresenter.initialize();
+        initializeToolbar(R.color.color_383856, true, R.mipmap.icon_back_white, this, android.R.color.white, accountInfoPresenter.getAccountInfo().getAccountName(), true, R.mipmap.icon_more, this);
+        setBasePresenterImplement(accountInfoPresenter);
+        tvAddress.setText(accountInfoPresenter.getAccountInfo().getAddress());
+        GlideUtil.getInstance().with(this, QRCodeEncode.createQRCode(accountInfoPresenter.getAccountInfo().getAddress(), ViewUtil.getInstance().dp2px(this, 160)), ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
+        tvAmount.setText("1000");
+
+        fixedStickyViewAdapter = new TransactionRecordAdapter(new TransactionRecordBinder(this, recycleView));
+        linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recycleView.setHasFixedSize(true);
+        recycleView.setLayoutManager(linearLayoutManager);
+        recycleView.addItemDecoration(new LinearLayoutDividerItemDecoration(getResources().getColor(R.color.color_e4e4e4), 2, LinearLayoutManager.VERTICAL));
+        recycleView.setAdapter(fixedStickyViewAdapter);
+        swipeRefreshLayout.setColorSchemeResources(R.color.color_c9c9c9);
+        swipeRefreshLayout.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+    }
+
+    @Override
     protected void setListener() {
         fixedStickyViewAdapter.setOnItemClickListener(this);
         fixedStickyViewAdapter.setOnEventClickListener(this);
         swipeRefreshLayout.setOnRefreshListener(this);
-
     }
 
     @Override
@@ -142,7 +145,6 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                 } else {
                     fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
                 }
-                break;
             default:
                 break;
         }

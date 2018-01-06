@@ -38,19 +38,19 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
 
     private CreateAccountPresenter createAccountPresenter;
 
-    private EditText etAccountName;
+    private EditText    etAccountName;
     private ImageButton ibAccountNameEmpty;
-    private EditText etTransactionPassword;
+    private EditText    etTransactionPassword;
     private ImageButton ibTransactionPasswordDisplay;
     private ImageButton ibTransactionPasswordEmpty;
-    private EditText etConfirmPassword;
+    private EditText    etConfirmPassword;
     private ImageButton ibConfirmPasswordDisplay;
     private ImageButton ibConfirmPasswordEmpty;
-    private Button btnSubmit;
+    private Button      btnSubmit;
 
-    private EditTextValidator validator;
-    private boolean isTransactionPasswordHidden;
-    private boolean isConfirmPasswordHidden;
+    private EditTextValidator editTextValidator;
+    private boolean           isTransactionPasswordHidden;
+    private boolean           isConfirmPasswordHidden;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +59,26 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
         findViewById();
         initialize(savedInstanceState);
         setListener();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            createAccountPresenter.checkPermission(new PermissionCallback() {
+                @Override
+                public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
+                    //TODO
+                }
+
+                @Override
+                public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+                    showPermissionPromptDialog();
+                }
+            });
+        } else {
+            //TODO
+        }
     }
 
     @Override
@@ -81,27 +101,12 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
         createAccountPresenter = new CreateAccountPresenter(this, this);
         createAccountPresenter.initialize();
         setBasePresenterImplement(createAccountPresenter);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            createAccountPresenter.checkPermission(new PermissionCallback() {
-                @Override
-                public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                    //TODO
-                }
 
-                @Override
-                public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
-                    showPermissionPromptDialog();
-                }
-            });
-        } else {
-            //TODO
-        }
-
-        validator = new EditTextValidator();
-        validator.add(new Validation(null, etAccountName, true, ibAccountNameEmpty, new AccountNameValidation()));
-        validator.add(new Validation(null, etTransactionPassword, true, ibTransactionPasswordEmpty, new TransactionPasswordValidation()));
-        validator.add(new Validation(null, etConfirmPassword, true, ibConfirmPasswordEmpty, new TransactionPasswordValidation()));
-        validator.execute(this, btnSubmit, R.drawable.rectangle_b7b7fa, R.drawable.rectangle_5757ff, R.color.color_d1d1fb, android.R.color.white, null, null, false);
+        editTextValidator = new EditTextValidator();
+        editTextValidator.add(new Validation(null, etAccountName, true, ibAccountNameEmpty, new AccountNameValidation()));
+        editTextValidator.add(new Validation(null, etTransactionPassword, true, ibTransactionPasswordEmpty, new TransactionPasswordValidation()));
+        editTextValidator.add(new Validation(null, etConfirmPassword, true, ibConfirmPasswordEmpty, new TransactionPasswordValidation()));
+        editTextValidator.execute(this, btnSubmit, R.drawable.rectangle_b7b7fa, R.drawable.rectangle_5757ff, R.color.color_d1d1fb, android.R.color.white, null, null, false);
     }
 
     @Override
@@ -146,7 +151,7 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
                 break;
             case R.id.btnSubmit:
                 if (TextUtils.equals(etConfirmPassword.getText(), etTransactionPassword.getText())) {
-                    if (validator.validate(this)) {
+                    if (editTextValidator.validate(this)) {
                         PromptDialog.createBuilder(getSupportFragmentManager())
                                 .setTitle(getString(R.string.dialog_prompt))
                                 .setPrompt(getString(R.string.prompt_create_account3))
@@ -192,6 +197,8 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
                     case Constant.ResultCode.CREATE_ACCOUNT:
                         LogUtil.getInstance().print("create account without backup!");
                         onFinish("startCreateAccountResultActivity");
+                        break;
+                    default:
                         break;
                 }
                 break;

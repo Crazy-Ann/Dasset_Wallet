@@ -23,7 +23,7 @@ import org.spongycastle.util.encoders.Hex;
 public class CreateAccountPresenter extends BasePresenterImplement implements CreateAccountContract.Presenter {
 
     private CreateAccountContract.View view;
-    private CreateAccountHandler createAccountHandler;
+    private CreateAccountHandler       createAccountHandler;
 
     private class CreateAccountHandler extends ActivityHandler<CreateAccountActivity> {
 
@@ -71,13 +71,13 @@ public class CreateAccountPresenter extends BasePresenterImplement implements Cr
 
     @Override
     public void createAccount(final boolean compressed, final String accountName, final String password) {
-        view.showLoadingPromptDialog(R.string.prompt_create_account6, Constant.RequestCode.DIALOG_PROGRESS_CREATE_ACCOUNT);
+        view.showLoadingPromptDialog(R.string.dialog_prompt_create_account6, Constant.RequestCode.DIALOG_PROGRESS_CREATE_ACCOUNT);
         ThreadPoolUtil.execute(new Runnable() {
             @Override
             public void run() {
                 try {
                     ECKeyPairFactory keyPair = ECKeyPairFactory.generateECKeyPair(compressed);
-                    Account account = AccountStorageFactory.getInstance().createAccount(String.format("0%s", AccountStorageFactory.getInstance().getAccountInfos().size() + 1), accountName, Hex.toHexString(keyPair.getPrivateKey().toByteArray()), Hex.toHexString(keyPair.getPublicKey()), AddressFactory.generatorAddress(keyPair.getPublicKey(), com.dasset.wallet.core.ecc.Constant.AddressType.HYC), password);
+                    Account          account = AccountStorageFactory.getInstance().createAccount(accountName, Hex.toHexString(keyPair.getPrivateKey().toByteArray()), Hex.toHexString(keyPair.getPublicKey()), AddressFactory.generatorAddress(keyPair.getPublicKey(), com.dasset.wallet.core.ecc.Constant.AddressType.HYC), password);
                     createAccountHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.GENERATE_ECKEYPAIR_SUCCESS, account));
                 } catch (Exception e) {
                     createAccountHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.GENERATE_ECKEYPAIR_FAILED, e));

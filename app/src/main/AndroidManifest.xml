@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.dasset.wallet">
+<manifest package="com.dasset.wallet"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- 默认权限 -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -90,6 +90,12 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateVisible|adjustResize"/>
         <activity
+            android:name=".ui.activity.AccountRenameActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible|adjustResize"/>
+        <activity
             android:name=".ui.activity.CreateAccountResultActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTop"
@@ -107,6 +113,16 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden"/>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.dasset.wallet.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths"/>
+        </provider>
     </application>
 
 </manifest>

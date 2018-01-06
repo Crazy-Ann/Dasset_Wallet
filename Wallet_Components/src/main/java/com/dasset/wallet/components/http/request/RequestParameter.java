@@ -61,7 +61,7 @@ public class RequestParameter {
             } else {
                 json = jsonObject.toJSONString();
             }
-            body = RequestBody.create(MediaType.parse(Regex.JSON_TYPE.getRegext()), json);
+            body = RequestBody.create(MediaType.parse(Regex.JSON_HEADER_TYPE.getRegext()), json);
         }  else if (requestBody != null) {
             body = requestBody;
         } else if (files != null && files.size() > 0) {
@@ -108,7 +108,7 @@ public class RequestParameter {
     }
 
     public void setRequestBody(String string) {
-        setRequestBody(MediaType.parse(Regex.STRING_TYPE.getRegext()), string);
+        setRequestBody(MediaType.parse(Regex.STRING_HEADER_TYPE.getRegext()), string);
     }
 
     public boolean isJsonType() {
@@ -243,10 +243,10 @@ public class RequestParameter {
     public void addFormDataParameter(String key, File file) {
         if (isFileAvalable(file)) {
             if (file.getName().toLowerCase().lastIndexOf(Regex.PNG.getRegext()) > 0) {
-                addFormDataParameter(key, file, Regex.IMAGE_PNG_TYPE.getRegext());
+                addFormDataParameter(key, file, Regex.IMAGE_PNG_HEADER_TYPE.getRegext());
                 return;
             } else if (file.getName().toLowerCase().lastIndexOf(Regex.JPG.getRegext()) > 0 || file.getName().toLowerCase().lastIndexOf(Regex.JPEG.getRegext()) > 0) {
-                addFormDataParameter(key, file, Regex.IMAGE_JPEG_TYPE.getRegext());
+                addFormDataParameter(key, file, Regex.IMAGE_JPEG_HEADER_TYPE.getRegext());
                 return;
             } else {
                 addFormDataParameter(key, new FileWrapper(file, null));

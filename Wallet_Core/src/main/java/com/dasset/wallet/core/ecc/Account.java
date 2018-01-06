@@ -11,7 +11,6 @@ import java.util.Locale;
 
 public final class Account implements Parcelable {
 
-    private String serialNumber;
     private String accountName;
     private String privateKey;
     private String publicKey;
@@ -21,18 +20,13 @@ public final class Account implements Parcelable {
 
     public Account() { }
 
-    public Account(String serialNumber, String accountName, String privateKey, String publicKey, String address, String password) {
-        this.serialNumber = serialNumber;
+    public Account(String accountName, String privateKey, String publicKey, String address, String password) {
         this.accountName = accountName;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
         this.address = address;
         this.password = password;
         this.timestamp = new SimpleDateFormat(Regex.UTC_DATE_FORMAT_ALL.getRegext(), Locale.getDefault()).format(new Date(System.currentTimeMillis()));
-    }
-
-    public String getSerialNumber() {
-        return serialNumber;
     }
 
     public String getAccountName() {
@@ -57,10 +51,6 @@ public final class Account implements Parcelable {
 
     public String getTimestamp() {
         return timestamp;
-    }
-
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
     }
 
     public void setAccountName(String accountName) {
@@ -92,7 +82,6 @@ public final class Account implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.serialNumber);
         dest.writeString(this.accountName);
         dest.writeString(this.privateKey);
         dest.writeString(this.publicKey);
@@ -102,7 +91,6 @@ public final class Account implements Parcelable {
     }
 
     protected Account(Parcel in) {
-        this.serialNumber = in.readString();
         this.accountName = in.readString();
         this.privateKey = in.readString();
         this.publicKey = in.readString();
@@ -122,8 +110,7 @@ public final class Account implements Parcelable {
     @Override
     public String toString() {
         return "Account{" +
-                "serialNumber='" + serialNumber + '\'' +
-                ", accountName='" + accountName + '\'' +
+                "accountName='" + accountName + '\'' +
                 ", privateKey='" + privateKey + '\'' +
                 ", publicKey='" + publicKey + '\'' +
                 ", address='" + address + '\'' +

@@ -34,7 +34,7 @@ public class SplashActivity extends ActivityViewImplement<SplashContract.Present
     private SplashPresenter splashPresenter;
 
     private ViewPager vpSplash;
-    private Button btnEnter;
+    private Button    btnEnter;
     private TabLayout tbSplash;
 
     @Override
@@ -64,17 +64,8 @@ public class SplashActivity extends ActivityViewImplement<SplashContract.Present
     }
 
     @Override
-    protected void findViewById() {
-        vpSplash = ViewUtil.getInstance().findView(this, R.id.vpSplash);
-        btnEnter = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnEnter, this);
-        tbSplash = ViewUtil.getInstance().findView(this, R.id.tbSplash);
-    }
-
-    @Override
-    protected void initialize(Bundle savedInstanceState) {
-        splashPresenter = new SplashPresenter(this, this);
-        splashPresenter.initialize();
-        setBasePresenterImplement(splashPresenter);
+    protected void onResume() {
+        super.onResume();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             splashPresenter.checkPermission(new PermissionCallback() {
 
@@ -91,8 +82,23 @@ public class SplashActivity extends ActivityViewImplement<SplashContract.Present
         } else {
             //TODO
         }
+    }
+
+    @Override
+    protected void findViewById() {
+        vpSplash = ViewUtil.getInstance().findView(this, R.id.vpSplash);
+        btnEnter = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnEnter, this);
+        tbSplash = ViewUtil.getInstance().findView(this, R.id.tbSplash);
+    }
+
+    @Override
+    protected void initialize(Bundle savedInstanceState) {
+        splashPresenter = new SplashPresenter(this, this);
+        splashPresenter.initialize();
+        setBasePresenterImplement(splashPresenter);
+
         List<ArrayMap<String, View>> arrayMaps = Lists.newArrayList();
-        ArrayMap<String, View> arrayMap = new ArrayMap<>();
+        ArrayMap<String, View>       arrayMap  = new ArrayMap<>();
         for (int i = 0; i < 3; i++) {
             switch (i) {
                 case 0:

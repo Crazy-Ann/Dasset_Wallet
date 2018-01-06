@@ -12,7 +12,7 @@ import com.dasset.wallet.ui.holder.AccountHolder;
 
 public class AccountBinder extends BaseViewBinder {
 
-    private Context context;
+    private Context      context;
     private RecyclerView recyclerView;
 
     public AccountBinder(Context context, RecyclerView recyclerView) {
@@ -26,7 +26,7 @@ public class AccountBinder extends BaseViewBinder {
             AccountHolder accountHolder = (AccountHolder) viewHolder;
             AccountInfo   accountInfo   = (AccountInfo) object;
             accountHolder.tvAddress.setText(accountInfo.getAddress());
-            accountHolder.tvSerialNumber.setText(String.format("账户%s", accountInfo.getSerialNumber()));
+            accountHolder.tvSerialNumber.setText(String.format("账户%s", accountInfo.getAccountName()));
         } else if (viewHolder instanceof AddAccountHolder) {
             //TODO
         }

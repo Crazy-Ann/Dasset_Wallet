@@ -1,8 +1,6 @@
 package com.dasset.wallet.ui.activity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,22 +11,16 @@ import android.view.SurfaceView;
 
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.application.BaseApplication;
-import com.dasset.wallet.base.sticky.listener.OnEventClickListener;
-import com.dasset.wallet.base.sticky.listener.OnItemClickListener;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
-import com.dasset.wallet.base.toolbar.listener.OnRightIconEventListener;
 import com.dasset.wallet.base.toolbar.listener.OnRightTextEventListener;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
-import com.dasset.wallet.components.utils.BitmapUtil;
 import com.dasset.wallet.components.utils.LogUtil;
-import com.dasset.wallet.components.utils.ThreadPoolUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.zxing.camera.CameraManager;
 import com.dasset.wallet.components.zxing.listener.OnDecodeHandlerListener;
 import com.dasset.wallet.components.zxing.view.ViewfinderView;
 import com.dasset.wallet.constant.Constant;
-import com.dasset.wallet.ecc.AccountStorageFactory;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.QRCodeRecognitionContract;
 import com.dasset.wallet.ui.activity.presenter.QRCodeRecognitionPresenter;
@@ -54,6 +46,27 @@ public class QRCodeRecognitionActivity extends ActivityViewImplement<QRCodeRecog
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            qrCodeRecognitionPresenter.checkPermission(new PermissionCallback() {
+
+                @Override
+                public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
+                    qrCodeRecognitionPresenter.startScan(QRCodeRecognitionActivity.this, QRCodeRecognitionActivity.this, surfaceView);
+                }
+
+                @Override
+                public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+                    showPermissionPromptDialog();
+                }
+            });
+        } else {
+            qrCodeRecognitionPresenter.startScan(this, this, surfaceView);
+        }
+    }
+
+    @Override
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
         vfvFinder = ViewUtil.getInstance().findView(this, R.id.vfvFinder);
@@ -66,23 +79,6 @@ public class QRCodeRecognitionActivity extends ActivityViewImplement<QRCodeRecog
         qrCodeRecognitionPresenter = new QRCodeRecognitionPresenter(this, this);
         qrCodeRecognitionPresenter.initialize();
         setBasePresenterImplement(qrCodeRecognitionPresenter);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            qrCodeRecognitionPresenter.checkPermission(new PermissionCallback() {
-
-                @Override
-                public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                    //TODO
-                }
-
-                @Override
-                public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
-                    showPermissionPromptDialog();
-                }
-            });
-        } else {
-            //TODO
-        }
     }
 
     @Override
@@ -124,12 +120,6 @@ public class QRCodeRecognitionActivity extends ActivityViewImplement<QRCodeRecog
     public void onPause() {
         super.onPause();
         qrCodeRecognitionPresenter.stopScan();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        qrCodeRecognitionPresenter.startScan(this, this, surfaceView);
     }
 
     @Override
@@ -190,7 +180,7 @@ public class QRCodeRecognitionActivity extends ActivityViewImplement<QRCodeRecog
     @Override
     public void onRightTextEvent() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType(Regex.IMAGE_DIRECTORY.getRegext());
+        intent.setType(Regex.IMAGE_DIRECTORY_TYPE.getRegext());
         startActivityForResult(intent, Constant.RequestCode.QRCODE_RECOGNITION_ALBUM);
     }
 

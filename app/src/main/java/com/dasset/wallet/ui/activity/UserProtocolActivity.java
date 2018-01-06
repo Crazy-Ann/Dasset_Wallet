@@ -23,7 +23,7 @@ public class UserProtocolActivity extends ActivityViewImplement<UserProtocolCont
     private UserProtocolPresenter userProtocolPresenter;
 
     private WebView wbUserProtocol;
-    private Button btnUserProtocol;
+    private Button  btnUserProtocol;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,18 +35,8 @@ public class UserProtocolActivity extends ActivityViewImplement<UserProtocolCont
     }
 
     @Override
-    protected void findViewById() {
-        inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
-        wbUserProtocol = ViewUtil.getInstance().findView(this, R.id.wbUserProtocol);
-        btnUserProtocol = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnUserProtocol, this);
-    }
-
-    @Override
-    protected void initialize(Bundle savedInstanceState) {
-        initializeToolbar(R.color.color_5757ff, true, R.mipmap.ic_launcher, this, android.R.color.white, getString(R.string.user_protocol));
-        userProtocolPresenter = new UserProtocolPresenter(this, this);
-        userProtocolPresenter.initialize();
-        setBasePresenterImplement(userProtocolPresenter);
+    protected void onResume() {
+        super.onResume();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             userProtocolPresenter.checkPermission(new PermissionCallback() {
                 @Override
@@ -62,6 +52,21 @@ public class UserProtocolActivity extends ActivityViewImplement<UserProtocolCont
         } else {
             //TODO
         }
+    }
+
+    @Override
+    protected void findViewById() {
+        inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
+        wbUserProtocol = ViewUtil.getInstance().findView(this, R.id.wbUserProtocol);
+        btnUserProtocol = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnUserProtocol, this);
+    }
+
+    @Override
+    protected void initialize(Bundle savedInstanceState) {
+        initializeToolbar(R.color.color_5757ff, true, R.mipmap.ic_launcher, this, android.R.color.white, getString(R.string.user_protocol));
+        userProtocolPresenter = new UserProtocolPresenter(this, this);
+        userProtocolPresenter.initialize();
+        setBasePresenterImplement(userProtocolPresenter);
     }
 
     @Override

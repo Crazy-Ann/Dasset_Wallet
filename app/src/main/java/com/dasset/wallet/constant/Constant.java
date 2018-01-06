@@ -6,7 +6,8 @@ public final class Constant {
 
     private Constant() { }
 
-    public static final String[] PERMISSIONS = {Manifest.permission.READ_PHONE_STATE
+    public static final String   FILE_PROVIDER_AUTHORITY = "com.dasset.wallet.fileprovider";
+    public static final String[] PERMISSIONS   = {Manifest.permission.READ_PHONE_STATE
             , Manifest.permission.READ_EXTERNAL_STORAGE
             , Manifest.permission.WRITE_EXTERNAL_STORAGE
             , Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS
@@ -34,20 +35,25 @@ public final class Constant {
         public static final int DIALOG_PROMPT_EXPORT_ACCOUNT           = 0x1011;
         public static final int DIALOG_PROMPT_EXPORT_ACCOUNT_SUCCESS   = 0x1012;
         public static final int DIALOG_PROMPT_EXPORT_ACCOUNT_FAILED    = 0x1013;
-        public static final int DIALOG_PROMPT_IMPORT_ACCOUNT           = 0x1012;
-        public static final int DIALOG_PROGRESS_QRCODE_RECOGNITION     = 0x1003;
-        public static final int DIALOG_PROMPT_QRCODE_RECOGNITION_ERROR = 0x1014;
-        public static final int DIALOG_PROGRESS_GET_QRCODE_BITMAP      = 0x1005;
-        public static final int DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR  = 0x1016;
+        public static final int DIALOG_PROMPT_IMPORT_ACCOUNT1          = 0x1012;
+        public static final int DIALOG_PROMPT_IMPORT_ACCOUNT2          = 0x1013;
+        public static final int DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR     = 0x1014;
+        public static final int DIALOG_PROGRESS_QRCODE_RECOGNITION     = 0x1005;
+        public static final int DIALOG_PROMPT_QRCODE_RECOGNITION_ERROR = 0x1016;
+        public static final int DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR  = 0x1018;
+        public static final int DIALOG_PROMPT_FILE_MANAGER_ERROR       = 0x1019;
         public static final int CREATE_ACCOUNT                         = 0x2000;
         public static final int QRCODE_RECOGNITION                     = 0x2001;
         public static final int QRCODE_RECOGNITION_ALBUM               = 0x2002;
+        public static final int ACCOUNT_RENAME                         = 0x2003;
+        public static final int FILE_MANAGER                           = 0x2004;
     }
 
     public final static class ResultCode {
         public static final int CREATE_ACCOUNT           = 0x3000;
         public static final int QRCODE_RECOGNITION       = 0x3001;
-        public static final int QRCODE_RECOGNITION_ALBUM = 0x2002;
+        public static final int QRCODE_RECOGNITION_ALBUM = 0x3002;
+        public static final int ACCOUNT_RENAME           = 0x3003;
 
     }
 
@@ -60,17 +66,6 @@ public final class Constant {
         public static final String ENCRYPT_KEY    = "encrypt_key";
         public static final String WALLET_ACCOUNT = "wallet_account";
         public static final String QRCODE_RESULT  = "qrcode_result";
-    }
-
-    public class Cache {
-        public static final String ROOT                     = "/mergepay";
-        public static final String CACHE_ROOT               = ROOT + "/cache";
-        public static final String PAGE_DATA_CACHE_PATH     = CACHE_ROOT + "/page";
-        public static final String PAGE_IMAGE_CACHE_PATH    = PAGE_DATA_CACHE_PATH + "/image";
-        public static final String SERVICE_DATA_CACHE_PATH  = CACHE_ROOT + "/service";
-        public static final String SERVICE_IMAGE_CACHE_PATH = SERVICE_DATA_CACHE_PATH + "/icon";
-        public static final String TAB_DATA_CACHE_PATH      = CACHE_ROOT + "/tab";
-        public static final String TAB_IMAGE_CACHE_PATH     = TAB_DATA_CACHE_PATH + "/icon";
     }
 
     public static class CustomProgressBarStatus {
@@ -99,9 +94,11 @@ public final class Constant {
         public static final int EXPORT_ACCOUNT_FAILED      = 0x8006;
         public static final int DELETE_ACCOUNT_SUCCESS     = 0x8007;
         public static final int DELETE_ACCOUNT_FAILED      = 0x8008;
-        public static final int GET_QRCODE_BITMAP_SUCCESS  = 0x8009;
-        public static final int GET_QRCODE_BITMAP_FAILED   = 0x8010;
-        public static final int QRCODE_RECOGNITION_SUCCESS = 0x8011;
-        public static final int QRCODE_RECOGNITION_FAILED  = 0x8012;
+        public static final int QRCODE_RECOGNITION_SUCCESS = 0x8009;
+        public static final int QRCODE_RECOGNITION_FAILED  = 0x8010;
+        public static final int ACCOUNT_RENAME_SUCCESS     = 0x8011;
+        public static final int ACCOUNT_RENAME_FAILED      = 0x8012;
+        public static final int IMPORT_ACCOUNT_SUCCESS     = 0x8013;
+        public static final int IMPORT_ACCOUNT_FAILED      = 0x8014;
     }
 }

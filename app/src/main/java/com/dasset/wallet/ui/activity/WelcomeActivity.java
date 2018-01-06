@@ -55,14 +55,8 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
     }
 
     @Override
-    protected void findViewById() {
-    }
-
-    @Override
-    protected void initialize(Bundle savedInstanceState) {
-        welcomePresenter = new WelcomePresenter(this, this);
-        welcomePresenter.initialize();
-        setBasePresenterImplement(welcomePresenter);
+    protected void onResume() {
+        super.onResume();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             welcomePresenter.checkPermission(new PermissionCallback() {
 
@@ -89,6 +83,17 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
                 startSplashActivity();
             }
         }
+    }
+
+    @Override
+    protected void findViewById() {
+    }
+
+    @Override
+    protected void initialize(Bundle savedInstanceState) {
+        welcomePresenter = new WelcomePresenter(this, this);
+        welcomePresenter.initialize();
+        setBasePresenterImplement(welcomePresenter);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.dasset.wallet.ui.activity.presenter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Message;
 
 import com.dasset.wallet.R;
@@ -99,18 +100,40 @@ public class AccountInfoPresenter extends BasePresenterImplement implements Acco
 
     @Override
     public void exportAccount() {
+//        ThreadPoolUtil.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (accountInfo != null) {
+//                    try {
+//                        AccountStorageFactory.getInstance().exportAccountToExternalStorageDirectory(accountInfo.getAddress(), accountInfo.getPassword());
+//                        accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.EXPORT_ACCOUNT_SUCCESS, String.format("备份文件已存储在：%s", AccountStorageFactory.getInstance().getBackupsDirectory().getAbsolutePath())));
+//                    } catch (PasswordException | IOException e) {
+//                        accountInfoHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
+//                    }
+//                } else {
+//                    accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_account_info_error)));
+//                }
+//            }
+//        });
         ThreadPoolUtil.execute(new Runnable() {
+
             @Override
             public void run() {
-                if (accountInfo != null) {
-                    try {
-                        AccountStorageFactory.getInstance().exportAccount(accountInfo.getAddress(), accountInfo.getPassword());
-                        accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.EXPORT_ACCOUNT_SUCCESS, String.format("备份文件已存储在：%s", AccountStorageFactory.getInstance().getBackupFileDirectory().getAbsolutePath())));
-                    } catch (PasswordException | IOException e) {
-                        accountInfoHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
+                try {
+                    if (accountInfo != null) {
+                        Intent intent = new Intent(Intent.ACTION_SEND);
+                        intent.putExtra(Intent.EXTRA_STREAM, AccountStorageFactory.getInstance().exportAccountToThird(accountInfo.getAddress(), accountInfo.getPassword()));
+                        intent.setType(Regex.UNLIMITED_DIRECTORY_TYPE.getRegext());
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        if (intent.resolveActivity(context.getPackageManager()) != null) {
+                            context.startActivity(Intent.createChooser(intent, context.getString(R.string.dialog_prompt_import_account_to)));
+                        } else {
+                            accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_account_info_error)));
+                        }
                     }
-                } else {
-                    accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_account_info_error)));
+                } catch (PasswordException | IOException e) {
+                    e.printStackTrace();
+                    accountInfoHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                 }
             }
         });
@@ -123,6 +146,21 @@ public class AccountInfoPresenter extends BasePresenterImplement implements Acco
 
     @Override
     public void deleteAccount() {
-
+        ThreadPoolUtil.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (accountInfo != null) {
+                    try {
+                        AccountStorageFactory.getInstance().deleteAccount(accountInfo.getAddress(), accountInfo.getPassword());
+                        accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.EXPORT_ACCOUNT_SUCCESS, String.format("账户%s解除成功", accountInfo.getAddress())));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        accountInfoHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
+                    }
+                } else {
+                    accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_account_info_error)));
+                }
+            }
+        });
     }
 }

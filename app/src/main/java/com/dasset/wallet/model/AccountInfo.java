@@ -8,21 +8,12 @@ import com.dasset.wallet.components.widget.sticky.listener.OnGroupListener;
 
 public class AccountInfo extends BaseEntity implements OnGroupListener {
 
-    private String serialNumber;
     private String accountName;
     private String privateKey;
     private String publicKey;
     private String address;
     private String password;
     private String timestamp;
-
-    public String getSerialNumber() {
-        return serialNumber;
-    }
-
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
 
     public String getAccountName() {
         return accountName;
@@ -76,7 +67,6 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
     public String toString() {
         if (BuildConfig.DEBUG) {
             return "AccountInfo{" +
-                    "serialNumber=" + serialNumber +
                     ", accountName='" + accountName + '\'' +
                     ", privateKey='" + privateKey + '\'' +
                     ", publicKey='" + publicKey + '\'' +
@@ -88,7 +78,7 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
             return super.toString();
         }
     }
-    
+
     public AccountInfo() {}
 
     @Override
@@ -107,7 +97,6 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeString(this.serialNumber);
         dest.writeString(this.accountName);
         dest.writeString(this.privateKey);
         dest.writeString(this.publicKey);
@@ -118,7 +107,6 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
 
     protected AccountInfo(Parcel in) {
         super(in);
-        this.serialNumber = in.readString();
         this.accountName = in.readString();
         this.privateKey = in.readString();
         this.publicKey = in.readString();
