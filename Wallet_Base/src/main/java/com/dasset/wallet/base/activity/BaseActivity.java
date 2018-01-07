@@ -481,7 +481,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         overridePendingTransition(com.dasset.wallet.base.R.anim.slide_right_in, com.dasset.wallet.base.R.anim.slide_left_out);
     }
 
-    protected void startActivityForResult(Class<?> cls, int requestCode, Bundle bundle) {
+    public void startActivityForResult(Class<?> cls, int requestCode, Bundle bundle) {
         Intent intent = new Intent();
         intent.setClass(this, cls);
         if (bundle != null) {

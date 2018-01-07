@@ -80,12 +80,17 @@ public class AccountRenamePresenter extends BasePresenterImplement implements Ac
             @Override
             public void run() {
                 try {
-                    AccountStorageFactory.getInstance().renameAccount(accountInfo.getAddress(), accountName);
-                    accountRenameHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_RENAME_SUCCESS));
+                    if (accountInfo != null) {
+                        AccountStorageFactory.getInstance().renameAccount(accountInfo.getAddress(), accountName);
+                        accountRenameHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_RENAME_SUCCESS));
+                    } else {
+                        accountRenameHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_RENAME_FAILED, context.getString(R.string.dialog_prompt_account_info_error)));
+                    }
                 } catch (PasswordException | IOException e) {
                     e.printStackTrace();
                     accountRenameHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.ACCOUNT_RENAME_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                 }
+
             }
         });
     }

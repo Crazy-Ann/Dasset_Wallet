@@ -67,7 +67,7 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
     public String toString() {
         if (BuildConfig.DEBUG) {
             return "AccountInfo{" +
-                    ", accountName='" + accountName + '\'' +
+                    "accountName='" + accountName + '\'' +
                     ", privateKey='" + privateKey + '\'' +
                     ", publicKey='" + publicKey + '\'' +
                     ", address='" + address + '\'' +

@@ -143,29 +143,24 @@ public final class AccountStorageFactory {
 //        }
 //    }
 
-    public List<AccountInfo> getAccountInfos(File keystoreDirectory) {
+    public List<AccountInfo> getAccountInfos(File keystoreDirectory) throws IOException {
         if (keyStore != null) {
-            try {
-                List<AccountInfo> accountInfos = Lists.newArrayList();
-                for (File file : keyStore.directoryTraversal(keystoreDirectory)) {
-                    Account account = keyStore.getAccount(file);
-                    if (account != null) {
-                        AccountInfo accountInfo = new AccountInfo();
-                        accountInfo.setAccountName(account.getAccountName());
-                        accountInfo.setAddress(account.getAddress());
-                        accountInfo.setPrivateKey(account.getPrivateKey());
-                        accountInfo.setPublicKey(account.getPublicKey());
-                        accountInfo.setPassword(account.getPassword());
-                        accountInfo.setTimestamp(account.getTimestamp());
-                        LogUtil.getInstance().print(accountInfo.toString());
-                        accountInfos.add(accountInfo);
-                    }
+            List<AccountInfo> accountInfos = Lists.newArrayList();
+            for (File file : keyStore.directoryTraversal(keystoreDirectory)) {
+                Account account = keyStore.getAccount(file);
+                if (account != null) {
+                    AccountInfo accountInfo = new AccountInfo();
+                    accountInfo.setAccountName(account.getAccountName());
+                    accountInfo.setAddress(account.getAddress());
+                    accountInfo.setPrivateKey(account.getPrivateKey());
+                    accountInfo.setPublicKey(account.getPublicKey());
+                    accountInfo.setPassword(account.getPassword());
+                    accountInfo.setTimestamp(account.getTimestamp());
+                    LogUtil.getInstance().print(accountInfo.toString());
+                    accountInfos.add(accountInfo);
                 }
-                return accountInfos;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
             }
+            return accountInfos;
         } else {
             LogUtil.getInstance().print(String.format("Is keyStore forget initialized?"));
             return null;

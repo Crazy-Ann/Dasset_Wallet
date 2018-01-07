@@ -3,6 +3,7 @@ package com.dasset.wallet.core.ecc;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.dasset.wallet.components.BuildConfig;
 import com.dasset.wallet.components.constant.Regex;
@@ -343,11 +344,8 @@ public final class KeyStore {
                 LogUtil.getInstance().print(String.format("Keystore directory file number is %s", keystoreFiles.length));
                 if (keystoreFiles.length != 0) {
                     for (File keystoreFile : keystoreFiles) {
-                        Account account = getAccount(keystoreFile);
-                        if (!file.getName().contains(account.getAddress())) {
+                        if (verifyAccount(file, keystoreFile)) {
                             IOUtil.getInstance().copyFile(file.getAbsolutePath(), new File(keystoreDirectory.getAbsoluteFile(), file.getName()).getAbsolutePath());
-                        } else {
-                            throw new IOException("Failure of account import, there is a same address account in the keystore directory file!");
                         }
                     }
                 } else {
@@ -360,6 +358,23 @@ public final class KeyStore {
         } else {
             throw new IOException("Failure of account import, there is a error in the keystore directory file!");
         }
+    }
+
+    private boolean verifyAccount(File externalFile, File keystoreFile) throws IOException, JSONException {
+        if (externalFile != null && externalFile.exists() && keystoreFile != null && keystoreFile.exists()) {
+            Account externalAccount = getAccount(externalFile);
+            Account keystoreAccount = getAccount(keystoreFile);
+            if (externalFile.getName().startsWith(Regex.UTC.getRegext())) {
+                if (!externalAccount.getAddress().equals(keystoreAccount.getAddress())) {
+                    return true;
+                } else {
+                    throw new IOException("Failure of account import, the external account adress is the same as the keystore account address!");
+                }
+            } else {
+                throw new IOException("Failure of account import, the file format is unavailable!");
+            }
+        }
+        throw new IOException("Failure of account import, the external file or keystore file is not exsist!");
     }
 
     public void renameAccount(String address, String accountName) throws IOException, PasswordException {
@@ -462,23 +477,27 @@ public final class KeyStore {
     }
 
     public synchronized Account getAccount(File file) throws IOException {
-        if (file != null && file.exists()) {
-            Account        account        = new Account();
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            String         data;
-            while ((data = bufferedReader.readLine()) != null) {
-                JSONObject jsonObject = JSON.parseObject(data);
-                account.setAccountName(jsonObject.getString("account_name"));
-                account.setAddress(jsonObject.getString("address"));
-                account.setPrivateKey(jsonObject.getString("private_key"));
-                account.setPublicKey(jsonObject.getString("public_key"));
-                account.setPassword(jsonObject.getString("password"));
-                account.setTimestamp(jsonObject.getString("time_stamp"));
-                LogUtil.getInstance().print(account.toString());
+        try {
+            if (file != null && file.exists()) {
+                Account        account        = new Account();
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+                String         data;
+                while ((data = bufferedReader.readLine()) != null) {
+                    JSONObject jsonObject = JSON.parseObject(data);
+                    account.setAccountName(jsonObject.getString("account_name"));
+                    account.setAddress(jsonObject.getString("address"));
+                    account.setPrivateKey(jsonObject.getString("private_key"));
+                    account.setPublicKey(jsonObject.getString("public_key"));
+                    account.setPassword(jsonObject.getString("password"));
+                    account.setTimestamp(jsonObject.getString("time_stamp"));
+                    LogUtil.getInstance().print(account.toString());
+                }
+                return account;
+            } else {
+                return null;
             }
-            return account;
-        } else {
-            return null;
+        } catch (JSONException e) {
+            throw new IOException("Failure of account import, the file format is unavailable!");
         }
     }
 

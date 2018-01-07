@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSONException;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.base.sticky.adapter.FixedStickyViewAdapter;
@@ -263,7 +264,14 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     @Override
     public void loadAccountData() {
         if (fixedStickyViewAdapter != null) {
-            fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()));
+            try {
+                fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()));
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+                showPromptDialog(e.getMessage(), false, false, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR);
+            }
+        } else {
+
         }
     }
 
@@ -274,29 +282,24 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
     @Override
     public void OnRightIconEvent() {
-
+        //todo
+        showImportAccountPromptDialog();
     }
 
     @Override
     public void onItemClick(int position) {
-//        Bundle bundle = new Bundle();
-//        bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position));
-//        startActivity(AccountInfoActivity.class, bundle);
-//        Bundle bundle = new Bundle();
-//        bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position));
-//        startActivityForResult(AccountRenameActivity.class, Constant.RequestCode.ACCOUNT_RENAME, bundle);
         try {
-            AccountInfo accountInfo = AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position);
-            AccountStorageFactory.getInstance().deleteAccount(accountInfo.getAddress(), accountInfo.getPassword());
-            loadAccountData();
-        } catch (Exception e) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position));
+            startActivity(AccountInfoActivity.class, bundle);
+        } catch (IOException e) {
             e.printStackTrace();
+            showPromptDialog(R.string.dialog_prompt_account_info_error, false, false, Constant.RequestCode.DIALOG_PROMPT_ACCOUNT_INFO_ERROR);
         }
     }
 
     @Override
     public void onnEventClick() {
-//        startActivityForResult(CreateAccountActivity.class, Constant.RequestCode.CREATE_ACCOUNT);
-        showImportAccountPromptDialog();
+        startActivityForResult(CreateAccountActivity.class, Constant.RequestCode.CREATE_ACCOUNT);
     }
 }

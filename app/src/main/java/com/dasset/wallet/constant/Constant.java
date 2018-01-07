@@ -7,7 +7,7 @@ public final class Constant {
     private Constant() { }
 
     public static final String   FILE_PROVIDER_AUTHORITY = "com.dasset.wallet.fileprovider";
-    public static final String[] PERMISSIONS   = {Manifest.permission.READ_PHONE_STATE
+    public static final String[] PERMISSIONS             = {Manifest.permission.READ_PHONE_STATE
             , Manifest.permission.READ_EXTERNAL_STORAGE
             , Manifest.permission.WRITE_EXTERNAL_STORAGE
             , Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS
@@ -38,10 +38,14 @@ public final class Constant {
         public static final int DIALOG_PROMPT_IMPORT_ACCOUNT1          = 0x1012;
         public static final int DIALOG_PROMPT_IMPORT_ACCOUNT2          = 0x1013;
         public static final int DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR     = 0x1014;
-        public static final int DIALOG_PROGRESS_QRCODE_RECOGNITION     = 0x1005;
-        public static final int DIALOG_PROMPT_QRCODE_RECOGNITION_ERROR = 0x1016;
-        public static final int DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR  = 0x1018;
-        public static final int DIALOG_PROMPT_FILE_MANAGER_ERROR       = 0x1019;
+        public static final int DIALOG_PROMPT_DELETE_ACCOUNT           = 0x1015;
+        public static final int DIALOG_PROMPT_DELETE_ACCOUNT_SUCCESS   = 0x1016;
+        public static final int DIALOG_PROMPT_DELETE_ACCOUNT_FAILED    = 0x1017;
+        public static final int DIALOG_PROGRESS_QRCODE_RECOGNITION     = 0x1018;
+        public static final int DIALOG_PROMPT_QRCODE_RECOGNITION_ERROR = 0x1019;
+        public static final int DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR  = 0x1020;
+        public static final int DIALOG_PROMPT_FILE_MANAGER_ERROR       = 0x1021;
+        public static final int DIALOG_PROMPT_ACCOUNT_INFO_ERROR       = 0x1022;
         public static final int CREATE_ACCOUNT                         = 0x2000;
         public static final int QRCODE_RECOGNITION                     = 0x2001;
         public static final int QRCODE_RECOGNITION_ALBUM               = 0x2002;
@@ -54,7 +58,7 @@ public final class Constant {
         public static final int QRCODE_RECOGNITION       = 0x3001;
         public static final int QRCODE_RECOGNITION_ALBUM = 0x3002;
         public static final int ACCOUNT_RENAME           = 0x3003;
-
+        public static final int DEKETE_ACCOUNT           = 0x3004;
     }
 
     public final static class Configuration {

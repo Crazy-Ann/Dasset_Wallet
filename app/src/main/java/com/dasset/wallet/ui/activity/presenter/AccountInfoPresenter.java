@@ -3,6 +3,7 @@ package com.dasset.wallet.ui.activity.presenter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Message;
 
 import com.dasset.wallet.R;
@@ -19,6 +20,7 @@ import com.dasset.wallet.model.TransactionRecord;
 import com.dasset.wallet.model.TransactionRecords;
 import com.dasset.wallet.ui.BasePresenterImplement;
 import com.dasset.wallet.ui.activity.AccountInfoActivity;
+import com.dasset.wallet.ui.activity.AccountRenameActivity;
 import com.dasset.wallet.ui.activity.contract.AccountInfoContract;
 import com.google.common.collect.Lists;
 
@@ -55,6 +57,14 @@ public class AccountInfoPresenter extends BasePresenterImplement implements Acco
                     case Constant.StateCode.EXPORT_ACCOUNT_FAILED:
                         activity.hideLoadingPromptDialog();
                         activity.showPromptDialog(msg.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_EXPORT_ACCOUNT_FAILED);
+                        break;
+                    case Constant.StateCode.DELETE_ACCOUNT_SUCCESS:
+                        activity.hideLoadingPromptDialog();
+                        activity.showPromptDialog(msg.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT_SUCCESS);
+                        break;
+                    case Constant.StateCode.DELETE_ACCOUNT_FAILED:
+                        activity.hideLoadingPromptDialog();
+                        activity.showPromptDialog(msg.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT_FAILED);
                         break;
                     default:
                         break;
@@ -141,7 +151,11 @@ public class AccountInfoPresenter extends BasePresenterImplement implements Acco
 
     @Override
     public void renameAccount() {
-
+        if (accountInfo != null) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, accountInfo);
+            ((AccountInfoActivity) view).startActivityForResult(AccountRenameActivity.class, Constant.RequestCode.ACCOUNT_RENAME, bundle);
+        }
     }
 
     @Override
@@ -152,13 +166,13 @@ public class AccountInfoPresenter extends BasePresenterImplement implements Acco
                 if (accountInfo != null) {
                     try {
                         AccountStorageFactory.getInstance().deleteAccount(accountInfo.getAddress(), accountInfo.getPassword());
-                        accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.EXPORT_ACCOUNT_SUCCESS, String.format("账户%s解除成功", accountInfo.getAddress())));
+                        accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.DELETE_ACCOUNT_SUCCESS, String.format("账户%s解除成功", accountInfo.getAddress())));
                     } catch (Exception e) {
                         e.printStackTrace();
-                        accountInfoHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
+                        accountInfoHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.DELETE_ACCOUNT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                     }
                 } else {
-                    accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.EXPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_account_info_error)));
+                    accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.DELETE_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_account_info_error)));
                 }
             }
         });

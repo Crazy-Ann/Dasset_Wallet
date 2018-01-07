@@ -52,12 +52,11 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
                 switch (message.what) {
                     case Constant.StateCode.IMPORT_ACCOUNT_SUCCESS:
                         activity.hideLoadingPromptDialog();
-                        LogUtil.getInstance().print("-------->:::::::" + AccountStorageFactory.getInstance().getKeystoreDirectory().listFiles().length);
                         view.loadAccountData();
                         break;
                     case Constant.StateCode.IMPORT_ACCOUNT_FAILED:
                         activity.hideLoadingPromptDialog();
-                        activity.showPromptDialog(R.string.dialog_prompt_import_account_error, false, false, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR);
                         break;
                     default:
                         break;
@@ -97,17 +96,17 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
                                 AccountStorageFactory.getInstance().importAccount(new File(uri.getPath()));
                                 mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_SUCCESS));
                             } else {
-                                mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED));
+                                mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));
                             }
                         } catch (PasswordException | IOException e) {
                             e.printStackTrace();
                             mainHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                         }
                     } else {
-                        mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED));
+                        mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));
                     }
                 } else {
-                    mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED));
+                    mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));
                 }
             }
         });

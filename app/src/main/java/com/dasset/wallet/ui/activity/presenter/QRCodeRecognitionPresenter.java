@@ -274,19 +274,19 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
                                         if (!TextUtils.isEmpty(result.getText())) {
                                             qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_SUCCESS, result));
                                         } else {
-                                            qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED));
+                                            qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED, context.getString(R.string.dialog_prompt_get_qrcode_bitmap_error)));
                                         }
                                     }
                                 });
                             } else {
-                                qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED));
+                                qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED, context.getString(R.string.dialog_prompt_get_qrcode_bitmap_error)));
                             }
                         } catch (NotFoundException | ChecksumException | FileNotFoundException | FormatException e) {
                             e.printStackTrace();
                             qrCodeRecognitionHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                         }
                     } else {
-                        qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED));
+                        qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED, context.getString(R.string.dialog_prompt_get_qrcode_bitmap_error)));
                     }
                 }
             }

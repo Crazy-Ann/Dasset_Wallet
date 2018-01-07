@@ -37,19 +37,15 @@ public class CreateAccountPresenter extends BasePresenterImplement implements Cr
                 switch (msg.what) {
                     case Constant.StateCode.GENERATE_ECKEYPAIR_SUCCESS:
                         activity.hideLoadingPromptDialog();
-                        try {
-                            Account account = (Account) msg.obj;
-                            LogUtil.getInstance().print(account.toString());
-                            Bundle bundle = new Bundle();
-                            bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, account);
-                            view.startCreateAccountResultActivity(bundle);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        Account account = (Account) msg.obj;
+                        LogUtil.getInstance().print(account.toString());
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, account);
+                        view.startCreateAccountResultActivity(bundle);
                         break;
                     case Constant.StateCode.GENERATE_ECKEYPAIR_FAILED:
                         activity.hideLoadingPromptDialog();
-                        activity.showPromptDialog(msg.obj.toString(), true, true, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR);
+                        activity.showPromptDialog(msg.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR);
                         break;
                     default:
                         break;
@@ -80,8 +76,8 @@ public class CreateAccountPresenter extends BasePresenterImplement implements Cr
                     Account          account = AccountStorageFactory.getInstance().createAccount(accountName, Hex.toHexString(keyPair.getPrivateKey().toByteArray()), Hex.toHexString(keyPair.getPublicKey()), AddressFactory.generatorAddress(keyPair.getPublicKey(), com.dasset.wallet.core.ecc.Constant.AddressType.HYC), password);
                     createAccountHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.GENERATE_ECKEYPAIR_SUCCESS, account));
                 } catch (Exception e) {
-                    createAccountHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.GENERATE_ECKEYPAIR_FAILED, e));
                     e.printStackTrace();
+                    createAccountHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.GENERATE_ECKEYPAIR_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                 }
             }
         });

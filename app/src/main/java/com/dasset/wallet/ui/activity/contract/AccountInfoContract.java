@@ -12,6 +12,8 @@ public interface AccountInfoContract {
 
         void setSwipeRefreshLayout(boolean isRefresh);
 
+        void showDeleteAccountPromptDialog();
+
 
     }
 
