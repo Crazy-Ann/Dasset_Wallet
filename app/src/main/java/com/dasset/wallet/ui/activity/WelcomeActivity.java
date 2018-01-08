@@ -55,8 +55,14 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void findViewById() {
+    }
+
+    @Override
+    protected void initialize(Bundle savedInstanceState) {
+        welcomePresenter = new WelcomePresenter(this, this);
+        welcomePresenter.initialize();
+        setBasePresenterImplement(welcomePresenter);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             welcomePresenter.checkPermission(new PermissionCallback() {
 
@@ -72,6 +78,9 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
 
                 @Override
                 public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+                    for (String deniedPermission : deniedPermissions) {
+                        LogUtil.getInstance().print("deniedPermission:" + deniedPermission);
+                    }
                     showPermissionPromptDialog();
                 }
             });
@@ -83,17 +92,6 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
                 startSplashActivity();
             }
         }
-    }
-
-    @Override
-    protected void findViewById() {
-    }
-
-    @Override
-    protected void initialize(Bundle savedInstanceState) {
-        welcomePresenter = new WelcomePresenter(this, this);
-        welcomePresenter.initialize();
-        setBasePresenterImplement(welcomePresenter);
     }
 
     @Override

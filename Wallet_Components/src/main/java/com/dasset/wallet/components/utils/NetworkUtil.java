@@ -21,7 +21,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
-public class NetworkUtil {
+public final class NetworkUtil {
 
     private static NetworkUtil mInstance;
 

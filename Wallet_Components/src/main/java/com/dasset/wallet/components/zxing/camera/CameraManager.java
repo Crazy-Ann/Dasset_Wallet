@@ -9,8 +9,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.view.SurfaceHolder;
 
-import com.dasset.wallet.components.utils.DensityUtil;
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.ViewUtil;
 
 import java.io.IOException;
 
@@ -226,7 +226,7 @@ public final class CameraManager {
             LogUtil.getInstance().print("scan_frame width:" + width);
             LogUtil.getInstance().print("scan_frame height:" + height);
             int leftOffset = (screenResolution.x - width) / 2;
-            int topOffset  = (screenResolution.y - height) / 5 * 2 - DensityUtil.getInstance(context).px2dp(100);
+            int topOffset  = (screenResolution.y - height) / 5 * 2 - ViewUtil.getInstance().px2dp(context,100);
             framingRect = new Rect(leftOffset, topOffset, leftOffset + width,
                                    topOffset + height);
             LogUtil.getInstance().print("scan_frame x:" + screenResolution.x);

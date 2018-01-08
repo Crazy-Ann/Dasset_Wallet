@@ -1,14 +1,14 @@
 package com.dasset.wallet.ecc;
 
+import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.content.FileProvider;
 
 import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.components.constant.Regex;
+import com.dasset.wallet.components.utils.FileProviderUtil;
 import com.dasset.wallet.components.utils.IOUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.core.ecc.Account;
-import com.dasset.wallet.core.ecc.Accounts;
 import com.dasset.wallet.core.ecc.Constant;
 import com.dasset.wallet.core.ecc.KeyStore;
 import com.dasset.wallet.core.ecc.PasswordManagerFactory;
@@ -23,9 +23,9 @@ import java.util.List;
 public final class AccountStorageFactory {
 
     private static AccountStorageFactory accountStorageFactory;
-    private        File                  keystoreDirectory;
-    //    private        File                  backupsDirectory;
-    private        KeyStore              keyStore;
+    private File keystoreDirectory;
+    //    private File backupsDirectory;
+    private KeyStore keyStore;
 
     private AccountStorageFactory() {
         // cannot be instantiated
@@ -88,8 +88,9 @@ public final class AccountStorageFactory {
 //        }
 //    }
 
-    public Uri exportAccountToThird(String address, String password) throws PasswordException, IOException {
-        return FileProvider.getUriForFile(BaseApplication.getInstance(), com.dasset.wallet.constant.Constant.FILE_PROVIDER_AUTHORITY, keyStore.exportAccount(address, password));
+    public Uri exportAccountToThird(Intent intent, String address, String password) throws PasswordException, IOException {
+        return FileProviderUtil.getInstance().generateUri(BaseApplication.getInstance(), intent, keyStore.exportAccount(address, password));
+//        return FileProvider.getUriForFile(BaseApplication.getInstance(), com.dasset.wallet.components.constant.Constant.FILE_PROVIDER_AUTHORITY, keyStore.exportAccount(address, password));
     }
 
     public void importAccount(File file) throws PasswordException, IOException {
@@ -100,9 +101,9 @@ public final class AccountStorageFactory {
         }
     }
 
-    public void renameAccount(String address, String accountName) throws PasswordException, IOException {
+    public Account renameAccount(String address, String accountName) throws PasswordException, IOException {
         if (keyStore != null) {
-            keyStore.renameAccount(address, accountName);
+            return keyStore.renameAccount(address, accountName);
         } else {
             throw new NullPointerException("Please check whether the keyStore is initialized!");
         }

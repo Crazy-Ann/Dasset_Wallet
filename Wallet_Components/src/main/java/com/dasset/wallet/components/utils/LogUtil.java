@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.dasset.wallet.components.BuildConfig;
 
-public class LogUtil {
+public final class LogUtil {
 
     private static LogUtil logUtil;
 

@@ -11,13 +11,11 @@ import com.dasset.wallet.components.utils.ViewUtil;
 public class AccountHolder extends BaseViewHolder {
 
     public TextView tvAddress;
-    public ImageView ivAddress;
-    public TextView tvSerialNumber;
+    public TextView tvAccountName;
 
     public AccountHolder(View itemView) {
         super(itemView);
         tvAddress = ViewUtil.getInstance().findView(itemView, R.id.tvAddress);
-        ivAddress = ViewUtil.getInstance().findView(itemView, R.id.ivAddress);
-        tvSerialNumber = ViewUtil.getInstance().findView(itemView, R.id.tvSerialNumber);
+        tvAccountName = ViewUtil.getInstance().findView(itemView, R.id.tvAccountName);
     }
 }

@@ -10,7 +10,7 @@ import com.dasset.wallet.components.constant.Constant;
 import java.io.Serializable;
 import java.util.Collection;
 
-public class BundleUtil {
+public final class BundleUtil {
 
     private static BundleUtil bundleUtil;
 

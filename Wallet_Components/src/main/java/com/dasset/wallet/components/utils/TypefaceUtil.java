@@ -6,7 +6,7 @@ import android.support.v4.util.SimpleArrayMap;
 
 import com.dasset.wallet.components.constant.Regex;
 
-public class TypefaceUtil {
+public final class TypefaceUtil {
 
     private static TypefaceUtil typefaceUtil;
     private static SimpleArrayMap<String, Typeface> simpleArrayMap = new SimpleArrayMap<>();

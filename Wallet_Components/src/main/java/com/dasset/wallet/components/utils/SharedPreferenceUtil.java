@@ -21,9 +21,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-public class SharedPreferenceUtil {
+public final class SharedPreferenceUtil {
 
-    private static final String TAG = "SharedPreferenceUtil";
     private static SharedPreferenceUtil sharedPreferenceUtil;
     private SharedPreferences preferences;
 

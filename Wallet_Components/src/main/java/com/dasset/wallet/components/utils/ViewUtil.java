@@ -52,7 +52,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ViewUtil {
+public final class ViewUtil {
 
     private static ViewUtil viewUtil;
 

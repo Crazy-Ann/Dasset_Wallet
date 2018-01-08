@@ -16,7 +16,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HttpUtil {
+public final class HttpUtil {
 
     private static HttpUtil httpUtil;
 

@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.dasset.wallet.components.constant.Constant;
 
-public class SnackBarUtil {
+public final class SnackBarUtil {
 
     private Snackbar snackbar;
 

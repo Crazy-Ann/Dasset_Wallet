@@ -27,7 +27,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-public class KeyStoreUtil {
+public final class KeyStoreUtil {
 
     private static KeyStoreUtil keyStoreUtil;
 

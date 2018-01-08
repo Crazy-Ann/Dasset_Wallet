@@ -15,7 +15,7 @@ import com.bumptech.glide.request.target.BaseTarget;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.dasset.wallet.components.constant.Constant;
 
-public class GlideUtil {
+public final class GlideUtil {
 
     private static GlideUtil mGlideUtil;
 

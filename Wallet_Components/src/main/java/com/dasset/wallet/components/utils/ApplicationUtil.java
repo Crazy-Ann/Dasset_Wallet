@@ -22,7 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Locale;
 
-public class ApplicationUtil {
+public final class ApplicationUtil {
 
     private static ApplicationUtil mApplicationUtil;
 

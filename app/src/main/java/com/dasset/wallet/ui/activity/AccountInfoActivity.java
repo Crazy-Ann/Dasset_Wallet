@@ -28,6 +28,7 @@ import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.widget.sticky.LinearLayoutDividerItemDecoration;
 import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
 import com.dasset.wallet.constant.Constant;
+import com.dasset.wallet.core.ecc.Account;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.AccountInfoContract;
 import com.dasset.wallet.ui.activity.presenter.AccountInfoPresenter;
@@ -41,14 +42,14 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
 
     private AccountInfoPresenter accountInfoPresenter;
 
-    private TextView               tvAddress;
-    private Button                 btnSend;
-    private ImageView              ivAddressQRCode;
-    private TextView               tvAmount;
-    private SwipeRefreshLayout     swipeRefreshLayout;
-    private RecyclerView           recycleView;
+    private TextView tvAddress;
+    private Button btnSend;
+    private ImageView ivAddressQRCode;
+    private TextView tvAmount;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private RecyclerView recycleView;
     private FixedStickyViewAdapter fixedStickyViewAdapter;
-    private LinearLayoutManager    linearLayoutManager;
+    private LinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +144,11 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                 } else {
                     fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
                 }
+            case Constant.RequestCode.ACCOUNT_RENAME:
+                if (data != null) {
+                    initializeToolbar(R.color.color_383856, true, R.mipmap.icon_back_white, this, android.R.color.white, ((Account) data.getParcelableExtra(Constant.BundleKey.WALLET_ACCOUNT)).getAccountName(), true, R.mipmap.icon_more, this);
+                }
+                break;
             default:
                 break;
         }
@@ -233,7 +239,8 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
         switch (v.getId()) {
             case R.id.btnSend:
                 //todo
-                showDeleteAccountPromptDialog();
+                accountInfoPresenter.renameAccount();
+//                showDeleteAccountPromptDialog();
                 break;
             default:
                 break;

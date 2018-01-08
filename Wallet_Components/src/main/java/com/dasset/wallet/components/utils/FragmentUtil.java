@@ -8,7 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import java.util.HashMap;
 
-public class FragmentUtil {
+public final class FragmentUtil {
 
     private FragmentManager fragmentManager;
     private HashMap<String, OperationInfo> items = new HashMap<String, OperationInfo>();

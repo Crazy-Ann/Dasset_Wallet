@@ -12,7 +12,7 @@ import com.google.common.collect.Lists;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class ActivityUtil {
+public final class ActivityUtil {
 
     private ActivityUtil() {
         // cannot be instantiated

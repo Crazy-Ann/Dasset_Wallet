@@ -26,9 +26,7 @@ import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ToastUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
-import com.dasset.wallet.core.exception.PasswordException;
 import com.dasset.wallet.ecc.AccountStorageFactory;
-import com.dasset.wallet.model.AccountInfo;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.MainContract;
 import com.dasset.wallet.ui.activity.presenter.MainPresenter;
@@ -36,7 +34,6 @@ import com.dasset.wallet.ui.adapter.AccountAdapter;
 import com.dasset.wallet.ui.binder.AccountBinder;
 import com.dasset.wallet.ui.dialog.PromptDialog;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -44,9 +41,9 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
     private MainPresenter mainPresenter;
 
-    private RecyclerView           recycleView;
+    private RecyclerView recycleView;
     private FixedStickyViewAdapter fixedStickyViewAdapter;
-    private LinearLayoutManager    linearLayoutManager;
+    private LinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +74,6 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
         } else {
             loadAccountData();
         }
-
     }
 
     @Override
@@ -137,9 +133,6 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                 if (data != null) {
                     ToastUtil.getInstance().showToast(this, data.getStringExtra(Constant.BundleKey.QRCODE_RESULT), Toast.LENGTH_SHORT);
                 }
-                break;
-            case Constant.RequestCode.ACCOUNT_RENAME:
-                loadAccountData();
                 break;
             case Constant.RequestCode.FILE_MANAGER:
                 mainPresenter.importAccount(data);
@@ -283,7 +276,15 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     @Override
     public void OnRightIconEvent() {
         //todo
-        showImportAccountPromptDialog();
+//        showImportAccountPromptDialog();
+        try {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType(Regex.UNLIMITED_DIRECTORY_TYPE.getRegext());
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, Constant.RequestCode.FILE_MANAGER);
+        } catch (ActivityNotFoundException e) {
+            showPromptDialog(R.string.dialog_prompt_file_manager_error, false, false, Constant.RequestCode.DIALOG_PROMPT_FILE_MANAGER_ERROR);
+        }
     }
 
     @Override

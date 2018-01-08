@@ -25,7 +25,7 @@ import java.util.TimeZone;
 public final class KeyStore {
 
     private File keystoreDirectory;
-    //    private File     backupsDirectory;
+//    private File backupsDirectory;
 
     public File getKeystoreDirectory() {
         return keystoreDirectory;
@@ -40,7 +40,6 @@ public final class KeyStore {
     }
 
 //    public KeyStore(File keystoreDirectory, File backupsDirectory) {
-//        this.accounts = new Accounts();
 //        this.keystoreDirectory = keystoreDirectory;
 //        this.backupsDirectory = backupsDirectory;
 //    }
@@ -86,7 +85,7 @@ public final class KeyStore {
             DateFormat dateFormat = new SimpleDateFormat(Regex.UTC_DATE_FORMAT_ALL.getRegext());
             dateFormat.setTimeZone(TimeZone.getTimeZone(Regex.UTC.getRegext()));
             String fileName = Regex.UTC.getRegext() + Regex.DOUBLE_MINUS.getRegext() + dateFormat.format(new Date()) + Regex.DOUBLE_MINUS.getRegext() + account.getAddress();
-            File   file     = new File(directoryPath + Regex.LEFT_SLASH.getRegext() + fileName);
+            File file = new File(directoryPath + Regex.LEFT_SLASH.getRegext() + fileName);
             if (file.createNewFile()) {
                 if (BuildConfig.DEBUG) {
                     directoryTraversal(file.getParentFile());
@@ -103,7 +102,7 @@ public final class KeyStore {
     public Account createAccount(String accountName, String privateKey, String publicKey, String address, String password) throws IOException {
         if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
             Account account = new Account(accountName, privateKey, publicKey, address, password);
-            File    file    = generatorKeyStoreFile(keystoreDirectory.getAbsolutePath(), account);
+            File file = generatorKeyStoreFile(keystoreDirectory.getAbsolutePath(), account);
             if (file != null && file.exists()) {
                 persistence(file, account);
             } else {
@@ -377,7 +376,7 @@ public final class KeyStore {
         throw new IOException("Failure of account import, the external file or keystore file is not exsist!");
     }
 
-    public void renameAccount(String address, String accountName) throws IOException, PasswordException {
+    public Account renameAccount(String address, String accountName) throws IOException, PasswordException {
         if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
             File[] keystoreDirectoryFiles = keystoreDirectory.listFiles();
             LogUtil.getInstance().print(String.format("Beystore directory file number is %s", keystoreDirectoryFiles.length));
@@ -387,7 +386,7 @@ public final class KeyStore {
                         if (keystoreDirectoryFile.getName().contains(address)) {
                             Account keystoreDirectoryAccount = getAccount(keystoreDirectoryFile);
                             if (keystoreDirectoryAccount != null) {
-                                createAccount(keystoreDirectoryFile, accountName, keystoreDirectoryAccount.getPrivateKey(), keystoreDirectoryAccount.getPublicKey(), keystoreDirectoryAccount.getAddress(), keystoreDirectoryAccount.getPassword());
+                                return createAccount(keystoreDirectoryFile, accountName, keystoreDirectoryAccount.getPrivateKey(), keystoreDirectoryAccount.getPublicKey(), keystoreDirectoryAccount.getAddress(), keystoreDirectoryAccount.getPassword());
                             } else {
                                 throw new IOException("Failure of account delete, the keystore directory account is null!");
                             }
@@ -400,6 +399,7 @@ public final class KeyStore {
         } else {
             throw new IOException("Failure of account delete, there is a error in the keystore directory file!");
         }
+        return null;
     }
 
 //    public void renameAccount(String address, String accountName) throws IOException, PasswordException {
@@ -479,9 +479,9 @@ public final class KeyStore {
     public synchronized Account getAccount(File file) throws IOException {
         try {
             if (file != null && file.exists()) {
-                Account        account        = new Account();
+                Account account = new Account();
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-                String         data;
+                String data;
                 while ((data = bufferedReader.readLine()) != null) {
                     JSONObject jsonObject = JSON.parseObject(data);
                     account.setAccountName(jsonObject.getString("account_name"));

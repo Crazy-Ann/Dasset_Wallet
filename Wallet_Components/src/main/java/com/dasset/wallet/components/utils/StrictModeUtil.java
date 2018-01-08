@@ -5,7 +5,7 @@ import android.os.StrictMode;
 
 import com.dasset.wallet.components.BuildConfig;
 
-public class StrictModeUtil {
+public final class StrictModeUtil {
 
     private static StrictModeUtil strictModeUtil;
 

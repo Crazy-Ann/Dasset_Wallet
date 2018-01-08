@@ -26,7 +26,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-public class IOUtil {
+public final class IOUtil {
 
     private static IOUtil ioUtil;
 

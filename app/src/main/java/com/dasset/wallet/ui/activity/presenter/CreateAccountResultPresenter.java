@@ -3,14 +3,12 @@ package com.dasset.wallet.ui.activity.presenter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Message;
 
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.handler.ActivityHandler;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.utils.BundleUtil;
-import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.MessageUtil;
 import com.dasset.wallet.components.utils.ThreadPoolUtil;
 import com.dasset.wallet.constant.Constant;
@@ -26,8 +24,8 @@ import java.io.IOException;
 public class CreateAccountResultPresenter extends BasePresenterImplement implements CreateAccountResultContract.Presenter {
 
     private CreateAccountResultContract.View view;
-    private CreateAccountResultHandler       createAccountResultHandler;
-    private Account                          account;
+    private CreateAccountResultHandler createAccountResultHandler;
+    private Account account;
 
     private class CreateAccountResultHandler extends ActivityHandler<CreateAccountResultActivity> {
 
@@ -93,15 +91,14 @@ public class CreateAccountResultPresenter extends BasePresenterImplement impleme
 //            }
 //        });
         ThreadPoolUtil.execute(new Runnable() {
-            
+
             @Override
             public void run() {
                 try {
                     if (account != null) {
                         Intent intent = new Intent(Intent.ACTION_SEND);
-                        intent.putExtra(Intent.EXTRA_STREAM, AccountStorageFactory.getInstance().exportAccountToThird(account.getAddress(), account.getPassword()));
                         intent.setType(Regex.UNLIMITED_DIRECTORY_TYPE.getRegext());
-                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        intent.putExtra(Intent.EXTRA_STREAM, AccountStorageFactory.getInstance().exportAccountToThird(intent, account.getAddress(), account.getPassword()));
                         if (intent.resolveActivity(context.getPackageManager()) != null) {
                             context.startActivity(Intent.createChooser(intent, context.getString(R.string.dialog_prompt_import_account_to)));
                         } else {

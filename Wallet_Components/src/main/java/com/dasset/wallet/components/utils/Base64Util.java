@@ -8,7 +8,7 @@ import com.dasset.wallet.components.constant.Constant;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class Base64Util {
+public final class Base64Util {
 
     private static final byte[] Table;
 

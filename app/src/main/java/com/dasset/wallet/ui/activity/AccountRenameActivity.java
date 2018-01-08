@@ -4,39 +4,24 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dasset.wallet.R;
-import com.dasset.wallet.base.sticky.adapter.FixedStickyViewAdapter;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
-import com.dasset.wallet.components.utils.GlideUtil;
 import com.dasset.wallet.components.utils.InputUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.validation.EditTextValidator;
 import com.dasset.wallet.components.validation.Validation;
-import com.dasset.wallet.components.widget.sticky.LinearLayoutDividerItemDecoration;
-import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
 import com.dasset.wallet.constant.Constant;
 import com.dasset.wallet.model.validation.AccountNameValidation;
-import com.dasset.wallet.model.validation.TransactionPasswordValidation;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.AccountRenameContract;
-import com.dasset.wallet.ui.activity.presenter.AccountInfoPresenter;
 import com.dasset.wallet.ui.activity.presenter.AccountRenamePresenter;
-import com.dasset.wallet.ui.adapter.TransactionRecordAdapter;
-import com.dasset.wallet.ui.binder.TransactionRecordBinder;
 
 import java.util.List;
 
@@ -44,9 +29,9 @@ public class AccountRenameActivity extends ActivityViewImplement<AccountRenameCo
 
     private AccountRenamePresenter accountRenamePresenter;
 
-    private EditText    etAccountName;
+    private EditText etAccountName;
     private ImageButton ibAccountNameEmpty;
-    private Button      btnConfirm;
+    private Button btnConfirm;
 
     private EditTextValidator editTextValidator;
 

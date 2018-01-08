@@ -4,7 +4,7 @@ import android.content.Context;
 import android.view.Gravity;
 import android.widget.Toast;
 
-public class ToastUtil {
+public final class ToastUtil {
 
     private Toast toast;
 

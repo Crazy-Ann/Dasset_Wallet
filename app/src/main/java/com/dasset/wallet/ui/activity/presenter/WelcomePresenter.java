@@ -18,4 +18,9 @@ public class WelcomePresenter extends BasePresenterImplement implements WelcomeC
     public void initialize() {
         super.initialize();
     }
+
+    @Override
+    public void getVersion() {
+        
+    }
 }

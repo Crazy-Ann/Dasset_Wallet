@@ -3,7 +3,7 @@ package com.dasset.wallet.components.utils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public class ReflectUtil {
+public final class ReflectUtil {
 
     private static ReflectUtil reflectUtil;
 

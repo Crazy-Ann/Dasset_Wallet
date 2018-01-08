@@ -26,7 +26,7 @@ public class AccountBinder extends BaseViewBinder {
             AccountHolder accountHolder = (AccountHolder) viewHolder;
             AccountInfo   accountInfo   = (AccountInfo) object;
             accountHolder.tvAddress.setText(accountInfo.getAddress());
-            accountHolder.tvSerialNumber.setText(String.format("账户%s", accountInfo.getAccountName()));
+            accountHolder.tvAccountName.setText(String.format("账户%s", accountInfo.getAccountName()));
         } else if (viewHolder instanceof AddAccountHolder) {
             //TODO
         }

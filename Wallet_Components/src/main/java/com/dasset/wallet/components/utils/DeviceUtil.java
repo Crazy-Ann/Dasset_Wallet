@@ -31,7 +31,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-public class DeviceUtil {
+public final class DeviceUtil {
 
     private static DeviceUtil mInstance;
 

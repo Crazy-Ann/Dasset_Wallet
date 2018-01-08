@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 
-public class JsonFormatUtil {
+public final class JsonFormatUtil {
 
     public static String formatJson(String json) {
         String fillStringUnit = "\t";

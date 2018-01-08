@@ -16,5 +16,6 @@ public interface WelcomeContract {
 
     interface Presenter extends BasePresenter {
 
+        void getVersion();
     }
 }

@@ -33,8 +33,8 @@ import java.util.Locale;
 public class AccountInfoPresenter extends BasePresenterImplement implements AccountInfoContract.Presenter {
 
     private AccountInfoContract.View view;
-    private AccountInfoHandler       accountInfoHandler;
-    private AccountInfo              accountInfo;
+    private AccountInfoHandler accountInfoHandler;
+    private AccountInfo accountInfo;
 
     public AccountInfo getAccountInfo() {
         return accountInfo;
@@ -94,8 +94,8 @@ public class AccountInfoPresenter extends BasePresenterImplement implements Acco
     @Override
     public TransactionRecords getTransactionRecords() {
         //todo
-        TransactionRecords      transactionRecords = new TransactionRecords();
-        List<TransactionRecord> records            = Lists.newArrayList();
+        TransactionRecords transactionRecords = new TransactionRecords();
+        List<TransactionRecord> records = Lists.newArrayList();
         for (int i = 0; i < 10; i++) {
             TransactionRecord transactionRecord = new TransactionRecord();
             transactionRecord.setAssetName("Intel" + i);
@@ -132,9 +132,8 @@ public class AccountInfoPresenter extends BasePresenterImplement implements Acco
                 try {
                     if (accountInfo != null) {
                         Intent intent = new Intent(Intent.ACTION_SEND);
-                        intent.putExtra(Intent.EXTRA_STREAM, AccountStorageFactory.getInstance().exportAccountToThird(accountInfo.getAddress(), accountInfo.getPassword()));
                         intent.setType(Regex.UNLIMITED_DIRECTORY_TYPE.getRegext());
-                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        intent.putExtra(Intent.EXTRA_STREAM, AccountStorageFactory.getInstance().exportAccountToThird(intent, accountInfo.getAddress(), accountInfo.getPassword()));
                         if (intent.resolveActivity(context.getPackageManager()) != null) {
                             context.startActivity(Intent.createChooser(intent, context.getString(R.string.dialog_prompt_import_account_to)));
                         } else {

@@ -65,7 +65,7 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
     @Override
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
-        tvAccountNumber = ViewUtil.getInstance().findView(this, R.id.tvSerialNumber);
+        tvAccountNumber = ViewUtil.getInstance().findView(this, R.id.tvAccountName);
         tvAddress = ViewUtil.getInstance().findView(this, R.id.tvAddress);
         tvAddressQRCode = ViewUtil.getInstance().findView(this, R.id.tvAddressQRCode);
         ivAddressQRCode = ViewUtil.getInstance().findView(this, R.id.ivAddressQRCode);

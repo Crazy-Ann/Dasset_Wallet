@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ThreadPoolUtil {
+public final class ThreadPoolUtil {
 
     private static ThreadPoolExecutor threadPoolExecutor;
     private static BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(10);

@@ -11,7 +11,7 @@ import android.widget.ScrollView;
 
 import com.dasset.wallet.components.constant.Constant;
 
-public class InputUtil {
+public final class InputUtil {
 
     private static InputMethodManager inputMethodManager;
     private static long lastClickTime;

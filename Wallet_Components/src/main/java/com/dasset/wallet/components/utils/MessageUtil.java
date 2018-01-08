@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 
-public class MessageUtil {
+public final class MessageUtil {
 
     private MessageUtil() {
         // cannot be instantiated

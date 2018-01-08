@@ -12,7 +12,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.dasset.wallet.components.R;
-import com.dasset.wallet.components.utils.DensityUtil;
+import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.zxing.camera.CameraManager;
 import com.google.zxing.ResultPoint;
 
@@ -50,7 +50,7 @@ public final class ViewfinderView extends View {
         borderColor = getResources().getColor(R.color.color_ff5c5c5c);
         scannerAlpha = 0;
         possibleResultPoints = new HashSet<>(5);
-        laserMoveSpeed = DensityUtil.getInstance(context).dp2px(3f);
+        laserMoveSpeed = ViewUtil.getInstance().dp2px(context,3f);
     }
 
     @Override

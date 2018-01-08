@@ -31,8 +31,8 @@ import java.util.List;
 public class QRCodeRecognitionActivity extends ActivityViewImplement<QRCodeRecognitionContract.Presenter> implements QRCodeRecognitionContract.View, OnLeftIconEventListener, OnRightTextEventListener, SurfaceHolder.Callback, OnDecodeHandlerListener {
 
     private QRCodeRecognitionPresenter qrCodeRecognitionPresenter;
-    private ViewfinderView             vfvFinder;
-    private SurfaceView                surfaceView;
+    private ViewfinderView vfvFinder;
+    private SurfaceView surfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

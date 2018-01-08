@@ -27,7 +27,7 @@ import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class SecurityUtil {
+public final class SecurityUtil {
 
     private static SecurityUtil securityUtil;
 
