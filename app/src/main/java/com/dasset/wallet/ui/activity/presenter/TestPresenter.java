@@ -42,11 +42,11 @@ public class TestPresenter extends BasePresenterImplement implements TestContrac
         }
 
         @Override
-        protected void handleMessage(TestActivity activity, Message msg) {
+        protected void handleMessage(TestActivity activity, Message message) {
             if (activity != null) {
-                switch (msg.what) {
+                switch (message.what) {
                     case Constant.StateCode.TEST_SUCCESS:
-                        Test eccTest = (Test) msg.obj;
+                        Test eccTest = (Test) message.obj;
                         LogUtil.getInstance().print(String.format("Private Key: %s", eccTest.getPrivateKey()));
                         LogUtil.getInstance().print(String.format("Public Key: %s", eccTest.getPublicKey()));
                         LogUtil.getInstance().print(String.format("Address: %s", eccTest.getAddress()));
@@ -57,7 +57,7 @@ public class TestPresenter extends BasePresenterImplement implements TestContrac
                         view.showTestData(eccTest);
                         break;
                     case Constant.StateCode.TEST_FAILED:
-                        ToastUtil.getInstance().showToast(activity, msg.obj.toString(), Toast.LENGTH_SHORT);
+                        ToastUtil.getInstance().showToast(activity, message.obj.toString(), Toast.LENGTH_SHORT);
                         break;
                     default:
                         break;
@@ -103,7 +103,7 @@ public class TestPresenter extends BasePresenterImplement implements TestContrac
                     //        eccTestPresenter.getSecurityProviders();
                     Test eccTest = new Test();
                     ECKeyPairFactory keyPair = ECKeyPairFactory.generateECKeyPair(new BigInteger("3ed73981e3fc455a161de8fe872d34342e4b5207c8fc28e1dd35add63e92277a", 16), false);
-//            Element keyPair = Element.createAccount(false);
+//            Element keyPair = Element.editAccount(false);
                     eccTest.setPrivateKey(Hex.toHexString(keyPair.getPrivateKey().toByteArray()));
                     eccTest.setPublicKey(Hex.toHexString(keyPair.getPublicKey()));
                     eccTest.setAddress(AddressFactory.generatorAddress(keyPair.getPublicKey(), com.dasset.wallet.core.ecc.Constant.AddressType.HYC));

@@ -12,8 +12,10 @@ public interface CreateAccountResultContract {
     }
 
     interface Presenter extends BasePresenter {
-        
-        void exportAccount();
+
+        void exportAccount(String password);
+
+        void deleteBackupsAccount();
 
     }
 }

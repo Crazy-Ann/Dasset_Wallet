@@ -191,7 +191,7 @@ public class ECKey implements Serializable {
      *
      * @param encryptedPrivateKey The private key, encrypted,
      * @param pubKey              The keys public key
-     * @param keyCrypter          The KeyCrypter that will be used, with an AES key, to encrypt and decrypt the private key
+     * @param keyCrypter          The KeyCrypter that will be used, with an AES key, to encrypt and decryptAESEBC the private key
      */
     public ECKey(@Nullable EncryptedPrivateKey encryptedPrivateKey, @Nullable byte[] pubKey, KeyCrypter keyCrypter) {
         this((byte[]) null, pubKey);
@@ -487,13 +487,13 @@ public class ECKey implements Serializable {
             }
 
             if (keyCrypter == null) {
-                throw new KeyCrypterException("There is no KeyCrypter to decrypt the private key for signing.");
+                throw new KeyCrypterException("There is no KeyCrypter to decryptAESEBC the private key for signing.");
             }
 
             privateKeyForSigning = new BigInteger(1, keyCrypter.decrypt(encryptedPrivateKey, aesKey));
             // Check encryption was correct.
             if (!Arrays.equals(pub, publicKeyFromPrivate(privateKeyForSigning, isCompressed())))
-                throw new KeyCrypterException("Could not decrypt bytes");
+                throw new KeyCrypterException("Could not decryptAESEBC bytes");
         } else {
             // No decryption of private key required.
             if (priv == null) {
@@ -630,7 +630,7 @@ public class ECKey implements Serializable {
      * encoded string.
      *
      * @throws IllegalStateException                         if this ECKey does not have the private part.
-     * @throws net.bither.bitherj.crypto.KeyCrypterException if this ECKey is encrypted and no AESKey is provided or it does not decrypt the ECKey.
+     * @throws net.bither.bitherj.crypto.KeyCrypterException if this ECKey is encrypted and no AESKey is provided or it does not decryptAESEBC the ECKey.
      */
     public String signMessage(String message) throws KeyCrypterException {
         return signMessage(message, null);
@@ -641,7 +641,7 @@ public class ECKey implements Serializable {
      * encoded string.
      *
      * @throws IllegalStateException                         if this ECKey does not have the private part.
-     * @throws net.bither.bitherj.crypto.KeyCrypterException if this ECKey is encrypted and no AESKey is provided or it does not decrypt the ECKey.
+     * @throws net.bither.bitherj.crypto.KeyCrypterException if this ECKey is encrypted and no AESKey is provided or it does not decryptAESEBC the ECKey.
      */
     public String signMessage(String message, @Nullable KeyParameter aesKey) throws KeyCrypterException {
 //        if (priv == null)
@@ -871,7 +871,7 @@ public class ECKey implements Serializable {
         Preconditions.checkNotNull(keyCrypter);
         // Check that the keyCrypter matches the one used to encrypt the keys, if set.
         if (this.keyCrypter != null && !this.keyCrypter.equals(keyCrypter)) {
-            throw new KeyCrypterException("The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it");
+            throw new KeyCrypterException("The keyCrypter being used to decryptAESEBC the key is different to the one that was used to encrypt it");
         }
         byte[] unencryptedPrivateKey = keyCrypter.decrypt(encryptedPrivateKey, aesKey);
         ECKey key = new ECKey(new BigInteger(1, unencryptedPrivateKey), null, isCompressed());
@@ -881,7 +881,7 @@ public class ECKey implements Serializable {
     }
 
     /**
-     * Check that it is possible to decrypt the key with the keyCrypter and that the original key is returned.
+     * Check that it is possible to decryptAESEBC the key with the keyCrypter and that the original key is returned.
      * <p/>
      * Because it is a critical failure if the private keys cannot be decrypted successfully (resulting of loss of all bitcoins controlled
      * by the private key) you can use this method to check when you *encrypt* a wallet that it can definitely be decrypted successfully.
@@ -949,7 +949,7 @@ public class ECKey implements Serializable {
     }
 
     /**
-     * @return The KeyCrypter that was used to encrypt to encrypt this ECKey. You need this to decrypt the ECKey.
+     * @return The KeyCrypter that was used to encrypt to encrypt this ECKey. You need this to decryptAESEBC the ECKey.
      */
     public KeyCrypter getKeyCrypter() {
         return keyCrypter;

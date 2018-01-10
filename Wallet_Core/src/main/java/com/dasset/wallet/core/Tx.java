@@ -1376,7 +1376,7 @@ public class Tx extends Message implements Comparable<Tx> {
 //            Tx tx = AbstractDb.txProvider.getTxDetailByTxHash(in.getPrevTxHash());
 //            int n = in.getPrevOutSn();
 //            for (Out out : tx.getOuts()) {
-//                if (n == out.getOutSn() && Utils.compareString(address.getAddress(),
+//                if (n == out.getOutSn() && Utils.compareString(address.getAddress2(),
 //                        out.getOutAddress())) {
 //                    amount += tx.outs.get(n).getOutValue();
 //                }
@@ -1388,7 +1388,7 @@ public class Tx extends Message implements Comparable<Tx> {
 //    public long amountSentTo(Address address) {
 //        long amount = 0;
 //        for (Out out : this.outs) {
-//            if (Utils.compareString(address.getAddress(), out.getOutAddress())) {
+//            if (Utils.compareString(address.getAddress2(), out.getOutAddress())) {
 //                amount += out.getOutValue();
 //            }
 //        }

@@ -49,7 +49,7 @@ public class PasswordManager {
     public void setPassword(Context context, String address, String password) throws NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidKeySpecException, InvalidAlgorithmParameterException {
         SecretKey secretKey = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
         IvParameterSpec ivParameterSpec = new IvParameterSpec(iv.getBytes(Regex.UTF_8.getRegext()));
-        byte[] encryptedPassword = SecurityUtil.getInstance().encryptAES(password, secretKey, ivParameterSpec);
+        byte[] encryptedPassword = SecurityUtil.getInstance().encryptAESCBC(password, secretKey, ivParameterSpec);
         SharedPreferenceUtil.getInstance().putString(context, Constant.Configuration.PASSWORD, Context.MODE_PRIVATE, address, Hex.toHexString(encryptedPassword));
     }
 
@@ -57,6 +57,6 @@ public class PasswordManager {
         byte[] encryptedPassword = Hex.decode(SharedPreferenceUtil.getInstance().getString(context, Constant.Configuration.PASSWORD, Context.MODE_PRIVATE, address, null));
         SecretKey secretKey = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
         IvParameterSpec ivParameterSpec = new IvParameterSpec(iv.getBytes(Regex.UTF_8.getRegext()));
-        return SecurityUtil.getInstance().decryptAES(encryptedPassword, secretKey, ivParameterSpec);
+        return SecurityUtil.getInstance().decryptAESCBC(encryptedPassword, secretKey, ivParameterSpec);
     }
 }

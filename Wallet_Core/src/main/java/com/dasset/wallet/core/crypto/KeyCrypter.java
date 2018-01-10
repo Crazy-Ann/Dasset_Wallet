@@ -24,14 +24,14 @@ import org.spongycastle.crypto.params.KeyParameter;
 import java.io.Serializable;
 
 /**
- * <p>A KeyCrypter can be used to encrypt and decrypt a message. The sequence of events to encrypt and then decrypt
+ * <p>A KeyCrypter can be used to encrypt and decryptAESEBC a message. The sequence of events to encrypt and then decryptAESEBC
  * a message are as follows:</p>
  * <p/>
  * <p>(1) Ask the user for a password. deriveKey() is then called to create an KeyParameter. This contains the AES
  * key that will be used for encryption.</p>
  * <p>(2) Encrypt the message using encrypt(), providing the message bytes and the KeyParameter from (1). This returns
  * an EncryptedPrivateKey which contains the encryptedPrivateKey bytes and an initialisation vector.</p>
- * <p>(3) To decrypt an EncryptedPrivateKey, repeat step (1) to get a KeyParameter, then call decrypt().</p>
+ * <p>(3) To decryptAESEBC an EncryptedPrivateKey, repeat step (1) to get a KeyParameter, then call decryptAESEBC().</p>
  * <p/>
  * <p>There can be different algorithms used for encryption/ decryption so the getUnderstoodEncryptionType is used
  * to determine whether any given KeyCrypter can understand the type of encrypted data you have.</p>

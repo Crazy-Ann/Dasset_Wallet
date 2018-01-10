@@ -109,6 +109,7 @@ public class QRCodeRecognitionActivity extends ActivityViewImplement<QRCodeRecog
                 }
                 break;
             case Constant.RequestCode.QRCODE_RECOGNITION_ALBUM:
+                hideLoadingPromptDialog();
                 qrCodeRecognitionPresenter.getQRCodeBitmap(data);
                 break;
             default:

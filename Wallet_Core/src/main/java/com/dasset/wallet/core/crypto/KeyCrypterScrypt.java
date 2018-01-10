@@ -147,7 +147,7 @@ public class KeyCrypterScrypt implements KeyCrypter, Serializable {
      * Decrypt bytes previously encrypted with this class.
      *
      * @param privateKeyToDecode
-     *         The private key to decrypt
+     *         The private key to decryptAESEBC
      * @param aesKey
      *         The AES key to use for decryption
      *
@@ -182,7 +182,7 @@ public class KeyCrypterScrypt implements KeyCrypter, Serializable {
 
             return decryptedBytes;
         } catch (Exception e) {
-            throw new KeyCrypterException("Could not decrypt bytes", e);
+            throw new KeyCrypterException("Could not decryptAESEBC bytes", e);
         }
     }
 

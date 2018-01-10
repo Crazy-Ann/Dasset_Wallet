@@ -12,7 +12,6 @@ import com.dasset.wallet.components.utils.MessageUtil;
 import com.dasset.wallet.components.utils.ThreadPoolUtil;
 import com.dasset.wallet.constant.Constant;
 import com.dasset.wallet.core.ecc.Account;
-import com.dasset.wallet.core.exception.PasswordException;
 import com.dasset.wallet.ecc.AccountStorageFactory;
 import com.dasset.wallet.model.AccountInfo;
 import com.dasset.wallet.ui.BasePresenterImplement;
@@ -46,8 +45,8 @@ public class AccountRenamePresenter extends BasePresenterImplement implements Ac
                         Account account = (Account) message.obj;
                         Intent intent = new Intent();
                         intent.putExtra(Constant.BundleKey.WALLET_ACCOUNT, account);
-                        ((AccountRenameActivity) view).setResult(Constant.ResultCode.ACCOUNT_RENAME, intent);
-                        ((AccountRenameActivity) view).onFinish("ACCOUNT_RENAME_SUCCESS");
+                        activity.setResult(Constant.ResultCode.ACCOUNT_RENAME, intent);
+                        activity.onFinish("ACCOUNT_RENAME_SUCCESS");
                         break;
                     case Constant.StateCode.ACCOUNT_RENAME_FAILED:
                         activity.hideLoadingPromptDialog();
@@ -85,7 +84,7 @@ public class AccountRenamePresenter extends BasePresenterImplement implements Ac
             public void run() {
                 try {
                     if (accountInfo != null) {
-                        Account account = AccountStorageFactory.getInstance().renameAccount(accountInfo.getAddress(), accountName);
+                        Account account = AccountStorageFactory.getInstance().renameAccount(accountInfo.getAddress2(), accountName);
                         if (account != null) {
                             accountRenameHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_RENAME_SUCCESS, account));
                         } else {
@@ -94,7 +93,7 @@ public class AccountRenamePresenter extends BasePresenterImplement implements Ac
                     } else {
                         accountRenameHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_RENAME_FAILED, context.getString(R.string.dialog_prompt_account_info_error)));
                     }
-                } catch (PasswordException | IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     accountRenameHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.ACCOUNT_RENAME_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                 }

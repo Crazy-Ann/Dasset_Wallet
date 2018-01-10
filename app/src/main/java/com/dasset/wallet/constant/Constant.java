@@ -44,11 +44,19 @@ public final class Constant {
         public static final int DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR = 0x1020;
         public static final int DIALOG_PROMPT_FILE_MANAGER_ERROR = 0x1021;
         public static final int DIALOG_PROMPT_ACCOUNT_INFO_ERROR = 0x1022;
+        public static final int DIALOG_PROMPT_QRCODE_EXPORT = 0x1023;
+        public static final int DIALOG_PROMPT_QRCODE_EXPORT_ERROR = 0x1024;
+        public static final int DIALOG_PROMPT_QRCODE_SAVE_SUCCESS = 0x1025;
+        public static final int DIALOG_PROMPT_QRCODE_SAVE_ERROR = 0x1026;
+        public static final int DIALOG_PROMPT_QRCODE_SHARE_SUCCESS = 0x1027;
+        public static final int DIALOG_PROMPT_QRCODE_SHARE_ERROR = 0x1028;
         public static final int CREATE_ACCOUNT = 0x2000;
         public static final int QRCODE_RECOGNITION = 0x2001;
         public static final int QRCODE_RECOGNITION_ALBUM = 0x2002;
         public static final int ACCOUNT_RENAME = 0x2003;
         public static final int FILE_MANAGER = 0x2004;
+        public static final int EXPORT_ACCOUNT = 0x2005;
+        public static final int EXPORT_QRCODE = 0x2006;
     }
 
     public final static class ResultCode {
@@ -87,20 +95,32 @@ public final class Constant {
         public static final int DATA_SIZE = 10;
     }
 
+    public class Cache {
+        public static final String ROOT = "/dasset";
+        public static final String CACHE_ROOT = ROOT + "/cache";
+        public static final String IMAGE_CACHE_PATH = CACHE_ROOT + "/image";
+    }
+
     public static class StateCode {
         public static final int TEST_SUCCESS = 0x8001;
         public static final int TEST_FAILED = 0x8002;
-        public static final int GENERATE_ECKEYPAIR_SUCCESS = 0x8003;
-        public static final int GENERATE_ECKEYPAIR_FAILED = 0x8004;
-        public static final int EXPORT_ACCOUNT_SUCCESS = 0x8005;
-        public static final int EXPORT_ACCOUNT_FAILED = 0x8006;
-        public static final int DELETE_ACCOUNT_SUCCESS = 0x8007;
-        public static final int DELETE_ACCOUNT_FAILED = 0x8008;
+        public static final int ECKEYPAIR_GENERATE_SUCCESS = 0x8003;
+        public static final int ECKEYPAIR_GENERATE_FAILED = 0x8004;
+        public static final int ACCOUNT_EXPORT_SUCCESS = 0x8005;
+        public static final int ACCOUNT_EXPORT_FAILED = 0x8006;
+        public static final int ACCOUNT_DELETE_SUCCESS = 0x8007;
+        public static final int ACCOUNT_DELETE_FAILED = 0x8008;
         public static final int QRCODE_RECOGNITION_SUCCESS = 0x8009;
         public static final int QRCODE_RECOGNITION_FAILED = 0x8010;
         public static final int ACCOUNT_RENAME_SUCCESS = 0x8011;
         public static final int ACCOUNT_RENAME_FAILED = 0x8012;
-        public static final int IMPORT_ACCOUNT_SUCCESS = 0x8013;
-        public static final int IMPORT_ACCOUNT_FAILED = 0x8014;
+        public static final int ACCOUNT_IMPORT_SUCCESS = 0x8013;
+        public static final int ACCOUNT_IMPORT_FAILED = 0x8014;
+        public static final int BACKUPS_ACCOUNT_DELETE_SUCCESS = 0x8015;
+        public static final int BACKUPS_ACCOUNT_DELETE_FAILED = 0x8016;
+        public static final int QRCODE_SAVE_SUCCESS = 0x8017;
+        public static final int QRCODE_SAVE_FAILED = 0x8018;
+        public static final int QRCODE_SHARE_SUCCESS = 0x8019;
+        public static final int QRCODE_SHARE_FAILED = 0x8020;
     }
 }

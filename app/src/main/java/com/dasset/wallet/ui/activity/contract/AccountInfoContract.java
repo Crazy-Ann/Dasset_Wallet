@@ -14,14 +14,14 @@ public interface AccountInfoContract {
 
         void showDeleteAccountPromptDialog();
 
-
+        void loadTransactionRecords();
     }
 
     interface Presenter extends BasePresenter {
 
         TransactionRecords getTransactionRecords();
 
-        void exportAccount();
+        void exportAccount(String password);
 
         void renameAccount();
 

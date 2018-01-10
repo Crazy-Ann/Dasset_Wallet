@@ -38,8 +38,8 @@ public class WalletApi {
         }
     }
 
-//    public void createAccount(final Context context, final BaseView view, String tradepwd, String lockpwd, BigInteger privateKey, byte[] publicKey, String note, final ApiResponse apiResponse) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, IOException {
-//        LogUtil.getInstance().print("createAccount");
+//    public void editAccount(final Context context, final BaseView view, String tradepwd, String lockpwd, BigInteger privateKey, byte[] publicKey, String note, final ApiResponse apiResponse) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, IOException {
+//        LogUtil.getInstance().print("editAccount");
 //        if (NetworkUtil.getInstance().isInternetConnecting(context)) {
 //            JSONObject object = new JSONObject();
 //            object.put(ParameterKey.CreateAccount.TRADE_PASSWORD, tradepwd);
@@ -62,10 +62,10 @@ public class WalletApi {
 //                    @Override
 //                    public void onResponseSuccess(JSONObject object) {
 //                        super.onResponseSuccess(object);
-//                        LogUtil.getInstance().print("资产帐户建立成功:" + createAccount.toString());
+//                        LogUtil.getInstance().print("资产帐户建立成功:" + editAccount.toString());
 //                        if (!view.isActivityFinish()) {
-//                            if (createAccount != null) {
-//                                apiResponse.success(createAccount);
+//                            if (editAccount != null) {
+//                                apiResponse.success(editAccount);
 //                            } else {
 //                                view.showPromptDialog(R.string.dialog_prompt_create_account_error, true, true, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR);
 //                            }

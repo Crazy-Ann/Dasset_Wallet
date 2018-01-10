@@ -361,7 +361,7 @@ public class TransactionsUtil {
                 /*
                 while (needGetTxs) {
                     BitherMytransactionsApi bitherMytransactionsApi = new BitherMytransactionsApi(
-                            hdAccountAddress.getAddress(), page, flag);
+                            hdAccountAddress.getAddress2(), page, flag);
                     bitherMytransactionsApi.handleHttpGet();
                     String txResult = bitherMytransactionsApi.getResult();
                     JSONObject jsonObject = new JSONObject(txResult);
@@ -488,7 +488,7 @@ public class TransactionsUtil {
                 /*
                 while (needGetTxs) {
                     BitherMytransactionsApi bitherMytransactionsApi = new BitherMytransactionsApi(
-                            hdAccountAddress.getAddress(), page, flag);
+                            hdAccountAddress.getAddress2(), page, flag);
                     bitherMytransactionsApi.handleHttpGet();
                     String txResult = bitherMytransactionsApi.getResult();
                     JSONObject jsonObject = new JSONObject(txResult);
@@ -608,7 +608,7 @@ public class TransactionsUtil {
                 /*
                 while (needGetTxs) {
                     BitherMytransactionsApi bitherMytransactionsApi = new BitherMytransactionsApi(
-                            desktopHDMAddress.getAddress(), page, flag);
+                            desktopHDMAddress.getAddress2(), page, flag);
                     bitherMytransactionsApi.handleHttpGet();
                     String txResult = bitherMytransactionsApi.getResult();
                     JSONObject jsonObject = new JSONObject(txResult);

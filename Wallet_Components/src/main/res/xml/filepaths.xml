@@ -1,7 +1,7 @@
 <paths>
-    <files-path
+    <external-path
         name="keystore"
-        path="keystore/"/>
+        path="keystore"/>
     <!--<root-path name="root" path="" />-->
     <!--<files-path name="files" path="" />-->
     <!--<cache-path name="cache" path="" />-->

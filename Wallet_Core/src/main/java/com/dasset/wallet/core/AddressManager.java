@@ -231,10 +231,10 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
         }
 
 //        for (HDAccount.HDAccountAddress hdAccountAddress : relatedAddresses) {
-//            relatedAddressesHS.add(hdAccountAddress.getAddress());
+//            relatedAddressesHS.add(hdAccountAddress.getAddress2());
 //        }
 //        for (HDAccount.HDAccountAddress hdAccountAddress : relatedHDMonitoredAddresses) {
-//            relatedHDMonitoredAddressesHS.add(hdAccountAddress.getAddress());
+//            relatedHDMonitoredAddressesHS.add(hdAccountAddress.getAddress2());
 //        }
         for (DesktopHDMAddress desktopHDMAddress : relatedDesktopHDMAddresses) {
             relatedDesktopHDMAddressesHS.add(desktopHDMAddress.getAddress());
@@ -320,7 +320,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 //        List<HDAccount.HDAccountAddress> needNotifityAddressList = new ArrayList<HDAccount
 //                .HDAccountAddress>();
 //        for (HDAccount.HDAccountAddress hdAccountAddress : relatedAddresses) {
-//            if (needNotifyHDAccountHS.contains(hdAccountAddress.getAddress())) {
+//            if (needNotifyHDAccountHS.contains(hdAccountAddress.getAddress2())) {
 //                needNotifityAddressList.add(hdAccountAddress);
 //            }
 //        }
@@ -328,7 +328,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 //        List<HDAccount.HDAccountAddress> needNotifyHDMonitoredAddressList = new
 //                ArrayList<HDAccount.HDAccountAddress>();
 //        for (HDAccount.HDAccountAddress hdAccountAddress : relatedHDMonitoredAddresses) {
-//            if (needNotifyHDAccountMonitoredHS.contains(hdAccountAddress.getAddress())) {
+//            if (needNotifyHDAccountMonitoredHS.contains(hdAccountAddress.getAddress2())) {
 //                needNotifyHDMonitoredAddressList.add(hdAccountAddress);
 //            }
 //        }

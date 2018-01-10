@@ -40,9 +40,9 @@
 
     <style name="Bottom_Dialog" parent="android:Theme.Light"/>
 
-    <style name="Light_Dialog" parent="android:Theme.Light" />
+    <style name="Light_Dialog" parent="android:Theme.Light"/>
 
-    <style name="Dark_Dialog" parent="android:Theme" />
+    <style name="Dark_Dialog" parent="android:Theme"/>
 
     <style name="Bottom_Dialog.Appearance">
         <item name="android:windowFrame">@null</item>
@@ -231,7 +231,8 @@
     <style name="Light_Dialog.Progress2" parent="Widget.AppCompat.ProgressBar">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:indeterminateTint" tools:ignore="NewApi">@android:color/darker_gray</item>
+        <item name="android:indeterminateTint" tools:ignore="NewApi">@android:color/darker_gray
+        </item>
         <item name="android:indeterminateTintMode" tools:ignore="NewApi">src_atop</item>
         <item name="android:layout_marginRight">@dimen/dp_4</item>
         <item name="android:layout_marginLeft">@dimen/dp_16</item>
@@ -274,9 +275,8 @@
 
     <style name="Light_Dialog.TextView.Message.Image">
         <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:layout_width">@dimen/dp_140</item>
-        <item name="android:layout_height">@dimen/dp_82</item>
-        <item name="android:scaleType">center</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="Light_Dialog.TextView.Message.Progress2.Image">

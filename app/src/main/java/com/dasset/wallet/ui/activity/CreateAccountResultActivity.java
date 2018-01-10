@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,9 +12,11 @@ import android.widget.TextView;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.toolbar.listener.OnRightTextEventListener;
+import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.GlideUtil;
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.SecurityUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
 import com.dasset.wallet.constant.Constant;
@@ -28,9 +31,9 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
 
     private CreateAccountResultPresenter createAccountResultPresenter;
 
-    private TextView  tvAccountNumber;
-    private TextView  tvAddress;
-    private TextView  tvAddressQRCode;
+    private TextView tvAccountNumber;
+    private TextView tvAddress;
+    private TextView tvAddressQRCode;
     private ImageView ivAddressQRCode;
 
     @Override
@@ -78,10 +81,17 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
         createAccountResultPresenter.initialize();
         setBasePresenterImplement(createAccountResultPresenter);
 
-        tvAccountNumber.setText(String.format("账户%s", createAccountResultPresenter.getAccount().getAccountName()));
-        tvAddressQRCode.setText(String.format("账户%s 二维码", createAccountResultPresenter.getAccount().getAccountName()));
-        tvAddress.setText(createAccountResultPresenter.getAccount().getAddress());
-        GlideUtil.getInstance().with(this, QRCodeEncode.createQRCode(createAccountResultPresenter.getAccount().getAddress(), ViewUtil.getInstance().dp2px(this, 160)), ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
+        if (createAccountResultPresenter.getAccount() != null && !TextUtils.isEmpty(createAccountResultPresenter.getAccount().getAccountName()) && !TextUtils.isEmpty(createAccountResultPresenter.getAccount().getAddress2())) {
+            tvAccountNumber.setText(String.format("账户%s", createAccountResultPresenter.getAccount().getAccountName()));
+            tvAddressQRCode.setText(String.format("账户%s 二维码", createAccountResultPresenter.getAccount().getAccountName()));
+            tvAddress.setText(createAccountResultPresenter.getAccount().getAddress2());
+            GlideUtil.getInstance().with(this, QRCodeEncode.createQRCode(createAccountResultPresenter.getAccount().getAddress2(), ViewUtil.getInstance().dp2px(this, 160)), ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
+        } else {
+            tvAccountNumber.setText(getString(R.string.dialog_prompt_account_info_error));
+            tvAddressQRCode.setText(String.format("账户%s 二维码", Regex.NONE.getRegext()));
+            GlideUtil.getInstance().with(this, R.mipmap.ic_launcher_round, ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
+            tvAddress.setText(R.string.dialog_prompt_account_info_error);
+        }
     }
 
     @Override
@@ -112,6 +122,10 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
                     //TODO
                 }
                 break;
+            case Constant.RequestCode.EXPORT_ACCOUNT:
+                LogUtil.getInstance().print("EXPORT_ACCOUNT");
+                createAccountResultPresenter.deleteBackupsAccount();
+                break;
             default:
                 break;
         }
@@ -136,7 +150,8 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_EXPORT_ACCOUNT:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_EXPORT_ACCOUNT");
-                createAccountResultPresenter.exportAccount();
+                //TODO
+                createAccountResultPresenter.exportAccount(SecurityUtil.getInstance().encryptMD5With16Bit(createAccountResultPresenter.getAccount().getPassword()));
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_EXPORT_ACCOUNT_SUCCESS:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_EXPORT_ACCOUNT_SUCCESS");
@@ -145,7 +160,6 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_EXPORT_ACCOUNT_FAILED:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_EXPORT_ACCOUNT_FAILED");
-                onFinish("onPositiveButtonClicked_DIALOG_PROMPT_EXPORT_ACCOUNT_FAILED");
                 break;
             default:
                 break;

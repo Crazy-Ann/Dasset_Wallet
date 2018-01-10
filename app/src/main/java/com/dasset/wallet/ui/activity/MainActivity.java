@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSONException;
@@ -15,14 +16,16 @@ import com.dasset.wallet.R;
 import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.base.sticky.adapter.FixedStickyViewAdapter;
 import com.dasset.wallet.base.sticky.holder.BaseViewHolder;
-import com.dasset.wallet.base.sticky.listener.OnEventClickListener;
+import com.dasset.wallet.base.sticky.listener.OnHeaderOrFooterItemClickListener;
 import com.dasset.wallet.base.sticky.listener.OnItemClickListener;
+import com.dasset.wallet.base.sticky.listener.OnViewClickListener;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.base.toolbar.listener.OnRightIconEventListener;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.ActivityUtil;
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.SecurityUtil;
 import com.dasset.wallet.components.utils.ToastUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
@@ -32,18 +35,20 @@ import com.dasset.wallet.ui.activity.contract.MainContract;
 import com.dasset.wallet.ui.activity.presenter.MainPresenter;
 import com.dasset.wallet.ui.adapter.AccountAdapter;
 import com.dasset.wallet.ui.binder.AccountBinder;
+import com.dasset.wallet.ui.dialog.ImagePromptDialog;
 import com.dasset.wallet.ui.dialog.PromptDialog;
 
 import java.io.IOException;
 import java.util.List;
 
-public class MainActivity extends ActivityViewImplement<MainContract.Presenter> implements MainContract.View, OnLeftIconEventListener, OnRightIconEventListener, OnItemClickListener, OnEventClickListener {
+public class MainActivity extends ActivityViewImplement<MainContract.Presenter> implements MainContract.View, OnLeftIconEventListener, OnRightIconEventListener, OnItemClickListener, OnViewClickListener, OnHeaderOrFooterItemClickListener {
 
     private MainPresenter mainPresenter;
 
     private RecyclerView recycleView;
     private FixedStickyViewAdapter fixedStickyViewAdapter;
     private LinearLayoutManager linearLayoutManager;
+    private AccountBinder accountBinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,19 +93,25 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
         mainPresenter = new MainPresenter(this, this);
         mainPresenter.initialize();
         setBasePresenterImplement(mainPresenter);
-        fixedStickyViewAdapter = new AccountAdapter(this, new AccountBinder(this, recycleView), false);
+        accountBinder = new AccountBinder(this, recycleView);
+        fixedStickyViewAdapter = new AccountAdapter(this, accountBinder, false);
         linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recycleView.setHasFixedSize(true);
         recycleView.setLayoutManager(linearLayoutManager);
         recycleView.setAdapter(fixedStickyViewAdapter);
         setAddAccountView();
+        LogUtil.getInstance().print("md5:" + SecurityUtil.getInstance().encryptMD5With16Bit("1234"));
+        LogUtil.getInstance().print("md5:" + SecurityUtil.getInstance().encryptMD5With32Bit("1234"));
+        LogUtil.getInstance().print("md5..length:" + SecurityUtil.getInstance().encryptMD5With16Bit("1234").length());
+        LogUtil.getInstance().print("md5..length:" + SecurityUtil.getInstance().encryptMD5With32Bit("1234").length());
     }
 
     @Override
     protected void setListener() {
-        fixedStickyViewAdapter.setOnItemClickListener(this);
-        fixedStickyViewAdapter.setOnEventClickListener(this);
+        fixedStickyViewAdapter.setOnHeaderOrFooterItemClickListener(this);
+        fixedStickyViewAdapter.setItemClickListener(this);
+        accountBinder.setOnViewClickListener(this);
     }
 
     @Override
@@ -135,7 +146,12 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                 }
                 break;
             case Constant.RequestCode.FILE_MANAGER:
-                mainPresenter.importAccount(data);
+                //TODO 
+                mainPresenter.importAccount(data, SecurityUtil.getInstance().encryptMD5With16Bit("1111"));
+//                mainPresenter.importAccount(data, "1234567890123456");
+                break;
+            case Constant.RequestCode.EXPORT_QRCODE:
+//                showPromptDialog(R.string.dialog_prompt_qrcode_share_success, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT_ERROR);
                 break;
             default:
                 break;
@@ -190,6 +206,22 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
             case Constant.RequestCode.DIALOG_PROMPT_FILE_MANAGER_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_FILE_MANAGER_ERROR");
                 break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT");
+                mainPresenter.share();
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT_ERROR");
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_SUCCESS:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SAVE_SUCCESS");
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SAVE_ERROR");
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SHARE_ERROR");
+                break;
             default:
                 break;
         }
@@ -210,6 +242,10 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT1:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_IMPORT_ACCOUNT");
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
+                LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT");
+                mainPresenter.save();
                 break;
             default:
                 break;
@@ -269,6 +305,20 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     }
 
     @Override
+    public void showAddressQRCodePromptDialog(byte[] data, String prompt) {
+        ImagePromptDialog.createBuilder(getSupportFragmentManager())
+                .setTitle(getString(R.string.dialog_prompt))
+                .setImage(data)
+                .setPrompt(prompt)
+                .setPositiveButtonText(this, R.string.dialog_prompt_share)
+                .setNegativeButtonText(this, R.string.dialog_prompt_save)
+                .setCancelable(true)
+                .setCancelableOnTouchOutside(false)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT)
+                .showAllowingStateLoss(this);
+    }
+
+    @Override
     public void onLeftIconEvent() {
         startActivityForResult(QRCodeRecognitionActivity.class, Constant.RequestCode.QRCODE_RECOGNITION);
     }
@@ -288,7 +338,18 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     }
 
     @Override
-    public void onItemClick(int position) {
+    public void onHeaderOrFooterItemClick(int id) {
+        switch (id) {
+            case R.id.llAddAccount:
+                startActivityForResult(CreateAccountActivity.class, Constant.RequestCode.CREATE_ACCOUNT);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onItemClick(int position, View view) {
         try {
             Bundle bundle = new Bundle();
             bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position));
@@ -300,7 +361,16 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     }
 
     @Override
-    public void onnEventClick() {
-        startActivityForResult(CreateAccountActivity.class, Constant.RequestCode.CREATE_ACCOUNT);
+    public void onViewClick(int position, View view) {
+        switch (view.getId()) {
+            case R.id.tvAddress:
+                LogUtil.getInstance().print("tvAddress," + position);
+                break;
+            case R.id.ivAddressQRCode:
+                mainPresenter.generateAddresQRCode(position);
+                break;
+            default:
+                break;
+        }
     }
 }

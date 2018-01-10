@@ -3,11 +3,10 @@ package com.dasset.wallet.base.sticky.adapter;
 import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.dasset.wallet.base.sticky.binder.BaseViewBinder;
-import com.dasset.wallet.base.sticky.listener.OnEventClickListener;
+import com.dasset.wallet.base.sticky.listener.OnHeaderOrFooterItemClickListener;
 import com.dasset.wallet.base.sticky.listener.OnItemClickListener;
 import com.google.common.collect.Lists;
 
@@ -16,10 +15,9 @@ import java.util.List;
 
 public abstract class FixedStickyViewAdapter<T, V extends RecyclerView.ViewHolder> extends RecyclerView.Adapter {
 
-
-    public static final  int TYPE_HEADER_VIEW       = 0x5001;
-    public static final  int TYPE_CONTENT_VIEW      = 0x5003;
-    public static final  int TYPE_FOOTER_VIEW       = 0x5004;
+    public static final int TYPE_HEADER_VIEW = 0x5001;
+    public static final int TYPE_CONTENT_VIEW = 0x5003;
+    public static final int TYPE_FOOTER_VIEW = 0x5004;
     private static final int NOTIFY_TIP_UNAVAILABLE = -1;
     private int notifyTip;
 
@@ -30,8 +28,8 @@ public abstract class FixedStickyViewAdapter<T, V extends RecyclerView.ViewHolde
     private BaseViewBinder baseViewBinder;
 
     protected List<T> items = Lists.newArrayList();
-    protected OnItemClickListener  onItemClickListener;
-    protected OnEventClickListener onEventClickListener;
+    protected OnHeaderOrFooterItemClickListener onHeaderOrFooterItemClickListener;
+    protected OnItemClickListener onItemClickListener;
 
     public FixedStickyViewAdapter(BaseViewBinder binder) {
         this.baseViewBinder = binder;
@@ -120,12 +118,12 @@ public abstract class FixedStickyViewAdapter<T, V extends RecyclerView.ViewHolde
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public V onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_CONTENT_VIEW:
-                return baseViewBinder.getViewHolder(viewType);
+                return (V) baseViewBinder.getViewHolder(viewType);
             default:
-                return generators.get(viewType).generate();
+                return (V) generators.get(viewType).generate();
         }
     }
 
@@ -133,24 +131,12 @@ public abstract class FixedStickyViewAdapter<T, V extends RecyclerView.ViewHolde
         this.notifyTip = notifyTip;
     }
 
-    @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Object obj = getItem(position);
-        if (obj instanceof FixedStickyView) {
-            onBindHeaderOrFooter(holder, obj);
+    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, int position) {
+        Object object = getItem(position);
+        if (object instanceof FixedStickyView) {
+            onBindHeaderOrFooter(viewHolder, object);
         } else {
-            baseViewBinder.bind(holder, obj, position, notifyTip == position);
-        }
-        final int itemPosition = position;
-        if (holder.getItemViewType() == TYPE_CONTENT_VIEW) {
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onItemClickListener != null) {
-                        onItemClickListener.onItemClick(itemPosition);
-                    }
-                }
-            });
+            baseViewBinder.bind(viewHolder, object, position, notifyTip == position);
         }
     }
 
@@ -173,21 +159,21 @@ public abstract class FixedStickyViewAdapter<T, V extends RecyclerView.ViewHolde
         return items.size() + headerViews.size() + footerViews.size();
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
+    public void setOnHeaderOrFooterItemClickListener(OnHeaderOrFooterItemClickListener onHeaderOrFooterItemClickListener) {
+        this.onHeaderOrFooterItemClickListener = onHeaderOrFooterItemClickListener;
     }
 
-    public void setOnEventClickListener(OnEventClickListener onEventClickListener) {
-        this.onEventClickListener = onEventClickListener;
+    public void setItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 
     protected abstract void onBindHeaderOrFooter(RecyclerView.ViewHolder holder, Object object);
 
     public static class FixedStickyView {
-        public int    id;
-        public int    viewType;
-        public int    fixedStickyViewType;
-        public int    layoutId;
+        public int id;
+        public int viewType;
+        public int fixedStickyViewType;
+        public int layoutId;
         public Object object;
     }
 

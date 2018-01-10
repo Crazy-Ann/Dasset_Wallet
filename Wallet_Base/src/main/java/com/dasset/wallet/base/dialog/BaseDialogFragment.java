@@ -45,7 +45,7 @@ import java.util.List;
 
 public abstract class BaseDialogFragment extends DialogFragment implements DialogInterface.OnShowListener {
 
-    protected int mRequestCode;
+    protected int requestCode;
 
     @NonNull
     @Override
@@ -67,9 +67,9 @@ public abstract class BaseDialogFragment extends DialogFragment implements Dialo
         LogUtil.getInstance().d(getClass().getName(), this.getClass().getSimpleName() + " onActivityCreated() invoked!!");
         final Fragment targetFragment = getTargetFragment();
         if (targetFragment != null) {
-            mRequestCode = getTargetRequestCode();
+            requestCode = getTargetRequestCode();
         } else {
-            mRequestCode = BundleUtil.getInstance().getIntData(getArguments(), Temp.REQUEST_CODE.getContent());
+            requestCode = BundleUtil.getInstance().getIntData(getArguments(), Temp.REQUEST_CODE.getContent());
         }
     }
 
@@ -84,7 +84,7 @@ public abstract class BaseDialogFragment extends DialogFragment implements Dialo
         super.onCancel(dialog);
         LogUtil.getInstance().d(getClass().getName(), this.getClass().getSimpleName() + " onCancel() invoked!!");
         for (OnDialogCancelListener listener : getDialogListeners(OnDialogCancelListener.class)) {
-            listener.onCanceled(mRequestCode);
+            listener.onCanceled(requestCode);
         }
     }
 

@@ -7,12 +7,12 @@ import android.view.LayoutInflater;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.sticky.binder.BaseViewBinder;
 import com.dasset.wallet.model.AccountInfo;
-import com.dasset.wallet.ui.holder.AddAccountHolder;
 import com.dasset.wallet.ui.holder.AccountHolder;
+import com.dasset.wallet.ui.holder.AddAccountHolder;
 
 public class AccountBinder extends BaseViewBinder {
 
-    private Context      context;
+    private Context context;
     private RecyclerView recyclerView;
 
     public AccountBinder(Context context, RecyclerView recyclerView) {
@@ -24,9 +24,10 @@ public class AccountBinder extends BaseViewBinder {
     public void bind(RecyclerView.ViewHolder viewHolder, Object object, int position, boolean checkable) {
         if (viewHolder instanceof AccountHolder) {
             AccountHolder accountHolder = (AccountHolder) viewHolder;
-            AccountInfo   accountInfo   = (AccountInfo) object;
-            accountHolder.tvAddress.setText(accountInfo.getAddress());
+            AccountInfo accountInfo = (AccountInfo) object;
+            accountHolder.tvAddress.setText(accountInfo.getAddress2());
             accountHolder.tvAccountName.setText(String.format("账户%s", accountInfo.getAccountName()));
+            accountHolder.setOnViewClickListener(position, onViewClickListener);
         } else if (viewHolder instanceof AddAccountHolder) {
             //TODO
         }

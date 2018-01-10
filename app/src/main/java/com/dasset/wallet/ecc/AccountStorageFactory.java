@@ -3,6 +3,7 @@ package com.dasset.wallet.ecc;
 import android.content.Intent;
 import android.net.Uri;
 
+import com.alibaba.fastjson.JSONException;
 import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.utils.FileProviderUtil;
@@ -12,19 +13,25 @@ import com.dasset.wallet.core.ecc.Account;
 import com.dasset.wallet.core.ecc.Constant;
 import com.dasset.wallet.core.ecc.KeyStore;
 import com.dasset.wallet.core.ecc.PasswordManagerFactory;
-import com.dasset.wallet.core.exception.PasswordException;
 import com.dasset.wallet.model.AccountInfo;
 import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public final class AccountStorageFactory {
 
     private static AccountStorageFactory accountStorageFactory;
     private File keystoreDirectory;
-    //    private File backupsDirectory;
+    private File backupsDirectory;
     private KeyStore keyStore;
 
     private AccountStorageFactory() {
@@ -48,31 +55,39 @@ public final class AccountStorageFactory {
         return keystoreDirectory;
     }
 
-//    public File getBackupsDirectory() {
-//        return backupsDirectory;
-//    }
+    public File getBackupsDirectory() {
+        return backupsDirectory;
+    }
 
     public void initialize() throws Exception {
         keystoreDirectory = IOUtil.getInstance().forceMkdir(BaseApplication.getInstance().getFilesDir() + Regex.LEFT_SLASH.getRegext() + Constant.Configuration.KEYSTORE);
-//        backupsDirectory = IOUtil.getInstance().getExternalStorageDirectory(Constant.Configuration.KEYSTORE);
-        keyStore = new KeyStore(keystoreDirectory);
-//        keyStore = new KeyStore(keystoreDirectory, backupsDirectory);
+        backupsDirectory = IOUtil.getInstance().getExternalStorageDirectory(Constant.Configuration.KEYSTORE);
+//        keyStore = new KeyStore(keystoreDirectory);
+        keyStore = new KeyStore(keystoreDirectory, backupsDirectory);
         LogUtil.getInstance().print(String.format("There have %s accounts with KeyStore", Long.toString(getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).size())));
     }
 
-    public void deleteAccount(String address, String password) throws Exception {
+    public void deleteAccount(String address) throws IOException {
         if (keyStore != null) {
-            keyStore.deleteAccount(address, password);
+            keyStore.deleteAccount(address);
         } else {
             LogUtil.getInstance().print(String.format("Is keyStore forget initialized?"));
         }
     }
 
-    public Account createAccount(String accountName, String privateKey, String publicKey, String address, String password) throws Exception {
+    public void deleteBackupsAccount(String address) throws IOException {
+        if (keyStore != null) {
+            keyStore.deleteBackupsAccount(address);
+        } else {
+            LogUtil.getInstance().print(String.format("Is keyStore forget initialized?"));
+        }
+    }
+
+    public Account createAccount(String deviceId, String timestamp1, String cipher, String accountName, String privateKey, String password, String timestamp2, boolean isEncrypt) throws Exception {
         if (keyStore != null) {
             LogUtil.getInstance().print(String.format("Trying to generate wallet in %s", keyStore.getKeystoreDirectory()));
-            Account account = keyStore.createAccount(accountName, privateKey, publicKey, address, password);
-            PasswordManagerFactory.put(BaseApplication.getInstance(), account.getAddress(), account.getPassword());
+            Account account = keyStore.createAccount(deviceId, timestamp1, cipher, accountName, privateKey, password, timestamp2, isEncrypt);
+            PasswordManagerFactory.put(BaseApplication.getInstance(), account.getAddress2(), account.getPassword());
             return account;
         } else {
             LogUtil.getInstance().print(String.format("Is keyStore forget initialized?"));
@@ -88,20 +103,20 @@ public final class AccountStorageFactory {
 //        }
 //    }
 
-    public Uri exportAccountToThird(Intent intent, String address, String password) throws PasswordException, IOException {
+    public Uri exportAccountToThird(Intent intent, String address, String password) throws IOException, IllegalArgumentException {
         return FileProviderUtil.getInstance().generateUri(BaseApplication.getInstance(), intent, keyStore.exportAccount(address, password));
 //        return FileProvider.getUriForFile(BaseApplication.getInstance(), com.dasset.wallet.components.constant.Constant.FILE_PROVIDER_AUTHORITY, keyStore.exportAccount(address, password));
     }
 
-    public void importAccount(File file) throws PasswordException, IOException {
+    public void importAccount(File file, String password) throws JSONException, IOException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, IllegalBlockSizeException {
         if (keyStore != null) {
-            keyStore.importAccount(file);
+            keyStore.importAccount(file, password);
         } else {
             throw new NullPointerException("Please check whether the keyStore is initialized!");
         }
     }
 
-    public Account renameAccount(String address, String accountName) throws PasswordException, IOException {
+    public Account renameAccount(String address, String accountName) throws IOException {
         if (keyStore != null) {
             return keyStore.renameAccount(address, accountName);
         } else {
@@ -120,15 +135,15 @@ public final class AccountStorageFactory {
 //                    directory = backupsDirectory;
 //                }
 //                for (File file : keyStore.directoryTraversal(directory)) {
-//                    Account account = keyStore.getAccount(file);
+//                    Account account = keyStore.generatorAccountFile(file);
 //                    if (account != null) {
 //                        AccountInfo accountInfo = new AccountInfo();
 //                        accountInfo.setAccountName(account.getAccountName());
-//                        accountInfo.setAddress(account.getAddress());
+//                        accountInfo.setAddress2(account.getAddress2());
 //                        accountInfo.setPrivateKey(account.getPrivateKey());
 //                        accountInfo.setPublicKey(account.getPublicKey());
 //                        accountInfo.setPassword(account.getPassword());
-//                        accountInfo.setTimestamp(account.getTimestamp());
+//                        accountInfo.setTime2(account.getTime2());
 //                        LogUtil.getInstance().print(accountInfo.toString());
 //                        accountInfos.add(accountInfo);
 //                    }
@@ -148,17 +163,25 @@ public final class AccountStorageFactory {
         if (keyStore != null) {
             List<AccountInfo> accountInfos = Lists.newArrayList();
             for (File file : keyStore.directoryTraversal(keystoreDirectory)) {
-                Account account = keyStore.getAccount(file);
-                if (account != null) {
-                    AccountInfo accountInfo = new AccountInfo();
-                    accountInfo.setAccountName(account.getAccountName());
-                    accountInfo.setAddress(account.getAddress());
-                    accountInfo.setPrivateKey(account.getPrivateKey());
-                    accountInfo.setPublicKey(account.getPublicKey());
-                    accountInfo.setPassword(account.getPassword());
-                    accountInfo.setTimestamp(account.getTimestamp());
-                    LogUtil.getInstance().print(accountInfo.toString());
-                    accountInfos.add(accountInfo);
+                try {
+                    Account account = keyStore.generateAccount(file, Cipher.ENCRYPT_MODE, false, null);
+                    if (account != null) {
+                        AccountInfo accountInfo = new AccountInfo();
+                        accountInfo.setAddress1(account.getAddress1());
+                        accountInfo.setDevice(account.getDevice());
+                        accountInfo.setTimestamp1(account.getTime1());
+                        accountInfo.setCipher(account.getCipher());
+                        accountInfo.setAccountName(account.getAccountName());
+                        accountInfo.setPrivateKey(account.getPrivateKey());
+                        accountInfo.setAddress2(account.getAddress2());
+                        accountInfo.setPassword(account.getPassword());
+                        accountInfo.setTimestamp2(account.getTime2());
+                        LogUtil.getInstance().print(accountInfo.toString());
+                        accountInfos.add(accountInfo);
+                    }
+                } catch (IllegalBlockSizeException | NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                    e.printStackTrace();
+                    throw new IOException("Failed of get account infos!");
                 }
             }
             return accountInfos;

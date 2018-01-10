@@ -29,7 +29,7 @@
     </string>
     <string name="dialog_prompt_create_account6">正在创建账户，请稍后</string>
     <string name="create_account_success">创建账户成功</string>
-    <string name="address">地址</string>
+    <string name="address2">地址</string>
     <string name="add_account">添加账户资产</string>
     <string name="dialog_prompt_wallet">为了保护您的比特币\n\n&#042;&#160;&#160;请不要卸载钱包\n\n&#042;&#160;&#160;不要清除钱包数据\n\n&#042;&#160;&#160;请牢记您的密码</string>
     <string name="dialog_prompt">提示</string>
@@ -37,12 +37,16 @@
     <string name="dialog_prompt_cancel">取消</string>
     <string name="dialog_prompt_confirm">确定</string>
     <string name="dialog_prompt_known">知道了</string>
+    <string name="dialog_prompt_save">保存</string>
+    <string name="dialog_prompt_share">分享</string>
     <string name="dialog_prompt_net_work_error">网络不可用,请先设置网络!</string>
     <string name="dialog_prompt_permission_error">
         我们需要的一些权限被您拒绝或者系统发生错误申请失败，请您到设置页面手动授权，否则功能无法正常使用！
     </string>
     <string name="request_data_error">网络交互异常</string>
-    <string name="dialog_prompt_import_account1">1.将其他设备上（PC\移动端）的账户文件备份导出。\n\n2.通过其他应用传输该账户文件到当前手机，并保存。\n\n3.通过文件管理器找到存储路径，选择导入。</string>
+    <string name="dialog_prompt_import_account1">
+        1.将其他设备上（PC\移动端）的账户文件备份导出。\n\n2.通过其他应用传输该账户文件到当前手机，并保存。\n\n3.通过文件管理器找到存储路径，选择导入。
+    </string>
     <string name="dialog_prompt_create_account_error">资产帐户建立失败</string>
     <string name="dialog_prompt_import_account_to">备份至</string>
     <string name="dialog_prompt_account_info_error">账户信息异常</string>
@@ -52,6 +56,7 @@
     <string name="account_info_send">发送</string>
     <string name="account_info_amount">金额</string>
     <string name="account_info_transaction_record">此地址下的资产交易</string>
+    <string name="account_info_transaction_record_empty">没有找到此地址的交易\n它可能还没有在网络上出现过</string>
     <string name="qrcode_recognition_scan">扫码</string>
     <string name="qrcode_recognition_album">从相册添加</string>
     <string name="dialog_prompt_qrcode_recognition">正在识别二维码图片，请稍后</string>
@@ -61,6 +66,11 @@
     <string name="dialog_prompt_import_account_error">导入账户失败</string>
     <string name="dialog_prompt_get_qrcode_bitmap">正在获取二维码图片</string>
     <string name="dialog_prompt_file_manager_error">未找到系统文件管理器，请使用第三方软件进行手动操作。</string>
+    <string name="dialog_prompt_qrcode_save">正在保存二维码图片</string>
+    <string name="dialog_prompt_qrcode_save_success">二维码保存成功</string>
+    <string name="dialog_prompt_qrcode_save_error">二维码保存失败</string>
+    <string name="dialog_prompt_qrcode_share_success">二维码分享成功</string>
+    <string name="dialog_prompt_qrcode_share_error">二维码分享失败</string>
     <string name="account_rename">重新命名</string>
     <string name="footer_load_all">已经加载全部内容</string> 
     <string name="footer_loading">正在加载中...</string> 

@@ -7,28 +7,28 @@ import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.sticky.adapter.FixedStickyViewAdapter;
-import com.dasset.wallet.base.sticky.listener.OnEventClickListener;
 import com.dasset.wallet.base.sticky.listener.OnItemClickListener;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.base.toolbar.listener.OnRightIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.GlideUtil;
-import com.dasset.wallet.components.utils.InputUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.widget.sticky.LinearLayoutDividerItemDecoration;
 import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
 import com.dasset.wallet.constant.Constant;
 import com.dasset.wallet.core.ecc.Account;
+import com.dasset.wallet.model.TransactionRecord;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.AccountInfoContract;
 import com.dasset.wallet.ui.activity.presenter.AccountInfoPresenter;
@@ -38,18 +38,19 @@ import com.dasset.wallet.ui.dialog.PromptDialog;
 
 import java.util.List;
 
-public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContract.Presenter> implements AccountInfoContract.View, View.OnClickListener, OnLeftIconEventListener, OnRightIconEventListener, OnItemClickListener, OnEventClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContract.Presenter> implements AccountInfoContract.View, OnLeftIconEventListener, OnRightIconEventListener, SwipeRefreshLayout.OnRefreshListener, OnItemClickListener {
 
     private AccountInfoPresenter accountInfoPresenter;
 
     private TextView tvAddress;
-    private Button btnSend;
     private ImageView ivAddressQRCode;
     private TextView tvAmount;
+    private LinearLayout llTransactionRecord;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recycleView;
     private FixedStickyViewAdapter fixedStickyViewAdapter;
     private LinearLayoutManager linearLayoutManager;
+    private TextView tvEmpty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
 
                 @Override
                 public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                    fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
+                    loadTransactionRecords();
                 }
 
                 @Override
@@ -79,7 +80,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                 }
             });
         } else {
-            fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
+            loadTransactionRecords();
         }
     }
 
@@ -87,22 +88,31 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
         tvAddress = ViewUtil.getInstance().findView(this, R.id.tvAddress);
-        btnSend = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnSend, this);
         ivAddressQRCode = ViewUtil.getInstance().findView(this, R.id.ivAddressQRCode);
         tvAmount = ViewUtil.getInstance().findView(this, R.id.tvAmount);
+        llTransactionRecord = ViewUtil.getInstance().findView(this, R.id.llTransactionRecord);
         swipeRefreshLayout = ViewUtil.getInstance().findView(this, R.id.swipeRefreshLayout);
         recycleView = ViewUtil.getInstance().findView(this, R.id.recycleView);
+        tvEmpty = ViewUtil.getInstance().findView(this, R.id.tvEmpty);
     }
 
     @Override
     protected void initialize(Bundle savedInstanceState) {
         accountInfoPresenter = new AccountInfoPresenter(this, this);
         accountInfoPresenter.initialize();
-        initializeToolbar(R.color.color_383856, true, R.mipmap.icon_back_white, this, android.R.color.white, accountInfoPresenter.getAccountInfo().getAccountName(), true, R.mipmap.icon_more, this);
         setBasePresenterImplement(accountInfoPresenter);
-        tvAddress.setText(accountInfoPresenter.getAccountInfo().getAddress());
-        GlideUtil.getInstance().with(this, QRCodeEncode.createQRCode(accountInfoPresenter.getAccountInfo().getAddress(), ViewUtil.getInstance().dp2px(this, 160)), ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
-        tvAmount.setText("1000");
+        if (accountInfoPresenter.getAccountInfo() != null && !TextUtils.isEmpty(accountInfoPresenter.getAccountInfo().getAccountName()) && !TextUtils.isEmpty(accountInfoPresenter.getAccountInfo().getAddress2())) {
+            initializeToolbar(R.color.color_383856, true, R.mipmap.icon_back_white, this, android.R.color.white, accountInfoPresenter.getAccountInfo().getAccountName(), true, R.mipmap.icon_more, this);
+            tvAddress.setText(accountInfoPresenter.getAccountInfo().getAddress2());
+            GlideUtil.getInstance().with(this, QRCodeEncode.createQRCode(accountInfoPresenter.getAccountInfo().getAddress2(), ViewUtil.getInstance().dp2px(this, 160)), ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
+            //todo
+            tvAmount.setText(String.format("余额  ¥ %s", 1000.00));
+        } else {
+            initializeToolbar(R.color.color_383856, true, R.mipmap.icon_back_white, this, android.R.color.white, getString(R.string.dialog_prompt_account_info_error), true, R.mipmap.icon_more, this);
+            tvAddress.setText(getString(R.string.dialog_prompt_account_info_error));
+            GlideUtil.getInstance().with(this, R.mipmap.ic_launcher_round, ViewUtil.getInstance().dp2px(this, 120), ViewUtil.getInstance().dp2px(this, 120), DiskCacheStrategy.NONE, ivAddressQRCode);
+            tvAmount.setText(String.format("余额  ¥ %s", 0.00));
+        }
 
         fixedStickyViewAdapter = new TransactionRecordAdapter(new TransactionRecordBinder(this, recycleView));
         linearLayoutManager = new LinearLayoutManager(this);
@@ -113,12 +123,18 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
         recycleView.setAdapter(fixedStickyViewAdapter);
         swipeRefreshLayout.setColorSchemeResources(R.color.color_c9c9c9);
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
+
+        ivAddressQRCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDeleteAccountPromptDialog();
+            }
+        });
     }
 
     @Override
     protected void setListener() {
-        fixedStickyViewAdapter.setOnItemClickListener(this);
-        fixedStickyViewAdapter.setOnEventClickListener(this);
+        fixedStickyViewAdapter.setItemClickListener(this);
         swipeRefreshLayout.setOnRefreshListener(this);
     }
 
@@ -133,7 +149,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
 
                         @Override
                         public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                            fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
+                            loadTransactionRecords();
                         }
 
                         @Override
@@ -142,7 +158,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                         }
                     });
                 } else {
-                    fixedStickyViewAdapter.setData(accountInfoPresenter.getTransactionRecords().getTransactionRecords());
+                    loadTransactionRecords();
                 }
             case Constant.RequestCode.ACCOUNT_RENAME:
                 if (data != null) {
@@ -230,20 +246,21 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                 .showAllowingStateLoss(this);
     }
 
-
     @Override
-    public void onClick(View v) {
-        if (InputUtil.getInstance().isDoubleClick()) {
-            return;
-        }
-        switch (v.getId()) {
-            case R.id.btnSend:
-                //todo
-                accountInfoPresenter.renameAccount();
-//                showDeleteAccountPromptDialog();
-                break;
-            default:
-                break;
+    public void loadTransactionRecords() {
+        if (accountInfoPresenter.getTransactionRecords() != null) {
+            List<TransactionRecord> transactionRecords = accountInfoPresenter.getTransactionRecords().getTransactionRecords();
+            if (transactionRecords != null && transactionRecords.size() > 0) {
+                ViewUtil.getInstance().setViewGone(tvEmpty);
+                ViewUtil.getInstance().setViewVisible(llTransactionRecord);
+                fixedStickyViewAdapter.setData(transactionRecords);
+            } else {
+                ViewUtil.getInstance().setViewGone(llTransactionRecord);
+                ViewUtil.getInstance().setViewVisible(tvEmpty);
+            }
+        } else {
+            ViewUtil.getInstance().setViewGone(llTransactionRecord);
+            ViewUtil.getInstance().setViewVisible(tvEmpty);
         }
     }
 
@@ -255,20 +272,16 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     @Override
     public void OnRightIconEvent() {
         //TODO
-    }
-
-    @Override
-    public void onItemClick(int position) {
-
-    }
-
-    @Override
-    public void onnEventClick() {
-
+        accountInfoPresenter.renameAccount();
     }
 
     @Override
     public void onRefresh() {
         //todo
+    }
+
+    @Override
+    public void onItemClick(int position, View view) {
+
     }
 }

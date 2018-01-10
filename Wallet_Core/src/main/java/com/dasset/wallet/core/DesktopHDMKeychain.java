@@ -379,7 +379,7 @@ public class DesktopHDMKeychain extends AbstractHD {
 //        if (master == null) {
 //            return null;
 //        }
-//        DeterministicKey accountKey = getAccount(master);
+//        DeterministicKey accountKey = getKeyStoreData(master);
 //        DeterministicKey external = getChainRootKey(accountKey, AbstractHD.PathType.EXTERNAL_ROOT_PATH);
 //        DeterministicKey internal = getChainRootKey(accountKey, AbstractHD.PathType.INTERNAL_ROOT_PATH);
 //        accountKey.wipe();
@@ -394,15 +394,15 @@ public class DesktopHDMKeychain extends AbstractHD {
 //            DesktopHDMAddress a = signingAddresses.get(i);
 //            byte[] unsigned = unsignedHashes.get(i);
 //
-//            if (!addressToKeyMap.containsKey(a.getAddress())) {
+//            if (!addressToKeyMap.containsKey(a.getAddress2())) {
 //                if (a.getPathType() == AbstractHD.PathType.EXTERNAL_ROOT_PATH) {
-//                    addressToKeyMap.put(a.getAddress(), external.deriveSoftened(a.getIndex()));
+//                    addressToKeyMap.put(a.getAddress2(), external.deriveSoftened(a.getIndex()));
 //                } else {
-//                    addressToKeyMap.put(a.getAddress(), internal.deriveSoftened(a.getIndex()));
+//                    addressToKeyMap.put(a.getAddress2(), internal.deriveSoftened(a.getIndex()));
 //                }
 //            }
 //
-//            DeterministicKey key = addressToKeyMap.get(a.getAddress());
+//            DeterministicKey key = addressToKeyMap.get(a.getAddress2());
 //            assert key != null;
 //
 //            TransactionSignature signature = new TransactionSignature(key.sign(unsigned, null),

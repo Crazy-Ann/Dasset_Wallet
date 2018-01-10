@@ -38,19 +38,19 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
 
     private CreateAccountPresenter createAccountPresenter;
 
-    private EditText    etAccountName;
+    private EditText etAccountName;
     private ImageButton ibAccountNameEmpty;
-    private EditText    etTransactionPassword;
+    private EditText etTransactionPassword;
     private ImageButton ibTransactionPasswordDisplay;
     private ImageButton ibTransactionPasswordEmpty;
-    private EditText    etConfirmPassword;
+    private EditText etConfirmPassword;
     private ImageButton ibConfirmPasswordDisplay;
     private ImageButton ibConfirmPasswordEmpty;
-    private Button      btnSubmit;
+    private Button btnSubmit;
 
     private EditTextValidator editTextValidator;
-    private boolean           isTransactionPasswordHidden;
-    private boolean           isConfirmPasswordHidden;
+    private boolean isTransactionPasswordHidden;
+    private boolean isConfirmPasswordHidden;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,10 +139,10 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
             case R.id.ibConfirmPasswordDisplay:
                 if (isConfirmPasswordHidden) {
                     etConfirmPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                    GlideUtil.getInstance().with(this, R.mipmap.icon_eye_on, null, null, DiskCacheStrategy.NONE, ibTransactionPasswordDisplay);
+                    GlideUtil.getInstance().with(this, R.mipmap.icon_eye_on, null, null, DiskCacheStrategy.NONE, ibConfirmPasswordDisplay);
                 } else {
                     etConfirmPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                    GlideUtil.getInstance().with(this, R.mipmap.icon_eye_off, null, null, DiskCacheStrategy.NONE, ibTransactionPasswordDisplay);
+                    GlideUtil.getInstance().with(this, R.mipmap.icon_eye_off, null, null, DiskCacheStrategy.NONE, ibConfirmPasswordDisplay);
                 }
                 isConfirmPasswordHidden = !isConfirmPasswordHidden;
                 break;
@@ -214,7 +214,6 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_CREATE_ACCOUNT");
-                //TODO
                 createAccountPresenter.createAccount(false, etAccountName.getText().toString(), etConfirmPassword.getText().toString());
                 break;
             default:
@@ -244,6 +243,7 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
     @Override
     public void startCreateAccountResultActivity(Bundle bundle) {
         startActivityForResult(CreateAccountResultActivity.class, Constant.RequestCode.CREATE_ACCOUNT, bundle);
+        onFinish("startCreateAccountResultActivity");
     }
 
     @Override

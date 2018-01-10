@@ -265,7 +265,7 @@ public class DeterministicKey extends ECKey {
 //    @Override
 //    public ECDSASignature sign(Sha256Hash input, @Nullable KeyParameter aesKey) throws KeyCrypterException {
 //        if (isEncrypted()) {
-//            // If the key is encrypted, ECKey.sign will decrypt it first before rerunning sign. Decryption walks the
+//            // If the key is encrypted, ECKey.sign will decryptAESEBC it first before rerunning sign. Decryption walks the
 //            // key heirarchy to find the private key (see below), so, we can just run the inherited method.
 //            return super.sign(input, aesKey);
 //        } else {
@@ -284,7 +284,7 @@ public class DeterministicKey extends ECKey {
         checkNotNull(keyCrypter);
         // Check that the keyCrypter matches the one used to encrypt the keys, if set.
         if (this.keyCrypter != null && !this.keyCrypter.equals(keyCrypter))
-            throw new KeyCrypterException("The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it");
+            throw new KeyCrypterException("The keyCrypter being used to decryptAESEBC the key is different to the one that was used to encrypt it");
         BigInteger       privKey = findOrDeriveEncryptedPrivateKey(keyCrypter, aesKey);
         DeterministicKey key     = new DeterministicKey(childNumberPath, chainCode, privKey, parent);
         if (!Arrays.equals(key.getPubKey(), getPubKey()))
@@ -292,8 +292,8 @@ public class DeterministicKey extends ECKey {
         return key;
     }
 
-    // For when a key is encrypted, either decrypt our encrypted private key bytes, or work up the tree asking parents
-    // to decrypt and re-derive.
+    // For when a key is encrypted, either decryptAESEBC our encrypted private key bytes, or work up the tree asking parents
+    // to decryptAESEBC and re-derive.
     private BigInteger findOrDeriveEncryptedPrivateKey(KeyCrypter keyCrypter, KeyParameter aesKey) {
         if (encryptedPrivateKey != null)
             return new BigInteger(1, keyCrypter.decrypt(encryptedPrivateKey, aesKey));

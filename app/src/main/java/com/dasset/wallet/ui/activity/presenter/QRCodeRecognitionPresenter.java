@@ -49,14 +49,14 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
 
     private QRCodeRecognitionContract.View view;
 
-    private boolean                  hasSurface;
-    private Vector<BarcodeFormat>    decodeFormats;
-    private String                   characterSet;
-    private InactivityTimer          inactivityTimer;
-    private MediaPlayer              mediaPlayer;
-    private boolean                  playBeep;
-    private boolean                  vibrate;
-    private CaptureActivityHandler   captureActivityHandler;
+    private boolean hasSurface;
+    private Vector<BarcodeFormat> decodeFormats;
+    private String characterSet;
+    private InactivityTimer inactivityTimer;
+    private MediaPlayer mediaPlayer;
+    private boolean playBeep;
+    private boolean vibrate;
+    private CaptureActivityHandler captureActivityHandler;
     private QRCodeRecognitionHandler qrCodeRecognitionHandler;
 
     private class QRCodeRecognitionHandler extends ActivityHandler<QRCodeRecognitionActivity> {
@@ -73,8 +73,8 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
                         activity.hideLoadingPromptDialog();
                         Intent intent = new Intent();
                         intent.putExtra(Constant.BundleKey.QRCODE_RESULT, ((Result) message.obj).getText());
-                        ((QRCodeRecognitionActivity) view).setResult(Constant.ResultCode.QRCODE_RECOGNITION, intent);
-                        ((QRCodeRecognitionActivity) view).onFinish("QRCODE_RECOGNITION_SUCCESS");
+                        activity.setResult(Constant.ResultCode.QRCODE_RECOGNITION, intent);
+                        activity.onFinish("QRCODE_RECOGNITION_SUCCESS");
                         break;
                     case Constant.StateCode.QRCODE_RECOGNITION_FAILED:
                         stopScan();
@@ -225,7 +225,7 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
             if (DocumentsContract.isDocumentUri(context, uri)) {
                 String documentId = DocumentsContract.getDocumentId(uri);
                 if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                    String   selection     = MediaStore.Images.Media._ID + "=?";
+                    String selection = MediaStore.Images.Media._ID + "=?";
                     String[] selectionArgs = {documentId.split(Regex.COLON.getRegext())[1]};
                     filePath = getDataColumn(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs);
                 } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
@@ -245,9 +245,9 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
 
     @Override
     public String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-        String   path       = null;
+        String path = null;
         String[] projection = new String[]{MediaStore.Images.Media.DATA};
-        Cursor   cursor     = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+        Cursor cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
         if (cursor != null && cursor.moveToFirst()) {
             path = cursor.getString(cursor.getColumnIndexOrThrow(projection[0]));
             cursor.close();
@@ -257,11 +257,11 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
 
     @Override
     public void getQRCodeBitmap(final Intent data) {
-        view.showLoadingPromptDialog(R.string.dialog_prompt_qrcode_recognition, Constant.RequestCode.DIALOG_PROGRESS_QRCODE_RECOGNITION);
-        ThreadPoolUtil.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (data != null) {
+        if (data != null) {
+            view.showLoadingPromptDialog(R.string.dialog_prompt_qrcode_recognition, Constant.RequestCode.DIALOG_PROGRESS_QRCODE_RECOGNITION);
+            ThreadPoolUtil.execute(new Runnable() {
+                @Override
+                public void run() {
                     Uri uri = data.getData();
                     if (uri != null) {
                         try {
@@ -289,7 +289,7 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
                         qrCodeRecognitionHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_RECOGNITION_FAILED, context.getString(R.string.dialog_prompt_get_qrcode_bitmap_error)));
                     }
                 }
-            }
-        });
+            });
+        }
     }
 }

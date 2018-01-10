@@ -3,7 +3,6 @@ package com.dasset.wallet.components.zxing.decode;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.zxing.listener.OnScannerCompletionListener;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -12,7 +11,6 @@ import com.google.zxing.DecodeHintType;
 import com.google.zxing.FormatException;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.RGBLuminanceSource;
-import com.google.zxing.Result;
 import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
@@ -24,9 +22,9 @@ import java.util.Map;
 
 public final class QRCodeDecode {
 
-    public static final int                         MAX_FRAME_WIDTH  = 1200; // = 5/8 * 1920
-    public static final int                         MAX_FRAME_HEIGHT = 675; // = 5/8 * 1080
-    public static final Map<DecodeHintType, Object> HINTS            = new EnumMap<DecodeHintType, Object>(DecodeHintType.class);
+    public static final int MAX_FRAME_WIDTH = 1200; // = 5/8 * 1920
+    public static final int MAX_FRAME_HEIGHT = 675; // = 5/8 * 1080
+    public static final Map<DecodeHintType, Object> HINTS = new EnumMap<DecodeHintType, Object>(DecodeHintType.class);
 
     static {
         List<BarcodeFormat> formats = new ArrayList<BarcodeFormat>();
@@ -44,13 +42,13 @@ public final class QRCodeDecode {
 
     public static void decodeQR(Bitmap bitmap, final OnScannerCompletionListener onScannerCompletionListener) throws FormatException, ChecksumException, NotFoundException {
         if (bitmap != null) {
-            int   width  = bitmap.getWidth();
-            int   height = bitmap.getHeight();
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
             int[] pixels = new int[width * height];
             bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
             RGBLuminanceSource rgbLuminanceSource = new RGBLuminanceSource(width, height, pixels);
-            BinaryBitmap       binaryBitmap       = new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource));
-            QRCodeReader       qrCodeReader       = new QRCodeReader();
+            BinaryBitmap binaryBitmap = new BinaryBitmap(new GlobalHistogramBinarizer(rgbLuminanceSource));
+            QRCodeReader qrCodeReader = new QRCodeReader();
             if (onScannerCompletionListener != null) {
                 onScannerCompletionListener.OnScannerCompletion(qrCodeReader.decode(binaryBitmap, HINTS), bitmap);
             }
@@ -60,11 +58,11 @@ public final class QRCodeDecode {
     private static Bitmap loadBitmap(String path) throws FileNotFoundException {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        int width        = options.outWidth;
-        int height       = options.outHeight;
-        int screenWidth  = MAX_FRAME_WIDTH;
+        int width = options.outWidth;
+        int height = options.outHeight;
+        int screenWidth = MAX_FRAME_WIDTH;
         int screenHeight = MAX_FRAME_HEIGHT;
-        options.inSampleSize = 1;
+        options.inSampleSize = 4;
         if (width > height) {
             if (width > screenWidth) {
                 options.inSampleSize = width / screenWidth;

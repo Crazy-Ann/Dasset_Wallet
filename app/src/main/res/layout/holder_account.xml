@@ -33,7 +33,7 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/tvAddress"
             android:layout_marginTop="@dimen/dp_5"
-            android:text="@string/address"
+            android:text="@string/address2"
             android:textColor="@color/color_9b9b9b"
             android:textSize="@dimen/sp_12"/>
 
@@ -55,6 +55,7 @@
             android:textSize="@dimen/sp_16"/>
 
         <ImageView
+            android:id="@+id/ivAddressQRCode"
             android:layout_width="@dimen/dp_24"
             android:layout_height="@dimen/dp_24"
             android:layout_alignParentEnd="true"
@@ -62,6 +63,5 @@
             android:src="@mipmap/icon_qrcode"/>
 
     </RelativeLayout>
-
 
 </LinearLayout>

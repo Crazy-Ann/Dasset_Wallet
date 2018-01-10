@@ -70,15 +70,15 @@ public final class FileProviderUtil {
         if (uri.getScheme() != null && uri.getScheme().startsWith("http") || uri.getScheme().startsWith("https")) {
             return;
         }
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
         for (ResolveInfo resolveInfo : resolveInfos) {
             String packageName = resolveInfo.activityInfo.packageName;
-            if (TextUtils.isEmpty(packageName)) {
-                continue;
+            LogUtil.getInstance().print("resolveInfo:" + packageName);
+            if (!TextUtils.isEmpty(packageName)) {
+                context.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             }
-            context.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         }
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
     }
 
     public static void revokeUriPermission(Context context, Intent intent, Uri uri) {

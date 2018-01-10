@@ -15,14 +15,14 @@ public abstract class ActivityHandler<T extends Activity> extends Handler {
     }
 
     @Override
-    public void handleMessage(Message msg) {
-        super.handleMessage(msg);
+    public void handleMessage(Message message) {
+        super.handleMessage(message);
         T activity = activities.get();
         if (activity == null) {
             return;
         }
-        handleMessage(activity, msg);
+        handleMessage(activity, message);
     }
 
-    protected abstract void handleMessage(T activity, Message msg);
+    protected abstract void handleMessage(T activity, Message message);
 }

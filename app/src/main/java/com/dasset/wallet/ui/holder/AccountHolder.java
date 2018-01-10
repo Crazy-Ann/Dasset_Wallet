@@ -12,10 +12,12 @@ public class AccountHolder extends BaseViewHolder {
 
     public TextView tvAddress;
     public TextView tvAccountName;
+    public ImageView ivAddressQRCode;
 
     public AccountHolder(View itemView) {
         super(itemView);
-        tvAddress = ViewUtil.getInstance().findView(itemView, R.id.tvAddress);
+        tvAddress = ViewUtil.getInstance().findViewAttachOnclick(itemView, R.id.tvAddress, this);
         tvAccountName = ViewUtil.getInstance().findView(itemView, R.id.tvAccountName);
+        ivAddressQRCode = ViewUtil.getInstance().findViewAttachOnclick(itemView, R.id.ivAddressQRCode, this);
     }
 }

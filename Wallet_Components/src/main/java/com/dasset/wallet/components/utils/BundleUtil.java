@@ -39,6 +39,13 @@ public final class BundleUtil {
         return activity.getIntent().getExtras() != null && activity.getIntent().hasExtra(extraKey);
     }
 
+    public byte[] getByteArrayData(Bundle bundle, String key) {
+        if (bundle != null) {
+            return bundle.getByteArray(key);
+        }
+        return null;
+    }
+
     public int getIntData(Activity activity, String key) {
         if (activity.getIntent() != null) {
             if (activity.getIntent().hasExtra(key)) {

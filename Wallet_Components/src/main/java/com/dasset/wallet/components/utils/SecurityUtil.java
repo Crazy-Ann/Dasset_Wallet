@@ -29,6 +29,20 @@ import javax.crypto.spec.SecretKeySpec;
 
 public final class SecurityUtil {
 
+//    static {
+//        try {
+//            Class<?> clazz = Class.forName("javax.crypto.JceSecurity");
+//            Field nameField = clazz.getDeclaredField("isRestricted");
+//            Field modifiersField = Field.class.getDeclaredField("modifiers");
+//            modifiersField.setAccessible(true);
+//            modifiersField.setInt(nameField, nameField.getModifiers() & ~Modifier.FINAL);
+//            nameField.setAccessible(true);
+//            nameField.set(null, java.lang.Boolean.FALSE);
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//    }
+
     private static SecurityUtil securityUtil;
 
     private SecurityUtil() {
@@ -288,26 +302,26 @@ public final class SecurityUtil {
     }
 
     public byte[] des3EncodeECB(byte[] key, byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance("desede/ECB/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, SecretKeyFactory.getInstance("desede").generateSecret(new DESedeKeySpec(key)));
+        Cipher cipher = Cipher.getInstance(Regex.DESEDE_EBC_PKCS5PADDING.getRegext());
+        cipher.init(Cipher.ENCRYPT_MODE, SecretKeyFactory.getInstance(Regex.DESEDE.getRegext()).generateSecret(new DESedeKeySpec(key)));
         return cipher.doFinal(data);
     }
 
     public byte[] des3DecodeECB(byte[] key, byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance("desede/ECB/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, SecretKeyFactory.getInstance("desede").generateSecret(new DESedeKeySpec(key)));
+        Cipher cipher = Cipher.getInstance(Regex.DESEDE_EBC_PKCS5PADDING.getRegext());
+        cipher.init(Cipher.DECRYPT_MODE, SecretKeyFactory.getInstance(Regex.DESEDE.getRegext()).generateSecret(new DESedeKeySpec(key)));
         return cipher.doFinal(data);
     }
 
     public byte[] des3EncodeCBC(byte[] key, byte[] keyiv, byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance("desede/CBC/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, SecretKeyFactory.getInstance("desede").generateSecret(new DESedeKeySpec(key)), new IvParameterSpec(keyiv));
+        Cipher cipher = Cipher.getInstance(Regex.DESEDE_CBC_PKCS5PADDING.getRegext());
+        cipher.init(Cipher.ENCRYPT_MODE, SecretKeyFactory.getInstance(Regex.DESEDE.getRegext()).generateSecret(new DESedeKeySpec(key)), new IvParameterSpec(keyiv));
         return cipher.doFinal(data);
     }
 
     public byte[] des3DecodeCBC(byte[] key, byte[] keyiv, byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidKeySpecException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance("desede/CBC/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, SecretKeyFactory.getInstance("desede").generateSecret(new DESedeKeySpec(key)), new IvParameterSpec(keyiv));
+        Cipher cipher = Cipher.getInstance(Regex.DESEDE_CBC_PKCS5PADDING.getRegext());
+        cipher.init(Cipher.DECRYPT_MODE, SecretKeyFactory.getInstance(Regex.DESEDE.getRegext()).generateSecret(new DESedeKeySpec(key)), new IvParameterSpec(keyiv));
         return cipher.doFinal(data);
     }
 
@@ -315,33 +329,39 @@ public final class SecurityUtil {
         return CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(hexStringToByte(key))).getPublicKey();
     }
 
-    public byte[] encryptRSA(String publicKey, String data) throws CertificateException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException {
-        return encryptRSA(getRsaPublicKey(publicKey), data);
+    public byte[] encryptAESEBC(String data, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        if (!TextUtils.isEmpty(data) && !TextUtils.isEmpty(key) && key.length() == 16) {
+//            KeyGenerator keyGenerator = KeyGenerator.getInstance(Regex.AES.getRegext());
+//            keyGenerator.init(keySize, new SecureRandom(key.getBytes()));
+//            SecretKey secretKey = keyGenerator.generateKey();
+//            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
+            Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+            return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
+        } else {
+            return null;
+        }
     }
 
-    public byte[] encryptRSA(PublicKey publicKey, String data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
+    public byte[] decryptAESEBC(byte[] data, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException {
+        if (data != null && !TextUtils.isEmpty(key) && key.length() == 16) {
+//            KeyGenerator keyGenerator = KeyGenerator.getInstance(Regex.AES.getRegext());
+//            keyGenerator.init(keySize, new SecureRandom(key.getBytes()));
+//            SecretKey secretKey = keyGenerator.generateKey();
+//            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
+            Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+            return cipher.doFinal(data);
+        } else {
+            return null;
+        }
     }
 
-//    public String encryptAES(String content, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException {
-//        KeyGenerator.getInstance(Regex.AES.getRegext()).initialize(128, new SecureRandom(key.getBytes()));
-//        Cipher cipher = Cipher.getInstance(Regex.AES.getRegext());
-//        cipher.initialize(Cipher.ENCRYPT_MODE, new SecretKeySpec(KeyGenerator.getInstance(Regex.AES.getRegext()).generateKey().getEncoded(), Regex.AES.getRegext()));
-//        return bytesToHexString(cipher.doFinal(content.getBytes(Regex.UTF_8.getRegext())));
-//    }
-
-//    public String decryptAES(String content, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException {
-//        KeyGenerator.getInstance(Regex.AES.getRegext()).initialize(128, new SecureRandom(key.getBytes()));
-//        Cipher cipher = Cipher.getInstance(Regex.AES.getRegext());
-//        cipher.initialize(Cipher.DECRYPT_MODE, new SecretKeySpec(KeyGenerator.getInstance(Regex.AES.getRegext()).generateKey().getEncoded(), Regex.AES.getRegext()));
-//        return new String(cipher.doFinal(hexStringToByte(content)), Regex.UTF_8.getRegext());
-//    }
-
-    public byte[] encryptAES(String data, String key) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = Cipher.getInstance(Regex.AES.getRegext());
-        if (!TextUtils.isEmpty(data) && !TextUtils.isEmpty(key)) {
+    public byte[] encryptAESCBC(String data, String key) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException {
+        if (!TextUtils.isEmpty(data) && !TextUtils.isEmpty(key) && key.length() == 16) {
+            Cipher cipher = Cipher.getInstance(Regex.AES.getRegext());
             cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key.getBytes(), Regex.AES.getRegext()));
             return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
         } else {
@@ -349,14 +369,8 @@ public final class SecurityUtil {
         }
     }
 
-    public byte[] encryptAES(String data, SecretKey secretKey, IvParameterSpec ivParameterSpec) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
-        Cipher cipher = Cipher.getInstance(Regex.AES_CBC_PKCS5PADDING.getRegext());
-        cipher.init(1, secretKey, ivParameterSpec);
-        return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
-    }
-
-    public byte[] decryptAES(byte[] data, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        if (data != null && !TextUtils.isEmpty(key)) {
+    public byte[] decryptAESCBC(byte[] data, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        if (data != null && !TextUtils.isEmpty(key) && key.length() == 16) {
             Cipher cipher = Cipher.getInstance(Regex.AES.getRegext());
             cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key.getBytes(), Regex.AES.getRegext()));
             return cipher.doFinal(data);
@@ -365,21 +379,48 @@ public final class SecurityUtil {
         }
     }
 
-    public String decryptAES(byte[] data, SecretKey secretKey, IvParameterSpec ivParameterSpec) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
-        Cipher cipher = Cipher.getInstance(Regex.AES_CBC_PKCS5PADDING.getRegext());
-        cipher.init(2, secretKey, ivParameterSpec);
-        return new String(cipher.doFinal(data), Regex.UTF_8.getRegext());
-    }
-
-    public String encryptMD5(String data) {
-        if (!TextUtils.isEmpty(data)) {
-            return encryptMD5(data.getBytes());
+    public byte[] encryptAESCBC(String data, SecretKey secretKey, IvParameterSpec ivParameterSpec) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+        if (!TextUtils.isEmpty(data) && secretKey != null && ivParameterSpec != null) {
+            Cipher cipher = Cipher.getInstance(Regex.AES_CBC_PKCS5PADDING.getRegext());
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec);
+            return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
         } else {
             return null;
         }
     }
 
-    public String encryptMD5(byte[] buffer) {
+    public String decryptAESCBC(byte[] data, SecretKey secretKey, IvParameterSpec ivParameterSpec) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
+        Cipher cipher = Cipher.getInstance(Regex.AES_CBC_PKCS5PADDING.getRegext());
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
+        return new String(cipher.doFinal(data), Regex.UTF_8.getRegext());
+    }
+
+    public String encryptMD5With16Bit(String data) {
+        if (!TextUtils.isEmpty(data)) {
+            return encryptMD5With16Bit(data.getBytes());
+        } else {
+            return null;
+        }
+    }
+
+    public String encryptMD5With16Bit(byte[] buffer) {
+        try {
+            return bytesToHexString(MessageDigest.getInstance(Regex.MD5.getRegext()).digest(buffer)).substring(8, 24);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String encryptMD5With32Bit(String data) {
+        if (!TextUtils.isEmpty(data)) {
+            return encryptMD5With32Bit(data.getBytes());
+        } else {
+            return null;
+        }
+    }
+
+    public String encryptMD5With32Bit(byte[] buffer) {
         try {
             return bytesToHexString(MessageDigest.getInstance(Regex.MD5.getRegext()).digest(buffer));
         } catch (NoSuchAlgorithmException e) {

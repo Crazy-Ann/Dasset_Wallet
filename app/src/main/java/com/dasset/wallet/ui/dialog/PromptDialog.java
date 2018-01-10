@@ -33,7 +33,7 @@ public class PromptDialog extends BaseDialogFragment {
                 @Override
                 public void onClick(View v) {
                     for (OnDialogPositiveListener listener : getDialogListeners(OnDialogPositiveListener.class)) {
-                        listener.onPositiveButtonClicked(mRequestCode);
+                        listener.onPositiveButtonClicked(requestCode);
                     }
                     dismiss();
                 }
@@ -44,7 +44,7 @@ public class PromptDialog extends BaseDialogFragment {
                 @Override
                 public void onClick(View view) {
                     for (OnDialogNegativeListener listener : getDialogListeners(OnDialogNegativeListener.class)) {
-                        listener.onNegativeButtonClicked(mRequestCode);
+                        listener.onNegativeButtonClicked(requestCode);
                     }
                     dismiss();
                 }
@@ -55,7 +55,7 @@ public class PromptDialog extends BaseDialogFragment {
                 @Override
                 public void onClick(View view) {
                     for (OnDialogNeutralListener listener : getDialogListeners(OnDialogNeutralListener.class)) {
-                        listener.onNeutralButtonClicked(mRequestCode);
+                        listener.onNeutralButtonClicked(requestCode);
                     }
                     dismiss();
                 }

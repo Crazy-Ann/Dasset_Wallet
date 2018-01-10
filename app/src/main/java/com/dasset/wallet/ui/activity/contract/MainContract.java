@@ -7,8 +7,6 @@ import android.net.Uri;
 import com.dasset.wallet.base.presenter.BasePresenter;
 import com.dasset.wallet.base.view.BaseView;
 
-import java.io.File;
-
 public interface MainContract {
 
     interface View extends BaseView<Presenter> {
@@ -20,15 +18,22 @@ public interface MainContract {
         void showImportAccountPromptDialog();
 
         void loadAccountData();
+
+        void showAddressQRCodePromptDialog(byte[] data, String prompt);
     }
 
     interface Presenter extends BasePresenter {
 
-        void importAccount(Intent data);
+        void importAccount(Intent data, String password);
 
         String generatorPathFromUri(Uri uri);
 
         String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs);
 
+        void generateAddresQRCode(int position);
+        
+        void save();
+
+        void share();
     }
 }

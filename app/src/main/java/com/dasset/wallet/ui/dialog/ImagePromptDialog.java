@@ -13,7 +13,6 @@ import com.dasset.wallet.base.dialog.BaseDialogFragment;
 import com.dasset.wallet.base.dialog.listener.OnDialogNegativeListener;
 import com.dasset.wallet.base.dialog.listener.OnDialogNeutralListener;
 import com.dasset.wallet.base.dialog.listener.OnDialogPositiveListener;
-import com.dasset.wallet.components.constant.Constant;
 import com.dasset.wallet.components.utils.BundleUtil;
 import com.dasset.wallet.components.utils.GlideUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
@@ -24,7 +23,7 @@ public class ImagePromptDialog extends BaseDialogFragment {
     @Override
     protected Builder build(Builder builder) {
         CharSequence title = BundleUtil.getInstance().getCharSequenceData(getArguments(), Temp.DIALOG_TITLE.getContent());
-        int image = BundleUtil.getInstance().getIntData(getArguments(), Temp.DIALOG_PROMPT_IMAGE.getContent());
+        byte[] image = BundleUtil.getInstance().getByteArrayData(getArguments(), Temp.DIALOG_PROMPT_IMAGE.getContent());
         CharSequence prompt = BundleUtil.getInstance().getCharSequenceData(getArguments(), Temp.DIALOG_PROMPT.getContent());
         CharSequence positive = BundleUtil.getInstance().getCharSequenceData(getArguments(), Temp.DIALOG_BUTTON_POSITIVE.getContent());
         CharSequence negative = BundleUtil.getInstance().getCharSequenceData(getArguments(), Temp.DIALOG_BUTTON_NEGATIVE.getContent());
@@ -34,8 +33,8 @@ public class ImagePromptDialog extends BaseDialogFragment {
         if (!TextUtils.isEmpty(title)) {
             builder.setTitle(title);
         }
-        if (image != Constant.View.DEFAULT_RESOURCE && image != 0) {
-            GlideUtil.getInstance().with(getContext(), image, null, null, DiskCacheStrategy.NONE, (ImageView) ViewUtil.getInstance().findView(view, R.id.ivPromptImage));
+        if (image != null) {
+            GlideUtil.getInstance().with(getContext(), image, ViewUtil.getInstance().dp2px(getContext(), 180), ViewUtil.getInstance().dp2px(getContext(), 160), DiskCacheStrategy.NONE, (ImageView) ViewUtil.getInstance().findView(view, R.id.ivPromptImage));
         }
         if (!TextUtils.isEmpty(prompt)) {
             ((TextView) ViewUtil.getInstance().findView(view, R.id.tvPrompt)).setText(prompt);
@@ -45,7 +44,7 @@ public class ImagePromptDialog extends BaseDialogFragment {
                 @Override
                 public void onClick(View v) {
                     for (OnDialogPositiveListener listener : getDialogListeners(OnDialogPositiveListener.class)) {
-                        listener.onPositiveButtonClicked(mRequestCode);
+                        listener.onPositiveButtonClicked(requestCode);
                     }
                     dismiss();
                 }
@@ -56,7 +55,7 @@ public class ImagePromptDialog extends BaseDialogFragment {
                 @Override
                 public void onClick(View view) {
                     for (OnDialogNegativeListener listener : getDialogListeners(OnDialogNegativeListener.class)) {
-                        listener.onNegativeButtonClicked(mRequestCode);
+                        listener.onNegativeButtonClicked(requestCode);
                     }
                     dismiss();
                 }
@@ -67,7 +66,7 @@ public class ImagePromptDialog extends BaseDialogFragment {
                 @Override
                 public void onClick(View view) {
                     for (OnDialogNeutralListener listener : getDialogListeners(OnDialogNeutralListener.class)) {
-                        listener.onNeutralButtonClicked(mRequestCode);
+                        listener.onNeutralButtonClicked(requestCode);
                     }
                     dismiss();
                 }

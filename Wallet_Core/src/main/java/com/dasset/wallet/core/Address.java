@@ -331,7 +331,7 @@ public class Address implements Comparable<Address> {
     public List<byte[]> signHashes(List<byte[]> unsignedInHashes, CharSequence passphrase) {
         ECKey key = PrivateKeyUtil.getECKeyFromSingleString(this.getFullEncryptPrivKey(), passphrase);
         if (key == null) {
-            throw new RuntimeException("do not decrypt eckey");
+            throw new RuntimeException("do not decryptAESEBC eckey");
         }
         KeyParameter assKey = key.getKeyCrypter().deriveKey(passphrase);
         List<byte[]> result = new ArrayList<byte[]>();
@@ -348,7 +348,7 @@ public class Address implements Comparable<Address> {
 
         ECKey key = PrivateKeyUtil.getECKeyFromSingleString(this.getFullEncryptPrivKey(), passphrase);
         if (key == null) {
-            throw new RuntimeException("do not decrypt eckey");
+            throw new RuntimeException("do not decryptAESEBC eckey");
         }
         KeyParameter assKey = key.getKeyCrypter().deriveKey(passphrase);
 

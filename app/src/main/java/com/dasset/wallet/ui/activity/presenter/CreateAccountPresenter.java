@@ -6,12 +6,13 @@ import android.os.Message;
 
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.handler.ActivityHandler;
+import com.dasset.wallet.components.constant.Regex;
+import com.dasset.wallet.components.utils.DeviceUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.MessageUtil;
 import com.dasset.wallet.components.utils.ThreadPoolUtil;
 import com.dasset.wallet.constant.Constant;
 import com.dasset.wallet.core.ecc.Account;
-import com.dasset.wallet.core.ecc.AddressFactory;
 import com.dasset.wallet.core.ecc.ECKeyPairFactory;
 import com.dasset.wallet.ecc.AccountStorageFactory;
 import com.dasset.wallet.ui.BasePresenterImplement;
@@ -20,10 +21,15 @@ import com.dasset.wallet.ui.activity.contract.CreateAccountContract;
 
 import org.spongycastle.util.encoders.Hex;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 public class CreateAccountPresenter extends BasePresenterImplement implements CreateAccountContract.Presenter {
 
     private CreateAccountContract.View view;
-    private CreateAccountHandler       createAccountHandler;
+    private CreateAccountHandler createAccountHandler;
 
     private class CreateAccountHandler extends ActivityHandler<CreateAccountActivity> {
 
@@ -32,20 +38,20 @@ public class CreateAccountPresenter extends BasePresenterImplement implements Cr
         }
 
         @Override
-        protected void handleMessage(CreateAccountActivity activity, Message msg) {
+        protected void handleMessage(CreateAccountActivity activity, Message message) {
             if (activity != null) {
-                switch (msg.what) {
-                    case Constant.StateCode.GENERATE_ECKEYPAIR_SUCCESS:
+                switch (message.what) {
+                    case Constant.StateCode.ECKEYPAIR_GENERATE_SUCCESS:
                         activity.hideLoadingPromptDialog();
-                        Account account = (Account) msg.obj;
+                        Account account = (Account) message.obj;
                         LogUtil.getInstance().print(account.toString());
                         Bundle bundle = new Bundle();
                         bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, account);
-                        view.startCreateAccountResultActivity(bundle);
+                        activity.startCreateAccountResultActivity(bundle);
                         break;
-                    case Constant.StateCode.GENERATE_ECKEYPAIR_FAILED:
+                    case Constant.StateCode.ECKEYPAIR_GENERATE_FAILED:
                         activity.hideLoadingPromptDialog();
-                        activity.showPromptDialog(msg.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR);
                         break;
                     default:
                         break;
@@ -72,12 +78,15 @@ public class CreateAccountPresenter extends BasePresenterImplement implements Cr
             @Override
             public void run() {
                 try {
-                    ECKeyPairFactory keyPair = ECKeyPairFactory.generateECKeyPair(compressed);
-                    Account          account = AccountStorageFactory.getInstance().createAccount(accountName, Hex.toHexString(keyPair.getPrivateKey().toByteArray()), Hex.toHexString(keyPair.getPublicKey()), AddressFactory.generatorAddress(keyPair.getPublicKey(), com.dasset.wallet.core.ecc.Constant.AddressType.HYC), password);
-                    createAccountHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.GENERATE_ECKEYPAIR_SUCCESS, account));
+                    ECKeyPairFactory ecKeyPairFactory = ECKeyPairFactory.generateECKeyPair(compressed);
+                    DateFormat dateFormat = new SimpleDateFormat(Regex.UTC_DATE_FORMAT_ALL.getRegext());
+                    dateFormat.setTimeZone(TimeZone.getTimeZone(Regex.UTC.getRegext()));
+                    String timestamp = Regex.UTC.getRegext() + Regex.DOUBLE_MINUS.getRegext() + dateFormat.format(new Date());
+                    Account account = AccountStorageFactory.getInstance().createAccount(DeviceUtil.getInstance().getDeviceId(context), timestamp, Regex.AES_128_ECB.getRegext(), accountName, Hex.toHexString(ecKeyPairFactory.getPrivateKey().toByteArray()), password, timestamp, false);
+                    createAccountHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ECKEYPAIR_GENERATE_SUCCESS, account));
                 } catch (Exception e) {
                     e.printStackTrace();
-                    createAccountHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.GENERATE_ECKEYPAIR_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
+                    createAccountHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.ECKEYPAIR_GENERATE_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                 }
             }
         });

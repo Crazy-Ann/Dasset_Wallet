@@ -18,15 +18,35 @@ public class AccountAdapter extends FixedStickyHeaderAdapter<AccountInfo, Accoun
     }
 
     @Override
-    protected void onBindHeaderOrFooter(RecyclerView.ViewHolder holder, Object object) {
-        super.onBindHeaderOrFooter(holder, object);
-        FixedStickyView view = (FixedStickyView) object;
-        if (view.fixedStickyViewType == R.layout.holder_add_account) {
-            ViewUtil.getInstance().findViewAttachOnclick(holder.itemView, R.id.llAddAccount, new View.OnClickListener() {
+    protected void onBindHeaderOrFooter(RecyclerView.ViewHolder viewHolder, Object object) {
+        super.onBindHeaderOrFooter(viewHolder, object);
+        switch (((FixedStickyView) object).fixedStickyViewType) {
+            case R.layout.holder_add_account:
+                ViewUtil.getInstance().findViewAttachOnclick(viewHolder.itemView, R.id.llAddAccount, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (onHeaderOrFooterItemClickListener != null) {
+                            onHeaderOrFooterItemClickListener.onHeaderOrFooterItemClick(R.id.llAddAccount);
+                        }
+                    }
+                });
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        super.onBindViewHolder(viewHolder, position);
+        final int itemPosition = position;
+        if (viewHolder.getItemViewType() == TYPE_CONTENT_VIEW) {
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+
                 @Override
-                public void onClick(View v) {
-                    if (onEventClickListener != null) {
-                        onEventClickListener.onnEventClick();
+                public void onClick(View view) {
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onItemClick(itemPosition, view);
                     }
                 }
             });

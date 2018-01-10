@@ -13,7 +13,6 @@ import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -84,20 +83,6 @@ public final class SharedPreferenceUtil {
         }
     }
 
-    public void putEncryptObject(Context ctx, String fileName, int mode, String key, List<?> value, boolean isEncrypt) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, IOException {
-        if (preferences == null) {
-            preferences = ctx.getSharedPreferences(fileName, mode);
-        }
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        new ObjectOutputStream(byteArrayOutputStream).writeObject(value);
-        if (isEncrypt) {
-            key = SecurityUtil.getInstance().encryptMD5(key);
-            preferences.edit().putString(key, Arrays.toString(SecurityUtil.getInstance().encryptAES(new String(Base64.encode(byteArrayOutputStream.toByteArray(), Base64.DEFAULT)), key))).apply();
-        } else {
-            preferences.edit().putString(key, new String(Base64.encode(byteArrayOutputStream.toByteArray(), Base64.DEFAULT))).apply();
-        }
-    }
-
     public long getLong(Context ctx, String fileName, int mode, String key, long defValue) {
         if (preferences == null) {
             preferences = ctx.getSharedPreferences(fileName, mode);
@@ -143,8 +128,8 @@ public final class SharedPreferenceUtil {
                 String value = preferences.getString(key, defValue);
                 if (!TextUtils.isEmpty(value)) {
                     if (isEncrypt) {
-                        key = SecurityUtil.getInstance().encryptMD5(key);
-                        return (List<Map<String, String>>) new ObjectInputStream(new ByteArrayInputStream(SecurityUtil.getInstance().decryptAES(Base64.decode(value, Base64.DEFAULT), key))).readObject();
+                        key = SecurityUtil.getInstance().encryptMD5With32Bit(key);
+                        return (List<Map<String, String>>) new ObjectInputStream(new ByteArrayInputStream(SecurityUtil.getInstance().decryptAESCBC(Base64.decode(value, Base64.DEFAULT), key))).readObject();
                     } else {
                         return (List<Map<String, String>>) new ObjectInputStream(new ByteArrayInputStream(Base64.decode(value, Base64.DEFAULT))).readObject();
                     }
@@ -169,7 +154,7 @@ public final class SharedPreferenceUtil {
             preferences = ctx.getSharedPreferences(fileName, mode);
         }
         if (isEncrypt) {
-            key = SecurityUtil.getInstance().encryptMD5(key);
+            key = SecurityUtil.getInstance().encryptMD5With32Bit(key);
         }
         preferences.edit().remove(key).apply();
     }

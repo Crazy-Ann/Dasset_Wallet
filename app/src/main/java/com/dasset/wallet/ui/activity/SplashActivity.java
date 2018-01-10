@@ -1,5 +1,6 @@
 package com.dasset.wallet.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.ActivityUtil;
 import com.dasset.wallet.components.utils.InputUtil;
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.SharedPreferenceUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.widget.tablayout.TabLayout;
 import com.dasset.wallet.constant.Constant;
@@ -34,7 +36,7 @@ public class SplashActivity extends ActivityViewImplement<SplashContract.Present
     private SplashPresenter splashPresenter;
 
     private ViewPager vpSplash;
-    private Button    btnEnter;
+    private Button btnEnter;
     private TabLayout tbSplash;
 
     @Override
@@ -98,7 +100,7 @@ public class SplashActivity extends ActivityViewImplement<SplashContract.Present
         setBasePresenterImplement(splashPresenter);
 
         List<ArrayMap<String, View>> arrayMaps = Lists.newArrayList();
-        ArrayMap<String, View>       arrayMap  = new ArrayMap<>();
+        ArrayMap<String, View> arrayMap = new ArrayMap<>();
         for (int i = 0; i < 3; i++) {
             switch (i) {
                 case 0:
@@ -220,6 +222,7 @@ public class SplashActivity extends ActivityViewImplement<SplashContract.Present
     @Override
     public void startMainActivity() {
         startActivity(MainActivity.class);
+        SharedPreferenceUtil.getInstance().putBoolean(BaseApplication.getInstance(), Constant.Configuration.CONFIGURATION, Context.MODE_PRIVATE, Constant.Configuration.KEY1, true);
         onFinish("startMainActivity");
     }
 

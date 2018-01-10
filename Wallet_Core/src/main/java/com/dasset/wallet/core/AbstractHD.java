@@ -77,7 +77,7 @@ public abstract class AbstractHD {
         decryptHDSeed(password);
         DeterministicKey master = HDKeyDerivation.createMasterPrivateKey(hdSeed);
         wipeHDSeed();
-        log.info("hdm keychain decrypt time: {}", System.currentTimeMillis() - begin);
+        log.info("hdm keychain decryptAESEBC time: {}", System.currentTimeMillis() - begin);
         return master;
     }
 

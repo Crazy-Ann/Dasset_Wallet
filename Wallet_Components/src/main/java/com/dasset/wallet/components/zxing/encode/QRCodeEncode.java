@@ -2,6 +2,7 @@ package com.dasset.wallet.components.zxing.encode;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.text.TextUtils;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -18,10 +19,14 @@ public class QRCodeEncode {
     private static int IMAGE_HALFWIDTH = 50;
 
     public static byte[] createQRCode(String data, int size) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        Bitmap bitmap = createQRCode(data, size, null, -1);
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
+        if (!TextUtils.isEmpty(data)) {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            Bitmap bitmap = createQRCode(data, size, null, -1);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        } else {
+            return null;
+        }
     }
 
     public static Bitmap createQRCode(String data, int size, Bitmap bitmap, int type) {

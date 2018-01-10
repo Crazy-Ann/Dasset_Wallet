@@ -29,7 +29,7 @@ public class FixedStickyHeaderAdapter<T extends OnGroupListener, V extends Recyc
 
     @Override
     protected void onBindHeaderOrFooter(RecyclerView.ViewHolder holder, Object object) {
-
+        
     }
 
     @Override

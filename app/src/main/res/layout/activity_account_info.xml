@@ -12,99 +12,94 @@
         android:id="@+id/inToolbar"
         layout="@layout/view_toolbar"/>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/color_292940"
+        android:orientation="vertical"
         android:padding="@dimen/dp_20">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_10">
+
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="false"
+                android:layout_alignParentTop="true"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/sp_16"/>
+
+            <ImageView
+                android:id="@+id/ivAddressQRCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:contentDescription="@null"/>
+
+        </RelativeLayout>
+
+        <include layout="@layout/view_line"/>
+
         <TextView
-            android:id="@+id/tvAddress"
+            android:id="@+id/tvAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="false"
-            android:layout_alignParentTop="true"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/sp_16"/>
-
-        <ImageView
-            android:id="@+id/ivAddressQRCode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:contentDescription="@null"/>
-
-        <Button
-            android:id="@+id/btnSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/llAmount"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/ivAddressQRCode"
-            android:background="@drawable/rectangle_5757ff"
             android:gravity="center"
             android:paddingBottom="@dimen/dp_10"
-            android:paddingEnd="@dimen/dp_30"
-            android:paddingStart="@dimen/dp_30"
             android:paddingTop="@dimen/dp_10"
-            android:text="@string/account_info_send"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/sp_14"/>
+            android:textSize="@dimen/sp_18"/>
 
-        <LinearLayout
-            android:id="@+id/llAmount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/ivAddressQRCode"
-            android:layout_marginTop="@dimen/dp_10"
-            android:orientation="vertical">
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:paddingBottom="@dimen/dp_3"
-                android:paddingTop="@dimen/dp_3"
-                android:text="@string/account_info_send"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/sp_18"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="@string/account_info_amount"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/sp_8"/>
-
-        </LinearLayout>
-
-    </RelativeLayout>
-
-    <TextView
+    <LinearLayout
+        android:id="@+id/llTransactionRecord"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:padding="@dimen/dp_10"
-        android:text="@string/account_info_transaction_record"
-        android:textSize="@dimen/sp_10"/>
+        android:orientation="vertical">
 
-    <include layout="@layout/view_line"/>
-
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycleView"
-
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:padding="@dimen/dp_10"
+            android:text="@string/account_info_transaction_record"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/sp_10"/>
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+        <include layout="@layout/view_line"/>
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycleView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@null"
+        android:drawablePadding="@dimen/dp_5"
+        android:drawableTop="@mipmap/icon_empty"
+        android:gravity="center|center_horizontal"
+        android:text="@string/account_info_transaction_record_empty"
+        android:textColor="@color/color_9b9b9b"
+        android:textSize="@dimen/sp_12"
+        android:visibility="gone"/>
 
 </LinearLayout>

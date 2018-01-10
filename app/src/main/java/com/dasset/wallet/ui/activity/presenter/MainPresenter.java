@@ -5,40 +5,52 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import com.alibaba.fastjson.JSONException;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.handler.ActivityHandler;
 import com.dasset.wallet.components.constant.Regex;
+import com.dasset.wallet.components.utils.FileProviderUtil;
+import com.dasset.wallet.components.utils.IOUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.MessageUtil;
 import com.dasset.wallet.components.utils.ThreadPoolUtil;
-import com.dasset.wallet.components.zxing.decode.QRCodeDecode;
-import com.dasset.wallet.components.zxing.listener.OnScannerCompletionListener;
+import com.dasset.wallet.components.utils.ViewUtil;
+import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
 import com.dasset.wallet.constant.Constant;
-import com.dasset.wallet.core.exception.PasswordException;
 import com.dasset.wallet.ecc.AccountStorageFactory;
 import com.dasset.wallet.ui.BasePresenterImplement;
 import com.dasset.wallet.ui.activity.MainActivity;
 import com.dasset.wallet.ui.activity.contract.MainContract;
-import com.google.zxing.ChecksumException;
-import com.google.zxing.FormatException;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.ref.SoftReference;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class MainPresenter extends BasePresenterImplement implements MainContract.Presenter {
 
     private MainContract.View view;
-    private MainHandler       mainHandler;
+    private MainHandler mainHandler;
+
+    private String address;
 
     private class MainHandler extends ActivityHandler<MainActivity> {
 
@@ -50,13 +62,39 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
         protected void handleMessage(MainActivity activity, final Message message) {
             if (activity != null) {
                 switch (message.what) {
-                    case Constant.StateCode.IMPORT_ACCOUNT_SUCCESS:
+                    case Constant.StateCode.ACCOUNT_IMPORT_SUCCESS:
                         activity.hideLoadingPromptDialog();
-                        view.loadAccountData();
+                        activity.loadAccountData();
                         break;
-                    case Constant.StateCode.IMPORT_ACCOUNT_FAILED:
+                    case Constant.StateCode.ACCOUNT_IMPORT_FAILED:
                         activity.hideLoadingPromptDialog();
                         activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR);
+                        break;
+                    case Constant.StateCode.QRCODE_SAVE_SUCCESS:
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_SUCCESS);
+                        activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(Regex.FILE_HEAD.getRegext() + Environment.getExternalStorageDirectory())));
+                        break;
+                    case Constant.StateCode.QRCODE_SAVE_FAILED:
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_ERROR);
+                        break;
+                    case Constant.StateCode.QRCODE_SHARE_SUCCESS:
+                        activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(Regex.FILE_HEAD.getRegext() + Environment.getExternalStorageDirectory())));
+                        File file = (File) message.obj;
+                        if (file != null && file.exists()) {
+                            Intent intent = new Intent(Intent.ACTION_SEND);
+                            intent.setType(Regex.IMAGE_DIRECTORY_TYPE.getRegext());
+                            intent.putExtra(Intent.EXTRA_STREAM, FileProviderUtil.getInstance().generateUri(activity, intent, file));
+                            if (intent.resolveActivity(activity.getPackageManager()) != null) {
+                                activity.startActivityForResult(Intent.createChooser(intent, activity.getString(R.string.dialog_prompt_import_account_to)), Constant.RequestCode.EXPORT_QRCODE);
+                            } else {
+                                activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
+                            }
+                        } else {
+                            activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
+                        }
+                        break;
+                    case Constant.StateCode.QRCODE_SHARE_FAILED:
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
                         break;
                     default:
                         break;
@@ -82,34 +120,34 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
     }
 
     @Override
-    public void importAccount(final Intent data) {
-        view.showLoadingPromptDialog(R.string.dialog_prompt_import_account2, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT2);
-        ThreadPoolUtil.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (data != null) {
+    public void importAccount(final Intent data, final String password) {
+        if (data != null) {
+            view.showLoadingPromptDialog(R.string.dialog_prompt_import_account2, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT2);
+            ThreadPoolUtil.execute(new Runnable() {
+                @Override
+                public void run() {
                     Uri uri = data.getData();
                     if (uri != null) {
                         try {
                             String path = generatorPathFromUri(uri);
                             if (!TextUtils.isEmpty(path)) {
-                                AccountStorageFactory.getInstance().importAccount(new File(uri.getPath()));
-                                mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_SUCCESS));
+                                AccountStorageFactory.getInstance().importAccount(new File(uri.getPath()), password);
+                                mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_IMPORT_SUCCESS));
                             } else {
-                                mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));
+                                mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_IMPORT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));
                             }
-                        } catch (PasswordException | IOException e) {
+                        } catch (IOException | JSONException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | NoSuchAlgorithmException e) {
                             e.printStackTrace();
-                            mainHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
+                            mainHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.ACCOUNT_IMPORT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));
                         }
                     } else {
-                        mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));
+                        mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_IMPORT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));
                     }
-                } else {
-                    mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.IMPORT_ACCOUNT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));
                 }
-            }
-        });
+            });
+        } else {
+            mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_IMPORT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));
+        }
     }
 
     @Override
@@ -119,7 +157,7 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
             if (DocumentsContract.isDocumentUri(context, uri)) {
                 String documentId = DocumentsContract.getDocumentId(uri);
                 if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                    String   selection     = MediaStore.Images.Media._ID + "=?";
+                    String selection = MediaStore.Images.Media._ID + "=?";
                     String[] selectionArgs = {documentId.split(Regex.COLON.getRegext())[1]};
                     filePath = getDataColumn(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs);
                 } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
@@ -139,13 +177,116 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
 
     @Override
     public String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-        String   path       = null;
+        String path = null;
         String[] projection = new String[]{MediaStore.Images.Media.DATA};
-        Cursor   cursor     = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+        Cursor cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
         if (cursor != null && cursor.moveToFirst()) {
             path = cursor.getString(cursor.getColumnIndexOrThrow(projection[0]));
             cursor.close();
         }
         return path;
+    }
+
+    @Override
+    public void generateAddresQRCode(int position) {
+        try {
+            address = AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position).getAddress2();
+            view.showAddressQRCodePromptDialog(QRCodeEncode.createQRCode(address, ViewUtil.getInstance().dp2px(context, 160)), address);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void save() {
+        LogUtil.getInstance().print(String.format("address:%s", address));
+        ThreadPoolUtil.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!TextUtils.isEmpty(address)) {
+                    OutputStream outputStream = null;
+                    InputStream inputStream = null;
+                    try {
+                        inputStream = new ByteArrayInputStream(QRCodeEncode.createQRCode(address, ViewUtil.getInstance().dp2px(context, 160)));
+                        SoftReference softReference = new SoftReference(BitmapFactory.decodeStream(inputStream));
+                        Bitmap bitmap = (Bitmap) softReference.get();
+                        if (bitmap != null) {
+                            String fileName = address + Regex.IMAGE_JPG.getRegext();
+                            File file = new File(IOUtil.getInstance().getExternalStorageDirectory(Constant.Cache.IMAGE_CACHE_PATH), fileName);
+                            outputStream = new FileOutputStream(file);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                            if (!TextUtils.isEmpty(MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), fileName, null))) {
+                                mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_SAVE_SUCCESS, context.getString(R.string.dialog_prompt_qrcode_save_success)));
+                            } else {
+                                mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_SAVE_FAILED, context.getString(R.string.dialog_prompt_get_qrcode_bitmap_error)));
+                            }
+                        } else {
+                            mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_SAVE_FAILED, context.getString(R.string.dialog_prompt_get_qrcode_bitmap_error)));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        mainHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.QRCODE_SAVE_FAILED, e, context.getString(R.string.dialog_prompt_qrcode_save_error)));
+                    } finally {
+                        try {
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+                            if (outputStream != null) {
+                                outputStream.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            mainHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.QRCODE_SAVE_FAILED, e, context.getString(R.string.dialog_prompt_qrcode_save_error)));
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void share() {
+        LogUtil.getInstance().print(String.format("address:%s", address));
+        ThreadPoolUtil.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                OutputStream outputStream = null;
+                InputStream inputStream = null;
+                try {
+                    if (!TextUtils.isEmpty(address)) {
+                        inputStream = new ByteArrayInputStream(QRCodeEncode.createQRCode(address, ViewUtil.getInstance().dp2px(context, 160)));
+                        SoftReference softReference = new SoftReference(BitmapFactory.decodeStream(inputStream));
+                        Bitmap bitmap = (Bitmap) softReference.get();
+                        if (bitmap != null) {
+                            String fileName = address + Regex.IMAGE_JPG.getRegext();
+                            File file = new File(IOUtil.getInstance().getExternalStorageDirectory(Constant.Cache.IMAGE_CACHE_PATH), fileName);
+                            outputStream = new FileOutputStream(file);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                            outputStream.flush();
+                            MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), fileName, null);
+                            mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_SHARE_SUCCESS, file));
+                        } else {
+                            mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.QRCODE_SHARE_FAILED, context.getString(R.string.dialog_prompt_qrcode_share_error)));
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    mainHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.QRCODE_SHARE_FAILED, e, context.getString(R.string.dialog_prompt_qrcode_share_error)));
+                } finally {
+                    try {
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                        if (outputStream != null) {
+                            outputStream.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        mainHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.QRCODE_SHARE_FAILED, e, context.getString(R.string.dialog_prompt_qrcode_share_error)));
+                    }
+                }
+            }
+        });
     }
 }
