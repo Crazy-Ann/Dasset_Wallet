@@ -9,7 +9,9 @@ import android.telephony.TelephonyManager;
 import android.text.format.Formatter;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dasset.wallet.components.BuildConfig;
 import com.dasset.wallet.components.constant.Constant;
+import com.dasset.wallet.components.constant.Regex;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -265,37 +267,18 @@ public final class DeviceUtil {
         }
     }
 
-    public String getDeviceInfo(Context ctx, boolean isEncrypt, int appVer) {
+    public String getDeviceInfo(Context ctx, String appVersion, int clientVersion, boolean isEncrypt) {
         try {
             JSONObject object = new JSONObject();
-//            object.put(Constant.Device.DEVICE_VERSION, getSystemVersion());
-//            object.put(Constant.Device.DEVICE_VERSION_NAME, getSystemName());
-//            object.put(Constant.Device.DEVICE_TYPE, getPhoneType(ctx));
-//            object.put(Constant.Device.DEVICE_ID, getDeviceId(ctx));
-//            object.put(Constant.Device.DEVICE_NAME, getDeviceModel());
-//            object.put(Constant.Device.DEVICE_CORE, getCpuCores());
-//            object.put(Constant.Device.SUBSCRIBER_ID, getSubscriberId(ctx));
-//            object.put(Constant.Device.DEVICE_IP, getDeviceIp());
-//            LogUtil.getInstance().print(Constant.Device.DEVICE_VERSION + Regex.EQUALS.getRegext() + getSystemVersion() + Regex.COMMA.getRegext());
-//            LogUtil.getInstance().print(Constant.Device.DEVICE_VERSION_NAME + Regex.EQUALS.getRegext() + getSystemName() + Regex.COMMA.getRegext());
-//            LogUtil.getInstance().print( Constant.Device.DEVICE_TYPE + Regex.EQUALS.getRegext() + getPhoneType(ctx) + Regex.COMMA.getRegext());
-//            LogUtil.getInstance().print(Constant.Device.DEVICE_ID + Regex.EQUALS.getRegext() + getDeviceId(ctx) + Regex.COMMA.getRegext());
-//            LogUtil.getInstance().print(Constant.Device.DEVICE_NAME + Regex.EQUALS.getRegext() + getDeviceModel() + Regex.COMMA.getRegext());
-//            LogUtil.getInstance().print(Constant.Device.DEVICE_CORE + Regex.EQUALS.getRegext() + getCpuCores() + Regex.COMMA.getRegext());
-//            LogUtil.getInstance().print(Constant.Device.SUBSCRIBER_ID + Regex.EQUALS.getRegext() + getSubscriberId(ctx) + Regex.COMMA.getRegext());
-//            LogUtil.getInstance().print(Constant.Device.DEVICE_IP + Regex.EQUALS.getRegext() + getDeviceIp() + Regex.COMMA.getRegext());
-//            LogUtil.getInstance().print(object.toString());
-
-            object.put(Constant.Device.APP_VER, appVer);
-            object.put(Constant.Device.DEVICE_TYPE, getDeviceType(ctx));
-            object.put(Constant.Device.OS_TYPE, "Android");
+            object.put(Constant.Device.APP_VERSION, appVersion);
+            object.put(Constant.Device.CLIENT_VERSION, String.valueOf(clientVersion));
+            object.put(Constant.Device.DEVICE_TYPE, Regex.ANDROID.getRegext());
+            object.put(Constant.Device.OS_TYPE, Regex.ANDROID.getRegext());
             object.put(Constant.Device.OS_VERSION, getSystemVersion());
             object.put(Constant.Device.DEVICE_ID, getDeviceId(ctx));
             LogUtil.getInstance().print("object:" + object.toString());
-
             if (isEncrypt) {
                 return SecurityUtil.getInstance().encrypt3Des(object.toString(), Constant.Data.KEY, Constant.Data.FROMAT);
-                
             } else {
                 return object.toString();
             }

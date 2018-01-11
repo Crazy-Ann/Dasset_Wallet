@@ -2,6 +2,7 @@ package com.dasset.wallet.ui.activity;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,7 +26,6 @@ import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.ActivityUtil;
 import com.dasset.wallet.components.utils.LogUtil;
-import com.dasset.wallet.components.utils.SecurityUtil;
 import com.dasset.wallet.components.utils.ToastUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
@@ -34,6 +34,7 @@ import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.MainContract;
 import com.dasset.wallet.ui.activity.presenter.MainPresenter;
 import com.dasset.wallet.ui.adapter.AccountAdapter;
+import com.dasset.wallet.ui.adapter.MenuAdapter;
 import com.dasset.wallet.ui.binder.AccountBinder;
 import com.dasset.wallet.ui.dialog.ImagePromptDialog;
 import com.dasset.wallet.ui.dialog.PromptDialog;
@@ -45,8 +46,10 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
     private MainPresenter mainPresenter;
 
-    private RecyclerView recycleView;
-    private FixedStickyViewAdapter fixedStickyViewAdapter;
+    private RecyclerView accountRecycleView;
+    private RecyclerView menuRecycleView;
+    private AccountAdapter accountAdapter;
+    private MenuAdapter menuAdapter;
     private LinearLayoutManager linearLayoutManager;
     private AccountBinder accountBinder;
 
@@ -84,7 +87,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     @Override
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
-        recycleView = ViewUtil.getInstance().findView(this, R.id.recycleView);
+        accountRecycleView = ViewUtil.getInstance().findView(this, R.id.recycleView);
     }
 
     @Override
@@ -93,24 +96,25 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
         mainPresenter = new MainPresenter(this, this);
         mainPresenter.initialize();
         setBasePresenterImplement(mainPresenter);
-        accountBinder = new AccountBinder(this, recycleView);
-        fixedStickyViewAdapter = new AccountAdapter(this, accountBinder, false);
+        accountBinder = new AccountBinder(this, accountRecycleView);
+        accountAdapter = new AccountAdapter(this, accountBinder, false);
+//        menuAdapter = new MenuAdapter(new MenuBinder(this, menuRecycleView));
         linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recycleView.setHasFixedSize(true);
-        recycleView.setLayoutManager(linearLayoutManager);
-        recycleView.setAdapter(fixedStickyViewAdapter);
+        accountRecycleView.setHasFixedSize(true);
+        accountRecycleView.setLayoutManager(linearLayoutManager);
+        accountRecycleView.setAdapter(accountAdapter);
+//        menuRecycleView.setHasFixedSize(true);
+//        menuRecycleView.setLayoutManager(linearLayoutManager);
+//        menuRecycleView.setAdapter(menuAdapter);
         setAddAccountView();
-        LogUtil.getInstance().print("md5:" + SecurityUtil.getInstance().encryptMD5With16Bit("1234"));
-        LogUtil.getInstance().print("md5:" + SecurityUtil.getInstance().encryptMD5With32Bit("1234"));
-        LogUtil.getInstance().print("md5..length:" + SecurityUtil.getInstance().encryptMD5With16Bit("1234").length());
-        LogUtil.getInstance().print("md5..length:" + SecurityUtil.getInstance().encryptMD5With32Bit("1234").length());
+        LogUtil.getInstance().print(mainPresenter.getMenus());
     }
 
     @Override
     protected void setListener() {
-        fixedStickyViewAdapter.setOnHeaderOrFooterItemClickListener(this);
-        fixedStickyViewAdapter.setItemClickListener(this);
+        accountAdapter.setOnHeaderOrFooterItemClickListener(this);
+        accountAdapter.setItemClickListener(this);
         accountBinder.setOnViewClickListener(this);
     }
 
@@ -146,12 +150,28 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                 }
                 break;
             case Constant.RequestCode.FILE_MANAGER:
-                //TODO 
-                mainPresenter.importAccount(data, SecurityUtil.getInstance().encryptMD5With16Bit("1111"));
-//                mainPresenter.importAccount(data, "1234567890123456");
+                if (data != null) {
+                    Uri uri = data.getData();
+                    if (uri != null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(Constant.BundleKey.IMPORT_FILE_PATH, mainPresenter.generatorPathFromUri(uri));
+                        startActivityForResult(PasswordActivity.class, Constant.RequestCode.PASSWORD_VERIFICATION, bundle);
+                    } else {
+                        showPromptDialog(R.string.dialog_prompt_import_account_error, false, false, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR);
+                    }
+                }
+                break;
+            case Constant.RequestCode.PASSWORD_VERIFICATION:
+                if (data != null) {
+                    mainPresenter.importAccount(data.getStringExtra(Constant.BundleKey.IMPORT_FILE_PATH), data.getStringExtra(Constant.BundleKey.IMPORT_PASSWORD));
+                } else {
+                    showPromptDialog(R.string.dialog_prompt_import_account_error, false, false, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR);
+                }
                 break;
             case Constant.RequestCode.EXPORT_QRCODE:
-//                showPromptDialog(R.string.dialog_prompt_qrcode_share_success, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT_ERROR);
+                if (data != null) {
+                    showPromptDialog(R.string.dialog_prompt_qrcode_share_success, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT_ERROR);
+                }
                 break;
             default:
                 break;
@@ -259,23 +279,28 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
     @Override
     public void setAddAccountView() {
-        if (fixedStickyViewAdapter != null) {
-            if (!fixedStickyViewAdapter.hasFooterView(Constant.RecycleView.FOOTER_VIEW_ID)) {
-                fixedStickyViewAdapter.addFooterView(Constant.RecycleView.FOOTER_VIEW_ID,
-                                                     R.layout.holder_add_account,
-                                                     FixedStickyViewAdapter.TYPE_FOOTER_VIEW,
-                                                     R.layout.holder_add_account,
-                                                     new FixedStickyViewAdapter.FixedViewHoldGenerator() {
+        if (accountAdapter != null) {
+            if (!accountAdapter.hasFooterView(Constant.RecycleView.FOOTER_VIEW_ID)) {
+                accountAdapter.addFooterView(Constant.RecycleView.FOOTER_VIEW_ID,
+                                             R.layout.holder_add_account,
+                                             FixedStickyViewAdapter.TYPE_FOOTER_VIEW,
+                                             R.layout.holder_add_account,
+                                             new FixedStickyViewAdapter.FixedViewHoldGenerator() {
 
-                                                         @Override
-                                                         public RecyclerView.ViewHolder generate() {
-                                                             return new BaseViewHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.holder_add_account, recycleView, false));
-                                                         }
-                                                     });
+                                                 @Override
+                                                 public RecyclerView.ViewHolder generate() {
+                                                     return new BaseViewHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.holder_add_account, accountRecycleView, false));
+                                                 }
+                                             });
             } else {
-                fixedStickyViewAdapter.bindDataToHeaderOrFooter(Constant.RecycleView.FOOTER_VIEW_ID, null, FixedStickyViewAdapter.TYPE_FOOTER_VIEW);
+                accountAdapter.bindDataToHeaderOrFooter(Constant.RecycleView.FOOTER_VIEW_ID, null, FixedStickyViewAdapter.TYPE_FOOTER_VIEW);
             }
         }
+    }
+
+    @Override
+    public void setMenuView() {
+
     }
 
     @Override
@@ -292,9 +317,9 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
     @Override
     public void loadAccountData() {
-        if (fixedStickyViewAdapter != null) {
+        if (accountAdapter != null) {
             try {
-                fixedStickyViewAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()));
+                accountAdapter.setData(AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()));
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
                 showPromptDialog(e.getMessage(), false, false, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR);

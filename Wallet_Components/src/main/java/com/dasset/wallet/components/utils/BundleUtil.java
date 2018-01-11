@@ -179,6 +179,13 @@ public final class BundleUtil {
         return null;
     }
 
+    public <T extends Collection<? extends Parcelable>> T getParcelableArrayListData(Activity activity, String key) {
+        if (activity.getIntent() != null) {
+            return (T) activity.getIntent().getExtras().getParcelableArrayList(key);
+        }
+        return null;
+    }
+
     public <T extends Collection<? extends Parcelable>> T getParcelableArrayListData(Bundle bundle, String key) {
         if (bundle != null) {
             return (T) bundle.getParcelableArrayList(key);

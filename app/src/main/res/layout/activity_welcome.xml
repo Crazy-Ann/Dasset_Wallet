@@ -6,5 +6,5 @@
     android:layout_height="match_parent"
     android:contentDescription="@null"
     android:scaleType="centerCrop"
-    android:src="@mipmap/ic_launcher"
+    android:src="@mipmap/icon_welcome"
     tools:context=".ui.activity.WelcomeActivity"/>

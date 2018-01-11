@@ -30,20 +30,12 @@ public final class Constant {
     }
 
     public final static class Device {
-        public final static String DEVICE_NAME = "phoneName";
-        public final static String DEVICE_VERSION = "systemVersion";
-        public final static String DEVICE_VERSION_NAME = "systemName";
-//        public final static String DEVICE_TYPE = "phoneModel";
-//        public final static String DEVICE_ID = "phoneID";
-//        public final static String SUBSCRIBER_ID = "carrierName";
-//        public final static String DEVICE_IP = "ipAddress";
-//        public final static String DEVICE_CORE = "countCores";
-
-        public final static String DEVICE_TYPE = "device_type";
-        public final static String DEVICE_ID = "uid";
-        public final static String APP_VER = "client_ver";
+        public final static String APP_VERSION = "app_version";
+        public final static String CLIENT_VERSION = "client_ver";
         public final static String OS_VERSION = "os_ver";
         public final static String OS_TYPE = "os_type";
+        public final static String DEVICE_ID = "uid";
+        public final static String DEVICE_TYPE = "device_type";
     }
 
     public static class HttpTask {
@@ -54,6 +46,11 @@ public final class Constant {
 
     public static class Extra {
         public static final int DEFAULT_VALUE = 0x9999;
+    }
+
+    public final static class FilePath {
+        public static final String ROOT = "/dasset";
+        public static final String CACHE = ROOT + "/cache";
     }
 
     public final static class Data {

@@ -11,16 +11,16 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField 'String', 'SERVICE_URL_212', '"http://192.168.2.212/v1/dasset"'
-            buildConfigField 'String', 'SERVICE_URL_95', '"http://192.168.2.95/v1/dasset"'
+            buildConfigField 'String', 'SERVICE_URL_166', '"http://192.168.2.166/DigitalAssetMch/Api/v1/ClientApp/Post"'
+            buildConfigField 'String', 'SERVICE_URL_95', '"http://192.168.2.95/DigitalAssetMch/Api/v1/ClientApp/Post"'
             buildConfigField 'String', 'SERVICE_URL_104', '"http://demo.mch.heemoney.com/Api/ClientApp"'
             buildConfigField 'String', 'SERVICE_URL_105', '"https://merch.heemoney.com/Api/ClientApp"'
             buildConfigField 'String', 'AES_DECRYPT_KEY', '"7E7B619F1E6EA64D33361E94D656EB61"'
             minifyEnabled false
         }
         release {
-            buildConfigField 'String', 'SERVICE_URL_212', '"http://192.168.2.212/v1/dasset"'
-            buildConfigField 'String', 'SERVICE_URL_95', '"http://192.168.2.95/v1/dasset"'
+            buildConfigField 'String', 'SERVICE_URL_166', '"http://192.168.2.166/DigitalAssetMch/Api/v1/ClientApp/Post"'
+            buildConfigField 'String', 'SERVICE_URL_95', '"http://192.168.2.95/DigitalAssetMch/Api/v1/ClientApp/Post"'
             buildConfigField 'String', 'SERVICE_URL_104', '"http://demo.mch.heemoney.com/Api/ClientApp"'
             buildConfigField 'String', 'SERVICE_URL_105', '"https://merch.heemoney.com/Api/ClientApp"'
             buildConfigField 'String', 'AES_DECRYPT_KEY', '"7E7B619F1E6EA64D33361E94D656EB61"'

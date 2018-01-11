@@ -12,6 +12,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.spec.InvalidKeySpecException;
@@ -19,6 +20,7 @@ import java.security.spec.InvalidKeySpecException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -329,54 +331,58 @@ public final class SecurityUtil {
         return CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(hexStringToByte(key))).getPublicKey();
     }
 
+//    public byte[] encryptAESEBC(String data, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+//            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
+//            Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+//            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+//            return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
+//    }
+
     public byte[] encryptAESEBC(String data, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        if (!TextUtils.isEmpty(data) && !TextUtils.isEmpty(key) && key.length() == 16) {
-//            KeyGenerator keyGenerator = KeyGenerator.getInstance(Regex.AES.getRegext());
-//            keyGenerator.init(keySize, new SecureRandom(key.getBytes()));
-//            SecretKey secretKey = keyGenerator.generateKey();
-//            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
-            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
-            Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
-            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
-            return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
-        } else {
-            return null;
-        }
+        return encryptAESEBC(data, key, 128);
     }
 
+    public byte[] encryptAESEBC(String data, String key, int keySize) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance(Regex.AES.getRegext());
+        keyGenerator.init(keySize, new SecureRandom(key.getBytes()));
+        SecretKey secretKey = keyGenerator.generateKey();
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
+        Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+        return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
+    }
+
+//    public byte[] decryptAESEBC(byte[] data, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException {
+//            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
+//            Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+//            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+//            return cipher.doFinal(data);
+//    }
+
     public byte[] decryptAESEBC(byte[] data, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException {
-        if (data != null && !TextUtils.isEmpty(key) && key.length() == 16) {
-//            KeyGenerator keyGenerator = KeyGenerator.getInstance(Regex.AES.getRegext());
-//            keyGenerator.init(keySize, new SecureRandom(key.getBytes()));
-//            SecretKey secretKey = keyGenerator.generateKey();
-//            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
-            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
-            Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
-            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
-            return cipher.doFinal(data);
-        } else {
-            return null;
-        }
+        return decryptAESEBC(data, key, 128);
+    }
+
+    public byte[] decryptAESEBC(byte[] data, String key, int keySize) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance(Regex.AES.getRegext());
+        keyGenerator.init(keySize, new SecureRandom(key.getBytes()));
+        SecretKey secretKey = keyGenerator.generateKey();
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
+        Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+        return cipher.doFinal(data);
     }
 
     public byte[] encryptAESCBC(String data, String key) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException {
-        if (!TextUtils.isEmpty(data) && !TextUtils.isEmpty(key) && key.length() == 16) {
-            Cipher cipher = Cipher.getInstance(Regex.AES.getRegext());
-            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key.getBytes(), Regex.AES.getRegext()));
-            return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
-        } else {
-            return null;
-        }
+        Cipher cipher = Cipher.getInstance(Regex.AES.getRegext());
+        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key.getBytes(), Regex.AES.getRegext()));
+        return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
     }
 
     public byte[] decryptAESCBC(byte[] data, String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        if (data != null && !TextUtils.isEmpty(key) && key.length() == 16) {
-            Cipher cipher = Cipher.getInstance(Regex.AES.getRegext());
-            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key.getBytes(), Regex.AES.getRegext()));
-            return cipher.doFinal(data);
-        } else {
-            return null;
-        }
+        Cipher cipher = Cipher.getInstance(Regex.AES.getRegext());
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key.getBytes(), Regex.AES.getRegext()));
+        return cipher.doFinal(data);
     }
 
     public byte[] encryptAESCBC(String data, SecretKey secretKey, IvParameterSpec ivParameterSpec) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
@@ -397,6 +403,7 @@ public final class SecurityUtil {
 
     public String encryptMD5With16Bit(String data) {
         if (!TextUtils.isEmpty(data)) {
+            LogUtil.getInstance().print(String.format("encryptMD5With16Bit:%s", data));
             return encryptMD5With16Bit(data.getBytes());
         } else {
             return null;
@@ -442,4 +449,9 @@ public final class SecurityUtil {
         return encryptSHA1(s.getBytes());
     }
 
+    static {
+        System.loadLibrary("encrypt");
+    }
+
+    public static native String encryptAES(String json, String apk, boolean isEncrypt, int type);
 }

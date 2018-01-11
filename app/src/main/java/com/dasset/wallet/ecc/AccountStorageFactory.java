@@ -9,6 +9,7 @@ import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.utils.FileProviderUtil;
 import com.dasset.wallet.components.utils.IOUtil;
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.SecurityUtil;
 import com.dasset.wallet.core.ecc.Account;
 import com.dasset.wallet.core.ecc.Constant;
 import com.dasset.wallet.core.ecc.KeyStore;
@@ -60,8 +61,8 @@ public final class AccountStorageFactory {
     }
 
     public void initialize() throws Exception {
-        keystoreDirectory = IOUtil.getInstance().forceMkdir(BaseApplication.getInstance().getFilesDir() + Regex.LEFT_SLASH.getRegext() + Constant.Configuration.KEYSTORE);
-        backupsDirectory = IOUtil.getInstance().getExternalStorageDirectory(Constant.Configuration.KEYSTORE);
+        keystoreDirectory = IOUtil.getInstance().forceMkdir(BaseApplication.getInstance().getFilesDir() + Regex.LEFT_SLASH.getRegext() + Constant.FilePath.KEYSTORE);
+        backupsDirectory = IOUtil.getInstance().getExternalStorageDirectory(Constant.FilePath.KEYSTORE_CACHE);
 //        keyStore = new KeyStore(keystoreDirectory);
         keyStore = new KeyStore(keystoreDirectory, backupsDirectory);
         LogUtil.getInstance().print(String.format("There have %s accounts with KeyStore", Long.toString(getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).size())));
@@ -86,7 +87,7 @@ public final class AccountStorageFactory {
     public Account createAccount(String deviceId, String timestamp1, String cipher, String accountName, String privateKey, String password, String timestamp2, boolean isEncrypt) throws Exception {
         if (keyStore != null) {
             LogUtil.getInstance().print(String.format("Trying to generate wallet in %s", keyStore.getKeystoreDirectory()));
-            Account account = keyStore.createAccount(deviceId, timestamp1, cipher, accountName, privateKey, password, timestamp2, isEncrypt);
+            Account account = keyStore.createAccount(deviceId, timestamp1, cipher, accountName, privateKey, SecurityUtil.getInstance().encryptMD5With16Bit(password), timestamp2, isEncrypt);
             PasswordManagerFactory.put(BaseApplication.getInstance(), account.getAddress2(), account.getPassword());
             return account;
         } else {
@@ -124,17 +125,17 @@ public final class AccountStorageFactory {
         }
     }
 
-//    public List<AccountInfo> getAccountInfos(File keystoreDirectory, File backupsDirectory) {
+//    public List<AccountInfo> getAccountInfos(FilePath keystoreDirectory, FilePath backupsDirectory) {
 //        if (keyStore != null) {
 //            try {
 //                List<AccountInfo> accountInfos = Lists.newArrayList();
-//                File              directory;
+//                FilePath              directory;
 //                if (keystoreDirectory.listFiles().length > backupsDirectory.listFiles().length) {
 //                    directory = keystoreDirectory;
 //                } else {
 //                    directory = backupsDirectory;
 //                }
-//                for (File file : keyStore.directoryTraversal(directory)) {
+//                for (FilePath file : keyStore.directoryTraversal(directory)) {
 //                    Account account = keyStore.generatorAccountFile(file);
 //                    if (account != null) {
 //                        AccountInfo accountInfo = new AccountInfo();

@@ -47,16 +47,16 @@ public class HttpTask implements Callback, OnUpdateProgressListener {
     private Headers headers;
     private String httpTaskKey;
 
-    public HttpTask(HttpRequestType type, String url, RequestParameter parameter, OkHttpClient.Builder builder, HttpResponse response) {
-        this.httpRequestType = type;
+    public HttpTask(HttpRequestType httpRequestType, String url, RequestParameter requestParameter, OkHttpClient.Builder builder, HttpResponse httpResponse) {
+        this.httpRequestType = httpRequestType;
         this.url = url;
-        if (parameter == null) {
+        if (requestParameter == null) {
             this.parameter = new RequestParameter();
         } else {
-            this.parameter = parameter;
+            this.parameter = requestParameter;
         }
         this.okHttpClient = builder.build();
-        this.httpResponse = response;
+        this.httpResponse = httpResponse;
         this.httpTaskKey = this.parameter.getHttpTaskKey();
         if (TextUtils.isEmpty(httpTaskKey)) {
             httpTaskKey = Constant.HttpTask.DEFAULT_TASK_KEY;

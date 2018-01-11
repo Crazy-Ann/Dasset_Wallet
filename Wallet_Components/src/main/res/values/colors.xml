@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="color_20000000">#20000000</color>
-    <color name="color_00000000">#00000000</color>
     <color name="color_eeeeee">#eeeeee</color>
 
     <color name="color_ddddff">#ddddff</color>
-    <!-- 二维码 -->
-    <color name="viewfinder_laser">#ab2e00</color>
-    <color name="viewfinder_mask">#60000000</color>
-    <color name="result_view">#b0000000</color>
-    <color name="viewfinder_bg">#FF5C5C5C</color>
-    <color name="viewfinder_frame">#ffffff</color>
-    <color name="text_green">#1cb71c</color>
-    <color name="text_blue">#129fdd</color>
-    <color name="text_white">#ffffff</color>
 
     <color name="color_60000000">#60000000</color>
     <color name="color_b0000000">#b0000000</color>
@@ -24,7 +14,7 @@
 
     <color name="color_333333">#333333</color>
     <color name="color_d3d3d3">#d3d3d3</color>
-    
+
     <color name="color_129fdd">#129fdd</color>
     <color name="color_ff5c5c5c">#ff5c5c5c</color>
 </resources>

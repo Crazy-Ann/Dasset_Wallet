@@ -1,7 +1,6 @@
 package com.dasset.wallet.ui.activity.contract;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 
 import com.dasset.wallet.base.presenter.BasePresenter;
@@ -15,6 +14,8 @@ public interface MainContract {
 
         void setAddAccountView();
 
+        void setMenuView();
+
         void showImportAccountPromptDialog();
 
         void loadAccountData();
@@ -24,14 +25,14 @@ public interface MainContract {
 
     interface Presenter extends BasePresenter {
 
-        void importAccount(Intent data, String password);
+        void importAccount(String path, String password);
 
         String generatorPathFromUri(Uri uri);
 
         String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs);
 
         void generateAddresQRCode(int position);
-        
+
         void save();
 
         void share();

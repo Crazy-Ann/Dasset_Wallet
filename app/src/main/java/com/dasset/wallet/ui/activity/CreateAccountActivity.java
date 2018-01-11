@@ -193,14 +193,8 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
                 }
                 break;
             case Constant.RequestCode.CREATE_ACCOUNT:
-                switch (resultCode) {
-                    case Constant.ResultCode.CREATE_ACCOUNT:
-                        LogUtil.getInstance().print("create account without backup!");
-                        onFinish("startCreateAccountResultActivity");
-                        break;
-                    default:
-                        break;
-                }
+                LogUtil.getInstance().print("create account without backup!");
+                onFinish("startCreateAccountResultActivity");
                 break;
             default:
                 break;

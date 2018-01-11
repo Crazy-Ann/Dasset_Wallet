@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_f8f8f8"
     android:orientation="vertical"
     tools:context="com.dasset.wallet.ui.activity.CreateAccountActivity">
 
@@ -155,8 +156,7 @@
                         android:id="@+id/etConfirmPassword"
                         style="@style/edit_content"
                         android:hint="@string/hint_confirm_password"
-                        android:inputType="textPassword"
-                        android:maxLength="20"/>
+                        android:inputType="textPassword"/>
 
                     <ImageButton
                         android:id="@+id/ibConfirmPasswordDisplay"

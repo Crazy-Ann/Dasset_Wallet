@@ -11,6 +11,6 @@ public class BaseRequestParameterKey {
     public static final String OS_VERSION = "os_ver";
     public static final String TIME_STAMP = "timestamp";
     public static final String ENCRYPT_DATA = "encrypt_data";
-    public static final String BIZ_CONTENT = "bizContent";
+    public static final String BIZ_CONTENT = "biz_content";
     public static final String SIGN = "sign";
 }

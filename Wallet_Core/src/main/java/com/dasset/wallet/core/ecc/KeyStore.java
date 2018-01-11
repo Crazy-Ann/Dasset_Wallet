@@ -43,11 +43,11 @@ public final class KeyStore {
         return keystoreDirectory;
     }
 
-//    public File getBackupsDirectory() {
+//    public FilePath getBackupsDirectory() {
 //        return backupsDirectory;
 //    }
 
-//    public KeyStore(File keystoreDirectory) {
+//    public KeyStore(FilePath keystoreDirectory) {
 //        this.keystoreDirectory = keystoreDirectory;
 //    }
 
@@ -222,7 +222,7 @@ public final class KeyStore {
 //    public synchronized Account editAccount(String address, String password, String cipher, String cipherText, String deviceId) throws IOException {
 //        if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
 //            Account account = new Account(address, password, cipher, cipherText, deviceId);
-//            File file = generateAccountFile(keystoreDirectory.getAbsolutePath(), account);
+//            FilePath file = generateAccountFile(keystoreDirectory.getAbsolutePath(), account);
 //            if (file != null && file.exists()) {
 //                persistence(file, account, false);
 //            } else {
@@ -235,6 +235,7 @@ public final class KeyStore {
 //    }
 
     public synchronized Account createAccount(String deviceId, String timestamp1, String cipher, String accountName, String privateKey, String password, String timestamp2, boolean isEncrypt) throws IOException {
+        LogUtil.getInstance().print(String.format("The password of create account is:%s", password));
         if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
             try {
                 Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
@@ -285,7 +286,7 @@ public final class KeyStore {
         }
     }
 
-//    public synchronized Account createBackupsAccount(File backupsDirectoryFile, String accountName, String privateKey, String publicKey, String address, String password) throws IOException {
+//    public synchronized Account createBackupsAccount(FilePath backupsDirectoryFile, String accountName, String privateKey, String publicKey, String address, String password) throws IOException {
 //        Account account = new Account(accountName, privateKey, publicKey, address, password);
 //        if (backupsDirectoryFile != null && backupsDirectoryFile.exists()) {
 //            persistence(backupsDirectoryFile, account, false);
@@ -295,7 +296,7 @@ public final class KeyStore {
 //        return account;
 //    }
 
-//    public synchronized void deleteAccount(File keystoreDirectoryFile) throws IOException, PasswordException {
+//    public synchronized void deleteAccount(FilePath keystoreDirectoryFile) throws IOException, PasswordException {
 //        Account keystoreDirectoryAccount = generateAccount(keystoreDirectoryFile);
 //        if (keystoreDirectoryAccount != null) {
 //            if (keystoreDirectoryFile.delete()) {
@@ -338,10 +339,10 @@ public final class KeyStore {
 
 //    public synchronized void deleteAccount(String address, String password) throws IOException, PasswordException {
 //        if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
-//            File[] keystoreDirectoryFiles = keystoreDirectory.listFiles();
+//            FilePath[] keystoreDirectoryFiles = keystoreDirectory.listFiles();
 //            LogUtil.getInstance().print(String.format("keystore directory file number is %s", keystoreDirectoryFiles.length));
 //            if (keystoreDirectoryFiles.length != 0) {
-//                for (File keystoreDirectoryFile : keystoreDirectoryFiles) {
+//                for (FilePath keystoreDirectoryFile : keystoreDirectoryFiles) {
 //                    if (keystoreDirectoryFile.getName().contains(address)) {
 //                        if (keystoreDirectoryFile.getName().contains(address)) {
 //                            Account keystoreDirectoryAccount = generateAccount(keystoreDirectoryFile);
@@ -370,7 +371,7 @@ public final class KeyStore {
 //        }
 //    }
 
-//    private synchronized void deleteBackupsAccount(File backupsDirectoryFile) throws IOException, PasswordException {
+//    private synchronized void deleteBackupsAccount(FilePath backupsDirectoryFile) throws IOException, PasswordException {
 //        Account backupsDirectoryAccount = generateAccount(backupsDirectoryFile);
 //        if (backupsDirectoryAccount != null) {
 //            if (backupsDirectoryFile.delete()) {
@@ -411,16 +412,16 @@ public final class KeyStore {
         }
     }
 
-//    public synchronized void exportAccount(File directoryPath, String address, String password) throws IOException, PasswordException {
+//    public synchronized void exportAccount(FilePath directoryPath, String address, String password) throws IOException, PasswordException {
 //        if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
-//            File[] files = keystoreDirectory.listFiles();
+//            FilePath[] files = keystoreDirectory.listFiles();
 //            LogUtil.getInstance().print(String.format("directory file number is %s", files.length));
 //            if (files.length != 0) {
-//                for (File file : files) {
+//                for (FilePath file : files) {
 //                    if (file.getName().contains(address)) {
 //                        Account account = generateAccountFile(file);
 //                        if (TextUtils.equals(password, account.getPassword())) {
-//                            IOUtil.getInstance().copyFile(file.getAbsolutePath(), new File(directoryPath, file.getName()).getAbsolutePath());
+//                            IOUtil.getInstance().copyFile(file.getAbsolutePath(), new FilePath(directoryPath, file.getName()).getAbsolutePath());
 //                        } else {
 //                            throw new PasswordException("Please enter the correct password!");
 //                        }
@@ -467,6 +468,7 @@ public final class KeyStore {
     }
 
     public synchronized void importAccount(File file, String password) throws IOException, JSONException {
+        LogUtil.getInstance().print(String.format("The password of import account is:%s", password));
         try {
             if (file != null && file.exists()) {
                 if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
@@ -485,7 +487,7 @@ public final class KeyStore {
                                     account.setTime2(jsonObject.getString("time"));
                                     if (verifyAccount(account)) {
                                         generateAccountFile(keystoreDirectory.getAbsolutePath(), account, true);
-                                        //IOUtil.getInstance().copyFile(file.getAbsolutePath(), new File(keystoreDirectory.getAbsoluteFile(), file.getName()).getAbsolutePath());
+                                        //IOUtil.getInstance().copyFile(file.getAbsolutePath(), new FilePath(keystoreDirectory.getAbsoluteFile(), file.getName()).getAbsolutePath());
                                     }
                                 }
                             }
@@ -598,10 +600,10 @@ public final class KeyStore {
 
 //    public synchronized void renameAccount(String address, String accountName) throws IOException, PasswordException {
 //        if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
-//            File[] keystoreDirectoryFiles = keystoreDirectory.listFiles();
+//            FilePath[] keystoreDirectoryFiles = keystoreDirectory.listFiles();
 //            LogUtil.getInstance().print(String.format("Beystore directory file number is %s", keystoreDirectoryFiles.length));
 //            if (keystoreDirectoryFiles.length != 0) {
-//                for (File keystoreDirectoryFile : keystoreDirectoryFiles) {
+//                for (FilePath keystoreDirectoryFile : keystoreDirectoryFiles) {
 //                    if (keystoreDirectoryFile.getName().contains(address)) {
 //                        if (keystoreDirectoryFile.getName().contains(address)) {
 //                            Account keystoreDirectoryAccount = generateAccountFile(keystoreDirectoryFile);
@@ -624,10 +626,10 @@ public final class KeyStore {
 
 //    public synchronized void renameBackupsAccount(String address, String accountName) throws IOException, PasswordException {
 //        if (backupsDirectory != null && backupsDirectory.exists() && backupsDirectory.isDirectory()) {
-//            File[] backupsDirectoryFiles = backupsDirectory.listFiles();
+//            FilePath[] backupsDirectoryFiles = backupsDirectory.listFiles();
 //            LogUtil.getInstance().print(String.format("Backups directory file number is %s", backupsDirectoryFiles.length));
 //            if (backupsDirectoryFiles.length != 0) {
-//                for (File backupsDirectoryFile : backupsDirectoryFiles) {
+//                for (FilePath backupsDirectoryFile : backupsDirectoryFiles) {
 //                    if (backupsDirectoryFile.getName().contains(address)) {
 //                        if (backupsDirectoryFile.getName().contains(address)) {
 //                            Account keystoreDirectoryAccount = generateAccountFile(backupsDirectoryFile);

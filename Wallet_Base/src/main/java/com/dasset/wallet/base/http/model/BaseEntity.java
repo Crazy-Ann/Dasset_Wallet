@@ -5,49 +5,61 @@ import android.os.Parcelable;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dasset.wallet.base.BuildConfig;
-import com.dasset.wallet.base.http.model.cache.listener.implement.CacheableImplement;
 import com.dasset.wallet.base.constant.BaseResponseParameterKey;
-
-import java.util.List;
+import com.dasset.wallet.base.http.model.cache.listener.implement.CacheableImplement;
 
 public class BaseEntity extends CacheableImplement implements Parcelable {
 
-    private boolean hasError;
-    private String message;
-    private List<String> payload;
+    private String errorCode;
+    private String errorMessage;
+    private String returnCode;
+    private String returnMessage;
+    private String sign;
 
     public BaseEntity() { }
 
-    public boolean isHasError() {
-        return hasError;
+    public String getErrorCode() {
+        return errorCode;
     }
 
-    public String getMessage() {
-        return message;
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
-    public List<String> getPayload() {
-        return payload;
+    public String getReturnCode() {
+        return returnCode;
+    }
+
+    public String getReturnMessage() {
+        return returnMessage;
+    }
+
+    public String getSign() {
+        return sign;
     }
 
     public BaseEntity parse(JSONObject object) {
         if (object != null) {
-            hasError = object.getBoolean(BaseResponseParameterKey.HAS_ERROR);
-            message = object.getString(BaseResponseParameterKey.MESSAGE);
-            payload = object.getJSONArray(BaseResponseParameterKey.PAY_LOAD).toJavaList(String.class);
+            errorCode = object.getString(BaseResponseParameterKey.ERROR_CODE);
+            errorMessage = object.getString(BaseResponseParameterKey.ERROR_MESSAGE);
+            returnCode = object.getString(BaseResponseParameterKey.RETURN_CODE);
+            returnMessage = object.getString(BaseResponseParameterKey.RETURN_MESSAGE);
+            sign = object.getString(BaseResponseParameterKey.SIGN);
         }
         return this;
     }
 
     @Override
     public String toString() {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             return "BaseEntity{" +
-                    "hasError='" + hasError + '\'' +
-                    ", message='" + message + '\'' +
-                    ", payload='" + payload.toString() +
+                    "errorCode='" + errorCode + '\'' +
+                    ", errorMessage='" + errorMessage + '\'' +
+                    ", returnCode='" + returnCode + '\'' +
+                    ", returnMessage='" + returnMessage + '\'' +
+                    ", sign='" + sign +
                     '}';
-        }else{
+        } else {
             return super.toString();
         }
     }
@@ -57,14 +69,19 @@ public class BaseEntity extends CacheableImplement implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte(this.hasError ? (byte) 1 : (byte) 0);
-        dest.writeString(this.message);
-        dest.writeStringList(this.payload);
+        dest.writeString(this.errorCode);
+        dest.writeString(this.errorMessage);
+        dest.writeString(this.returnCode);
+        dest.writeString(this.returnMessage);
+        dest.writeString(this.sign);
     }
 
     protected BaseEntity(Parcel in) {
-        this.hasError = in.readByte() != 0;
-        this.message = in.readString();
-        this.payload = in.createStringArrayList();
+        this.errorCode = in.readString();
+        this.errorMessage = in.readString();
+        this.returnCode = in.readString();
+        this.returnMessage = in.readString();
+        this.sign = in.readString();
     }
+
 }

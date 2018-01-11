@@ -1,9 +1,26 @@
 package com.dasset.wallet.net;
 
 
+import android.content.Context;
+import android.text.TextUtils;
+
+import com.alibaba.fastjson.JSONObject;
+import com.dasset.wallet.R;
 import com.dasset.wallet.base.BuildConfig;
 import com.dasset.wallet.base.application.BaseApplication;
+import com.dasset.wallet.base.constant.BaseResponseParameterKey;
+import com.dasset.wallet.base.constant.ResponseCode;
+import com.dasset.wallet.base.view.BaseView;
+import com.dasset.wallet.components.http.request.HttpRequest;
+import com.dasset.wallet.components.http.request.RequestParameter;
 import com.dasset.wallet.components.utils.ApplicationUtil;
+import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.NetworkUtil;
+import com.dasset.wallet.constant.Constant;
+import com.dasset.wallet.constant.Method;
+import com.dasset.wallet.constant.ParameterKey;
+import com.dasset.wallet.net.listener.ApiResponse;
+import com.dasset.wallet.net.response.GetVersionResponse;
 
 public class WalletApi {
 
@@ -23,7 +40,7 @@ public class WalletApi {
 
     private String getServerUrl() {
         if (BuildConfig.DEBUG) {
-            return BuildConfig.SERVICE_URL_212;
+            return BuildConfig.SERVICE_URL_166;
         } else {
             switch (ApplicationUtil.getInstance().getMetaData(BaseApplication.getInstance(), com.dasset.wallet.components.constant.Constant.Channel.SERVER).toString()) {
                 case com.dasset.wallet.components.constant.Constant.Channel.SERVER_95:
@@ -38,84 +55,102 @@ public class WalletApi {
         }
     }
 
-//    public void editAccount(final Context context, final BaseView view, String tradepwd, String lockpwd, BigInteger privateKey, byte[] publicKey, String note, final ApiResponse apiResponse) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, IOException {
-//        LogUtil.getInstance().print("editAccount");
-//        if (NetworkUtil.getInstance().isInternetConnecting(context)) {
-//            JSONObject object = new JSONObject();
-//            object.put(ParameterKey.CreateAccount.TRADE_PASSWORD, tradepwd);
-//            object.put(ParameterKey.CreateAccount.LOCK_PASSWORD, lockpwd);
-//            object.put(ParameterKey.CreateAccount.PUBLIC_KEY, Hex.toHexString(publicKey));
-//            object.put(ParameterKey.CreateAccount.SIGN, Hex.toHexString(ECSignatureFactory.getInstance().generateSignature(privateKey, publicKey, object.toString(), false, true)));
-//            RequestParameter parameter = WalletRequest.getInstance().generateRequestParameters(AddressFactory.generatorAddress(publicKey, com.dasset.wallet.core.ecc.Constant.AddressType.HYC), note, object.toString());
-//            if (parameter != null) {
-//                HttpRequest.getInstance().doPost(context, getServerUrl() + Method.CREATE_ACCOUNT, parameter, new CreateAccountResponse() {
-//
-//                    @Override
-//                    public void onStart() {
-//                        super.onStart();
-//                        LogUtil.getInstance().print("资产帐户建立开始");
-//                        if (!view.isActivityFinish()) {
-//                            view.showLoadingPromptDialog(R.string.create_account, Constant.RequestCode.DIALOG_PROGRESS_CREATE_ACCOUNT);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onResponseSuccess(JSONObject object) {
-//                        super.onResponseSuccess(object);
-//                        LogUtil.getInstance().print("资产帐户建立成功:" + editAccount.toString());
-//                        if (!view.isActivityFinish()) {
-//                            if (editAccount != null) {
-//                                apiResponse.success(editAccount);
-//                            } else {
-//                                view.showPromptDialog(R.string.dialog_prompt_create_account_error, true, true, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR);
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onResponseFailed(String code, String message) {
-//                        super.onResponseFailed(code, message);
-//                        LogUtil.getInstance().print("资产帐户建立失败,code:" + code + ",message:" + message);
-//                        if (!view.isActivityFinish()) {
-//                            view.showPromptDialog(message, true, true, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR);
-//                            apiResponse.failed(null, code, message);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onResponseFailed(String code, String message, JSONObject object) {
-//                        super.onResponseFailed(code, message, object);
-//                        LogUtil.getInstance().print("资产帐户建立失败,code:" + code + ",message:" + message);
-//                    }
-//
-//                    @Override
-//                    public void onEnd() {
-//                        super.onEnd();
-//                        LogUtil.getInstance().print("资产帐户建立结束");
-//                        if (!view.isActivityFinish()) {
-//                            view.hideLoadingPromptDialog();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailed(int code, String message) {
-//                        super.onFailed(code, message);
-//                        LogUtil.getInstance().print("资产帐户建立失败,code:" + code + ",message:" + message);
-//                        if (!view.isActivityFinish()) {
-//                            view.showPromptDialog(message, true, true, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR);
-//                        }
-//                    }
-//                });
-//            } else {
-//                if (!view.isActivityFinish()) {
-//                    view.showPromptDialog(R.string.request_data_error, true, true, Constant.RequestCode.DIALOG_PROMPT_REQUEST_DATA_ERROR);
-//                }
-//            }
-//        } else {
-//            if (!view.isActivityFinish()) {
-//                view.showNetWorkPromptDialog();
-//            }
-//        }
-//    }
+    private void handleResponseFailed(BaseView view, int promptCode, JSONObject object) {
+        if (object.containsKey(BaseResponseParameterKey.ERROR_CODE)) {
+            switch (object.getString(BaseResponseParameterKey.ERROR_CODE)) {
+                case ResponseCode.ErrorCode.VERSION_ERROR:
+                    if (object.containsKey(BaseResponseParameterKey.ERROR_MESSAGE)) {
+                        view.showPromptDialog(object.getString(BaseResponseParameterKey.ERROR_MESSAGE), false, false, promptCode);
+                    } else if (object.containsKey(BaseResponseParameterKey.RETURN_MESSAGE)) {
+                        view.showPromptDialog(object.getString(BaseResponseParameterKey.RETURN_MESSAGE), true, false, promptCode);
+                    } else {
+                        view.showPromptDialog("未知错误", true, false, promptCode);
+                    }
+                    break;
+                default:
+                    if (object.containsKey(BaseResponseParameterKey.RETURN_MESSAGE)) {
+                        view.showPromptDialog(object.getString(BaseResponseParameterKey.RETURN_MESSAGE), true, false, promptCode);
+                    } else {
+                        view.showPromptDialog("未知错误", true, false, promptCode);
+                    }
+                    break;
+            }
+        } else {
+            if (object.containsKey(BaseResponseParameterKey.RETURN_MESSAGE)) {
+                view.showPromptDialog(object.getString(BaseResponseParameterKey.RETURN_MESSAGE), false, false, promptCode);
+            } else {
+                view.showPromptDialog("未知错误", true, false, promptCode);
+            }
+        }
+    }
+
+    public void getVersion(final Context context, final BaseView view, final String pageSrcSign, final ApiResponse apiResponse) {
+        if (NetworkUtil.getInstance().isInternetConnecting(context)) {
+            JSONObject object = new JSONObject();
+            object.put(ParameterKey.GetVersion.PAGE_SRC_SIGN, pageSrcSign);
+            RequestParameter requestParameter = WalletRequest.getInstance().generateRequestParameters(Method.GET_VERSION, object.toString(), true, false);
+            if (requestParameter != null) {
+                HttpRequest.getInstance().doPost(context, getServerUrl(), requestParameter, new GetVersionResponse() {
+
+                    @Override
+                    public void onStart() {
+                        super.onStart();
+                        LogUtil.getInstance().print("获取版本信息开始");
+                        view.showLoadingPromptDialog(R.string.dialog_prompt_get_version, Constant.RequestCode.DIALOG_PROMPT_GET_VERSION);
+                    }
+
+                    @Override
+                    public void onResponseSuccess(JSONObject object) {
+                        super.onResponseSuccess(object);
+                        LogUtil.getInstance().print("获取版本信息成功:" + version.toString());
+                        if (version != null) {
+                            if (TextUtils.isEmpty(version.getApk())) {
+                                if (retryCount < Constant.RETRY_TIME) {
+                                    getVersion(context, view, pageSrcSign, apiResponse);
+                                } else {
+                                    view.showPromptDialog(R.string.dialog_prompt_get_version_error, true, false, Constant.RequestCode.DIALOG_PROMPT_GET_VERSION_ERROR);
+                                }
+                                retryCount++;
+                            } else {
+                                apiResponse.success(version);
+                            }
+                        } else {
+                            view.showPromptDialog(R.string.dialog_prompt_get_version_error, true, false, Constant.RequestCode.DIALOG_PROMPT_GET_VERSION_ERROR);
+                        }
+                    }
+
+                    @Override
+                    public void onResponseFailed(JSONObject object) {
+                        super.onResponseFailed(object);
+                        LogUtil.getInstance().print("资产帐户建立失败:" + object.toString());
+                        handleResponseFailed(view, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR, object);
+                        apiResponse.failed(version);
+                    }
+
+                    @Override
+                    public void onResponseFailed(String code, String message) {
+                        super.onResponseFailed(code, message);
+                    }
+
+                    @Override
+                    public void onResponseFailed(String code, String message, JSONObject object) {
+                        super.onResponseFailed(code, message, object);
+                    }
+
+                    @Override
+                    public void onEnd() {
+                        super.onEnd();
+                        LogUtil.getInstance().print("资产帐户建立结束");
+                        view.hideLoadingPromptDialog();
+                    }
+
+                });
+            } else {
+                view.showPromptDialog(R.string.request_data_error, true, false, Constant.RequestCode.DIALOG_PROMPT_REQUEST_DATA_ERROR);
+            }
+        } else {
+            view.showNetWorkPromptDialog();
+        }
+    }
 
 }

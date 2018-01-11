@@ -45,12 +45,9 @@ public class Permission {
             return true;
         } else {
             for (String permission : permissions) {
-                LogUtil.getInstance().print("permission:" + permission);
                 String option = AppOpsManagerCompat.permissionToOp(permission);
-                LogUtil.getInstance().print("option:" + option);
                 if (!TextUtils.isEmpty(option)) {
                     int result = AppOpsManagerCompat.noteProxyOp(context, option, context.getPackageName());
-                    LogUtil.getInstance().print("result:" + result);
                     if (result == AppOpsManagerCompat.MODE_IGNORED) {
                         return false;
                     }

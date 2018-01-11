@@ -2,6 +2,7 @@ package com.dasset.wallet.components.utils;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -469,5 +470,35 @@ public final class IOUtil {
                 LogUtil.getInstance().print(String.format("%s is not exists", file.getName()));
             }
         }
+    }
+
+    public String readAsset(Context context, String fileName) {
+        StringBuilder stringBuilder = new StringBuilder();
+        InputStreamReader inputStreamReader = null;
+        BufferedReader bufferedReader = null;
+        try {
+            AssetManager assetManager = context.getAssets();
+            inputStreamReader = new InputStreamReader(assetManager.open(fileName));
+            bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (inputStreamReader != null) {
+                    inputStreamReader.close();
+                }
+                if (bufferedReader != null) {
+                    bufferedReader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return stringBuilder.toString();
     }
 }

@@ -1,30 +1,35 @@
 package com.dasset.wallet.ui.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.application.BaseApplication;
+import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.ActivityUtil;
+import com.dasset.wallet.components.utils.ApplicationUtil;
+import com.dasset.wallet.components.utils.FileProviderUtil;
 import com.dasset.wallet.components.utils.LogUtil;
-import com.dasset.wallet.components.utils.SharedPreferenceUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
+import com.dasset.wallet.net.task.listener.OnDialogInstallListner;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.WelcomeContract;
 import com.dasset.wallet.ui.activity.presenter.WelcomePresenter;
+import com.dasset.wallet.ui.dialog.DownloadDialog;
 import com.dasset.wallet.ui.dialog.PromptDialog;
 
+import java.io.File;
 import java.util.List;
 
-public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Presenter> implements WelcomeContract.View {
+public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Presenter> implements WelcomeContract.View, OnDialogInstallListner {
 
     private WelcomePresenter welcomePresenter;
 
@@ -68,12 +73,7 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
 
                 @Override
                 public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                    //TODO
-                    if (SharedPreferenceUtil.getInstance().getBoolean(BaseApplication.getInstance(), Constant.Configuration.CONFIGURATION, Context.MODE_PRIVATE, Constant.Configuration.KEY1, false)) {
-                        startMainActivity();
-                    } else {
-                        startSplashActivity();
-                    }
+                    welcomePresenter.getVersion();
                 }
 
                 @Override
@@ -85,12 +85,7 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
                 }
             });
         } else {
-            //TODO
-            if (SharedPreferenceUtil.getInstance().getBoolean(BaseApplication.getInstance(), Constant.Configuration.CONFIGURATION, Context.MODE_PRIVATE, Constant.Configuration.KEY1, false)) {
-                startMainActivity();
-            } else {
-                startSplashActivity();
-            }
+            welcomePresenter.getVersion();
         }
     }
 
@@ -111,12 +106,7 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
 
                         @Override
                         public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                            //TODO
-                            if (SharedPreferenceUtil.getInstance().getBoolean(BaseApplication.getInstance(), Constant.Configuration.CONFIGURATION, Context.MODE_PRIVATE, Constant.Configuration.KEY1, false)) {
-                                startMainActivity();
-                            } else {
-                                startSplashActivity();
-                            }
+                            welcomePresenter.getVersion();
                         }
 
                         @Override
@@ -125,12 +115,7 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
                         }
                     });
                 } else {
-                    //TODO
-                    if (SharedPreferenceUtil.getInstance().getBoolean(BaseApplication.getInstance(), Constant.Configuration.CONFIGURATION, Context.MODE_PRIVATE, Constant.Configuration.KEY1, false)) {
-                        startMainActivity();
-                    } else {
-                        startSplashActivity();
-                    }
+                    welcomePresenter.getVersion();
                 }
                 break;
             default:
@@ -166,6 +151,34 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
                 BaseApplication.getInstance().releaseInstance();
                 ActivityUtil.removeAll();
                 break;
+            case Constant.RequestCode.DIALOG_PROMPT_GET_VERSION_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_GET_VERSION_ERROR");
+                onFinish("DIALOG_PROMPT_GET_VERSION_ERROR");
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_VERSION_UPDATE:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_VERSION_UPDATE");
+                welcomePresenter.download();
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_DOWNLOAD_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_DOWNLOAD_ERROR");
+                welcomePresenter.checkForceUpdate();
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_INSTALL:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_INSTALL");
+                if (!TextUtils.isEmpty(welcomePresenter.getPath())) {
+                    ApplicationUtil.getInstance().chmod(Regex.PERMISSION.getRegext(), welcomePresenter.getPath());
+                    startActivityForResult(Intent.ACTION_VIEW, FileProviderUtil.getInstance().generateUri(this, new File(welcomePresenter.getPath())),
+                                           (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) ? Intent.FLAG_GRANT_READ_URI_PERMISSION : -1,
+                                           Regex.FILE_HEADER_TYPE.getRegext(),
+                                           Constant.RequestCode.INSTALL_APK);
+                } else {
+                    showPromptDialog(R.string.dialog_prompt_install_error, true, false, Constant.RequestCode.DIALOG_PROMPT_INSTALL_ERROR);
+                }
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_INSTALL_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_INSTALL_FAILED");
+                welcomePresenter.checkForceUpdate();
+                break;
             default:
                 break;
         }
@@ -184,6 +197,18 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
             case Constant.RequestCode.DIALOG_PROMPT_QUIT:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_QUIT");
                 break;
+            case Constant.RequestCode.DIALOG_PROMPT_VERSION_UPDATE:
+                LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_VERSION_UPDATE");
+                welcomePresenter.checkForceUpdate();
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_DOWNLOAD:
+                LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_DOWNLOAD");
+                welcomePresenter.checkForceUpdate();
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_INSTALL:
+                LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_INSTALL");
+                welcomePresenter.checkForceUpdate();
+                break;
             default:
                 break;
         }
@@ -195,14 +220,55 @@ public class WelcomeActivity extends ActivityViewImplement<WelcomeContract.Prese
     }
 
     @Override
+    public void showVersionUpdatePromptDialog(String prompt) {
+        PromptDialog.createBuilder(getSupportFragmentManager())
+                .setTitle(getString(R.string.dialog_prompt))
+                .setPrompt(prompt)
+                .setPositiveButtonText(this, R.string.download)
+                .setNegativeButtonText(this, R.string.cancel)
+                .setCancelable(false)
+                .setCancelableOnTouchOutside(false)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_VERSION_UPDATE)
+                .showAllowingStateLoss(this);
+    }
+
+    @Override
+    public void showDownloadPromptDialog(String url, File file) {
+        DownloadDialog.createBuilder(getSupportFragmentManager())
+                .setTitle(getString(R.string.dialog_prompt))
+                .setPrompt(getString(R.string.dialog_prompt_download))
+                .setUrl(url)
+                .setFile(file)
+                .setNegativeButtonText(this, R.string.cancel)
+                .setCancelable(false)
+                .setCancelableOnTouchOutside(false)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_DOWNLOAD)
+                .showAllowingStateLoss(this);
+    }
+
+    @Override
     public void startMainActivity() {
         startActivity(MainActivity.class);
         onFinish("startMainActivity");
     }
 
     @Override
-    public void startSplashActivity() {
-        startActivity(SplashActivity.class);
+    public void startSplashActivity(Bundle bundle) {
+        startActivity(SplashActivity.class, bundle);
         onFinish("startSplashActivity");
+    }
+
+    @Override
+    public void onDialogInstall(String path) {
+        welcomePresenter.setPath(path);
+        PromptDialog.createBuilder(getSupportFragmentManager())
+                .setTitle(getString(R.string.dialog_prompt))
+                .setPrompt(getString(R.string.dialog_prompt_install))
+                .setPositiveButtonText(this, R.string.install)
+                .setNegativeButtonText(this, R.string.cancel)
+                .setCancelable(false)
+                .setCancelableOnTouchOutside(false)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_INSTALL)
+                .showAllowingStateLoss(this);
     }
 }

@@ -123,8 +123,9 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
                 }
                 break;
             case Constant.RequestCode.EXPORT_ACCOUNT:
-                LogUtil.getInstance().print("EXPORT_ACCOUNT");
-                createAccountResultPresenter.deleteBackupsAccount();
+                if (data != null) {
+//                    createAccountResultPresenter.deleteBackupsAccount();
+                }
                 break;
             default:
                 break;

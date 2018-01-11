@@ -49,8 +49,7 @@
                     android:id="@+id/etAccountName"
                     style="@style/edit_content"
                     android:hint="@string/hint_account_name"
-                    android:inputType="text"
-                    android:maxLength="20"/>
+                    android:inputType="text"/>
 
                 <ImageButton
                     android:id="@+id/ibAccountNameEmpty"

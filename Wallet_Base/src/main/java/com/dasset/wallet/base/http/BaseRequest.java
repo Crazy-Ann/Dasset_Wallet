@@ -3,9 +3,11 @@ package com.dasset.wallet.base.http;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.base.constant.BaseRequestParameterKey;
 import com.dasset.wallet.components.http.request.RequestParameter;
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.SecurityUtil;
 
 public class BaseRequest {
 
@@ -13,13 +15,13 @@ public class BaseRequest {
         // cannot be instantiated
     }
 
-    private JSONObject generateRequestParameters(String appId, int clientVerion, String clientInfo, String deviceType, String osType, String osVersion, String method, String timestamp, String encryptData, String bizContent, String sign) {
+    protected JSONObject generateRequestParameters(String appId, int clientVerion, String clientInfo, String deviceType, String osType, String osVersion, String method, String timestamp, String bizContent) {
         JSONObject jsonObject = new JSONObject();
         if (!TextUtils.isEmpty(appId)) {
             jsonObject.put(BaseRequestParameterKey.APP_ID, appId);
         }
-        if (clientVerion != -1) {
-            jsonObject.put(BaseRequestParameterKey.CLIENT_VERION, clientVerion);
+        if (clientVerion > 0) {
+            jsonObject.put(BaseRequestParameterKey.CLIENT_VERION, String.valueOf(clientVerion));
         }
         if (!TextUtils.isEmpty(clientInfo)) {
             jsonObject.put(BaseRequestParameterKey.CLIENT_INFO, clientInfo);
@@ -39,32 +41,27 @@ public class BaseRequest {
         if (!TextUtils.isEmpty(timestamp)) {
             jsonObject.put(BaseRequestParameterKey.TIME_STAMP, timestamp);
         }
-        if (!TextUtils.isEmpty(encryptData)) {
-            jsonObject.put(BaseRequestParameterKey.ENCRYPT_DATA, encryptData);
-        }
         if (!TextUtils.isEmpty(bizContent)) {
             jsonObject.put(BaseRequestParameterKey.BIZ_CONTENT, bizContent);
         }
-        if (!TextUtils.isEmpty(sign)) {
-            jsonObject.put(BaseRequestParameterKey.SIGN, sign);
-        }
+        LogUtil.getInstance().print(String.format("jsonObject:%s", jsonObject));
         return jsonObject;
     }
 
-    private RequestParameter formatParameters(JSONObject jsonObject, boolean isJson) {
-        RequestParameter parameter = new RequestParameter();
-        parameter.setJsonType(isJson);
-        LogUtil.getInstance().print("签名加密前：" + jsonObject.toString());
-        if (!TextUtils.isEmpty(jsonObject.toString())) {
-            jsonObject = JSONObject.parseObject(jsonObject.toString());
+    protected RequestParameter formatParameters(JSONObject jsonObject, boolean isJson, boolean isEncrypt) {
+        RequestParameter requestParameter = new RequestParameter();
+        requestParameter.setJsonType(isJson);
+        String encryptData = SecurityUtil.encryptAES(jsonObject.toString(), BaseApplication.getInstance().getEncryptKey(), isEncrypt, 3);
+        if (!TextUtils.isEmpty(encryptData)) {
+            jsonObject = JSONObject.parseObject(encryptData);
             for (String key : jsonObject.keySet()) {
                 String value = jsonObject.getString(key);
                 if (!TextUtils.isEmpty(value)) {
-                    parameter.addFormDataParameter(key, value);
-                    LogUtil.getInstance().print("key:" + key + ",value:" + value);
+                    requestParameter.addFormDataParameter(key, value);
+                    LogUtil.getInstance().print(String.format("key:%s, value:%s", key, value));
                 }
             }
-            return parameter;
+            return requestParameter;
         } else {
             return null;
         }

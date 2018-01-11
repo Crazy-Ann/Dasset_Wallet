@@ -11,25 +11,25 @@ import android.text.TextUtils;
 import com.dasset.wallet.components.constant.Constant;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.http.Configuration;
-import com.dasset.wallet.components.utils.ActivityUtil;
-import com.dasset.wallet.components.utils.BundleUtil;
-import com.dasset.wallet.components.utils.LogUtil;
-import com.dasset.wallet.components.utils.NetworkUtil;
-import com.dasset.wallet.components.utils.SharedPreferenceUtil;
-import com.dasset.wallet.components.utils.TypefaceUtil;
-import com.dasset.wallet.components.utils.ViewUtil;
-import com.google.common.collect.Lists;
 import com.dasset.wallet.components.http.CustomHttpClient;
 import com.dasset.wallet.components.http.model.Parameter;
+import com.dasset.wallet.components.utils.ActivityUtil;
 import com.dasset.wallet.components.utils.ApplicationUtil;
+import com.dasset.wallet.components.utils.BundleUtil;
 import com.dasset.wallet.components.utils.DeviceUtil;
 import com.dasset.wallet.components.utils.GlideUtil;
 import com.dasset.wallet.components.utils.InputUtil;
+import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.NetworkUtil;
 import com.dasset.wallet.components.utils.ReflectUtil;
 import com.dasset.wallet.components.utils.SecurityUtil;
+import com.dasset.wallet.components.utils.SharedPreferenceUtil;
 import com.dasset.wallet.components.utils.SnackBarUtil;
 import com.dasset.wallet.components.utils.StrictModeUtil;
 import com.dasset.wallet.components.utils.ToastUtil;
+import com.dasset.wallet.components.utils.TypefaceUtil;
+import com.dasset.wallet.components.utils.ViewUtil;
+import com.google.common.collect.Lists;
 
 import okhttp3.Headers;
 import okhttp3.Interceptor;
@@ -48,11 +48,11 @@ public class BaseApplication extends MultiDexApplication implements Application.
             this.encryptKey = encryptKey;
         }
     }
-    
+
     public static BaseApplication getInstance() {
         return application;
     }
-    
+
     public void releaseInstance() {
         CustomHttpClient.releaseInstance();
         BundleUtil.releaseInstance();

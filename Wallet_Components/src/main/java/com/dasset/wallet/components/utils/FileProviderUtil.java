@@ -44,7 +44,7 @@ public final class FileProviderUtil {
         return null;
     }
 
-    private Uri generateUri(Context context, File file) {
+    public Uri generateUri(Context context, File file) {
         if (context != null && file != null) {
             if (file.getPath().startsWith("http") || file.getPath().startsWith("https")) {
                 return Uri.parse(file.getPath());

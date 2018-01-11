@@ -1,6 +1,5 @@
 package com.dasset.wallet.ui.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,10 +17,10 @@ import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.ActivityUtil;
 import com.dasset.wallet.components.utils.InputUtil;
 import com.dasset.wallet.components.utils.LogUtil;
-import com.dasset.wallet.components.utils.SharedPreferenceUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.widget.tablayout.TabLayout;
 import com.dasset.wallet.constant.Constant;
+import com.dasset.wallet.model.Page;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.SplashContract;
 import com.dasset.wallet.ui.activity.presenter.SplashPresenter;
@@ -101,20 +100,30 @@ public class SplashActivity extends ActivityViewImplement<SplashContract.Present
 
         List<ArrayMap<String, View>> arrayMaps = Lists.newArrayList();
         ArrayMap<String, View> arrayMap = new ArrayMap<>();
-        for (int i = 0; i < 3; i++) {
-            switch (i) {
-                case 0:
-                    arrayMap.put("https://b-ssl.duitang.com/uploads/item/201501/02/20150102105956_ByWPa.thumb.700_0.jpeg", getLayoutInflater().inflate(R.layout.view_splash_item, null));
-                    break;
-                case 1:
-                    arrayMap.put("https://b-ssl.duitang.com/uploads/item/201506/02/20150602182550_myGsS.thumb.700_0.jpeg", getLayoutInflater().inflate(R.layout.view_splash_item, null));
-                    break;
-                case 2:
-                    arrayMap.put("https://b-ssl.duitang.com/uploads/item/201507/23/20150723171947_daGcQ.thumb.700_0.jpeg", getLayoutInflater().inflate(R.layout.view_splash_item, null));
-                    break;
+        if (splashPresenter.getPages() != null) {
+            if (splashPresenter.getPages().size() > 0) {
+                for (Page page : splashPresenter.getPages()) {
+                    arrayMap.put(page.getIconUrl(), getLayoutInflater().inflate(R.layout.view_splash_item, null));
+                    arrayMaps.add(arrayMap);
+                }
+            } else {
+                startMainActivity();
             }
-            arrayMaps.add(arrayMap);
         }
+//        for (int i = 0; i < 3; i++) {
+//            switch (i) {
+//                case 0:
+//                    arrayMap.put("https://b-ssl.duitang.com/uploads/item/201501/02/20150102105956_ByWPa.thumb.700_0.jpeg", getLayoutInflater().inflate(R.layout.view_splash_item, null));
+//                    break;
+//                case 1:
+//                    arrayMap.put("https://b-ssl.duitang.com/uploads/item/201506/02/20150602182550_myGsS.thumb.700_0.jpeg", getLayoutInflater().inflate(R.layout.view_splash_item, null));
+//                    break;
+//                case 2:
+//                    arrayMap.put("https://b-ssl.duitang.com/uploads/item/201507/23/20150723171947_daGcQ.thumb.700_0.jpeg", getLayoutInflater().inflate(R.layout.view_splash_item, null));
+//                    break;
+//            }
+//            arrayMaps.add(arrayMap);
+//        }
         vpSplash.setAdapter(new SplashAdapter<>(this, arrayMaps));
         tbSplash.setViewPager(vpSplash);
     }
@@ -222,7 +231,6 @@ public class SplashActivity extends ActivityViewImplement<SplashContract.Present
     @Override
     public void startMainActivity() {
         startActivity(MainActivity.class);
-        SharedPreferenceUtil.getInstance().putBoolean(BaseApplication.getInstance(), Constant.Configuration.CONFIGURATION, Context.MODE_PRIVATE, Constant.Configuration.KEY1, true);
         onFinish("startMainActivity");
     }
 
@@ -231,10 +239,12 @@ public class SplashActivity extends ActivityViewImplement<SplashContract.Present
         LogUtil.getInstance().print("position:" + position);
         LogUtil.getInstance().print("positionOffset:" + positionOffset);
         LogUtil.getInstance().print("positionOffsetPixels:" + positionOffsetPixels);
-        if (position == 2) {
-            ViewUtil.getInstance().setViewVisible(btnEnter);
-        } else {
-            ViewUtil.getInstance().setViewInvisible(btnEnter);
+        if (splashPresenter.getPages() != null) {
+            if (position == splashPresenter.getPages().size()) {
+                ViewUtil.getInstance().setViewVisible(btnEnter);
+            } else {
+                ViewUtil.getInstance().setViewInvisible(btnEnter);
+            }
         }
     }
 

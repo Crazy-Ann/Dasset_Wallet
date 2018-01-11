@@ -39,13 +39,13 @@ public final class HttpRequest {
         }
     }
 
-    private void executeRequest(Context ctx, HttpRequestType type, String url, RequestParameter parameter, OkHttpClient.Builder builder, HttpResponse response) {
+    private void executeRequest(Context ctx, HttpRequestType httpRequestType, String url, RequestParameter requestParameter, OkHttpClient.Builder builder, HttpResponse httpResponse) {
         if (NetworkUtil.getInstance().isInternetConnecting(ctx)) {
             if (!TextUtils.isEmpty(url)) {
                 if (builder == null) {
                     builder = CustomHttpClient.getInstance().getHttpClientBuilder();
                 }
-                HttpTask task = new HttpTask(type, url, parameter, builder, response);
+                HttpTask task = new HttpTask(httpRequestType, url, requestParameter, builder, httpResponse);
                 task.execute();
             }
         } else {
@@ -96,24 +96,24 @@ public final class HttpRequest {
         doPost(ctx, url, null, null);
     }
 
-    public void doPost(Context ctx, String url, RequestParameter parameter) {
-        doPost(ctx, url, parameter, null);
+    public void doPost(Context ctx, String url, RequestParameter requestParameter) {
+        doPost(ctx, url, requestParameter, null);
     }
 
-    public void doPost(Context ctx, String url, HttpResponse response) {
-        doPost(ctx, url, null, response);
+    public void doPost(Context ctx, String url, HttpResponse httpResponse) {
+        doPost(ctx, url, null, httpResponse);
     }
 
-    public void doPost(Context ctx, String url, RequestParameter parameter, HttpResponse response) {
-        doPost(ctx, url, parameter, Constant.HttpTask.REQUEST_TIME_OUT_PERIOD, response);
+    public void doPost(Context ctx, String url, RequestParameter requestParameter, HttpResponse httpResponse) {
+        doPost(ctx, url, requestParameter, Constant.HttpTask.REQUEST_TIME_OUT_PERIOD, httpResponse);
     }
 
-    public void doPost(Context ctx, String url, RequestParameter parameter, long timeout, HttpResponse response) {
+    public void doPost(Context ctx, String url, RequestParameter requestParameter, long timeout, HttpResponse httpResponse) {
         OkHttpClient.Builder builder = CustomHttpClient.getInstance().getHttpClientBuilder();
         builder.readTimeout(timeout, TimeUnit.MILLISECONDS);
         builder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
         builder.writeTimeout(timeout, TimeUnit.MILLISECONDS);
-        executeRequest(ctx, HttpRequestType.POST, url, parameter, builder, response);
+        executeRequest(ctx, HttpRequestType.POST, url, requestParameter, builder, httpResponse);
     }
 
     public void doPost(Context ctx, String url, RequestParameter parameter, OkHttpClient.Builder builder, HttpResponse response) {

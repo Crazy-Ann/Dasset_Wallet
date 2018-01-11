@@ -1,8 +1,9 @@
 package com.dasset.wallet.base.http.response;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dasset.wallet.components.http.response.HttpResponse;
+import com.dasset.wallet.base.constant.ResponseCode;
 import com.dasset.wallet.base.http.model.BaseEntity;
+import com.dasset.wallet.components.http.response.HttpResponse;
 
 public abstract class JSONObjectResponse extends HttpResponse<JSONObject> {
 
@@ -17,32 +18,21 @@ public abstract class JSONObjectResponse extends HttpResponse<JSONObject> {
     @Override
     public void onSuccess(JSONObject object) {
         baseEntity.parse(object);
-        if (baseEntity.isHasError()) {
-            onResponseSuccess(object);
-        } else {
-//            onResponseFailed(baseEntity.getReturnCode(), baseEntity.getReturnMessage());
+        switch (baseEntity.getErrorCode()) {
+            case ResponseCode.ErrorCode.SUCCESS:
+                onResponseSuccess(object);
+                break;
+            default:
+                onResponseFailed(object);
+                break;
         }
-//        switch (baseEntity.getReturnCode()) {
-//            case ResponseCode.SUCCESS:
-//                onResponseSuccess(object);
-//                break;
-//            case ResponseCode.FAILED:
-//                if (!TextUtils.isEmpty(baseEntity.getErrorCode())) {
-//                    onResponseFailed(baseEntity.getErrorCode(), TextUtils.isEmpty(baseEntity.getErrorMessage()) ? baseEntity.getReturnMessage() : baseEntity.getErrorMessage(), object);
-//                } else if (!TextUtils.isEmpty(baseEntity.getReturnCode())) {
-//                    onResponseFailed(baseEntity.getReturnCode(), baseEntity.getReturnMessage());
-//                } else {
-//                    onResponseFailed(ResponseCode.ERROR_CODE_UNKNOWN, "未知错误");
-//                }
-//                break;
-//            default:
-//                break;
-//        }
     }
 
     public abstract void onParseData(JSONObject object);
 
     public abstract void onResponseSuccess(JSONObject object);
+
+    public abstract void onResponseFailed(JSONObject object);
 
     public abstract void onResponseFailed(String code, String message);
 
