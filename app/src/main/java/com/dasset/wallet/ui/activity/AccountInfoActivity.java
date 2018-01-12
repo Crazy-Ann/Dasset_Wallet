@@ -1,5 +1,8 @@
 package com.dasset.wallet.ui.activity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +16,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dasset.wallet.R;
@@ -23,6 +27,7 @@ import com.dasset.wallet.base.toolbar.listener.OnRightIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.GlideUtil;
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.ToastUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.widget.sticky.LinearLayoutDividerItemDecoration;
 import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
@@ -34,14 +39,16 @@ import com.dasset.wallet.ui.activity.contract.AccountInfoContract;
 import com.dasset.wallet.ui.activity.presenter.AccountInfoPresenter;
 import com.dasset.wallet.ui.adapter.TransactionRecordAdapter;
 import com.dasset.wallet.ui.binder.TransactionRecordBinder;
+import com.dasset.wallet.ui.dialog.ImagePromptDialog;
 import com.dasset.wallet.ui.dialog.PromptDialog;
 
 import java.util.List;
 
-public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContract.Presenter> implements AccountInfoContract.View, OnLeftIconEventListener, OnRightIconEventListener, SwipeRefreshLayout.OnRefreshListener, OnItemClickListener {
+public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContract.Presenter> implements AccountInfoContract.View, View.OnClickListener, OnLeftIconEventListener, OnRightIconEventListener, SwipeRefreshLayout.OnRefreshListener, OnItemClickListener {
 
     private AccountInfoPresenter accountInfoPresenter;
 
+    private LinearLayout llAddress;
     private TextView tvAddress;
     private ImageView ivAddressQRCode;
     private TextView tvAmount;
@@ -87,8 +94,9 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     @Override
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
+        llAddress = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.llAddress, this);
         tvAddress = ViewUtil.getInstance().findView(this, R.id.tvAddress);
-        ivAddressQRCode = ViewUtil.getInstance().findView(this, R.id.ivAddressQRCode);
+        ivAddressQRCode = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.ivAddressQRCode, this);
         tvAmount = ViewUtil.getInstance().findView(this, R.id.tvAmount);
         llTransactionRecord = ViewUtil.getInstance().findView(this, R.id.llTransactionRecord);
         swipeRefreshLayout = ViewUtil.getInstance().findView(this, R.id.swipeRefreshLayout);
@@ -123,13 +131,6 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
         recycleView.setAdapter(fixedStickyViewAdapter);
         swipeRefreshLayout.setColorSchemeResources(R.color.color_c9c9c9);
         swipeRefreshLayout.setProgressViewOffset(false, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics()));
-
-        ivAddressQRCode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDeleteAccountPromptDialog();
-            }
-        });
     }
 
     @Override
@@ -198,6 +199,16 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
             case Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT_FAILED:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_DIALOG_PROMPT_DELETE_ACCOUNT_FAILED");
                 break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT");
+                accountInfoPresenter.share();
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT_ERROR");
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR");
+                break;
             default:
                 break;
         }
@@ -215,6 +226,10 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_DELETE_ACCOUNT");
+                break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
+                LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT");
+                accountInfoPresenter.save();
                 break;
             default:
                 break;
@@ -265,6 +280,20 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     }
 
     @Override
+    public void showAddressQRCodePromptDialog(byte[] data, String prompt) {
+        ImagePromptDialog.createBuilder(getSupportFragmentManager())
+                .setTitle(getString(R.string.dialog_prompt))
+                .setImage(data)
+                .setPrompt(prompt)
+                .setPositiveButtonText(this, R.string.dialog_prompt_share)
+                .setNegativeButtonText(this, R.string.dialog_prompt_save)
+                .setCancelable(true)
+                .setCancelableOnTouchOutside(false)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT)
+                .showAllowingStateLoss(this);
+    }
+
+    @Override
     public void onLeftIconEvent() {
         onFinish("onLeftIconEvent");
     }
@@ -282,5 +311,23 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     @Override
     public void onItemClick(int position, View view) {
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.llAddress:
+                ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, tvAddress.getText().toString().trim()));
+                if (clipboardManager.hasPrimaryClip()) {
+                    ToastUtil.getInstance().showToast(this, R.string.account_info_copy, Toast.LENGTH_SHORT);
+                }
+                break;
+            case R.id.ivAddressQRCode:
+                accountInfoPresenter.generateAddresQRCode();
+                break;
+            default:
+                break;
+        }
     }
 }

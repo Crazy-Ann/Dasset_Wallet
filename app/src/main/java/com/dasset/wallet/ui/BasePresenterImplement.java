@@ -21,7 +21,6 @@ public abstract class BasePresenterImplement implements BasePresenter {
 
     @Override
     public void checkPermission(PermissionCallback permissionCallback, String... permissions) {
-        LogUtil.getInstance().print("checkPermission");
         if (context != null) {
             if (permissions == null || permissions.length == 0) {
                 permissions = com.dasset.wallet.constant.Constant.PERMISSIONS;

@@ -64,6 +64,7 @@
     <string name="dialog_prompt_delete_account_error">账户信息异常</string>
     <string name="dialog_prompt_unknow_error">未知错误</string>
     <string name="account_info_send">发送</string>
+    <string name="account_info_copy">复制成功</string>
     <string name="account_info_amount">金额</string>
     <string name="account_info_transaction_record">此地址下的资产交易</string>
     <string name="account_info_transaction_record_empty">没有找到此地址的交易\n它可能还没有在网络上出现过</string>

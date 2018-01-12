@@ -146,7 +146,7 @@ public class QRCodeRecognitionActivity extends ActivityViewImplement<QRCodeRecog
                 LogUtil.getInstance().print("onPositiveButtonClicked_DDIALOG_PROMPT_QRCODE_RECOGNITION_ERROR");
                 qrCodeRecognitionPresenter.startScan(this, this, surfaceView);
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR:
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR");
                 qrCodeRecognitionPresenter.startScan(this, this, surfaceView);
                 break;

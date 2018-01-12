@@ -15,6 +15,8 @@ public interface AccountInfoContract {
         void showDeleteAccountPromptDialog();
 
         void loadTransactionRecords();
+
+        void showAddressQRCodePromptDialog(byte[] data, String prompt);
     }
 
     interface Presenter extends BasePresenter {
@@ -26,5 +28,11 @@ public interface AccountInfoContract {
         void renameAccount();
 
         void deleteAccount();
+
+        void generateAddresQRCode();
+
+        void save();
+
+        void share();
     }
 }

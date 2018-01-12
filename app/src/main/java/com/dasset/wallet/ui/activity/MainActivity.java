@@ -242,6 +242,9 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
             case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SHARE_ERROR");
                 break;
+            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR:
+                LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR");
+                break;
             default:
                 break;
         }

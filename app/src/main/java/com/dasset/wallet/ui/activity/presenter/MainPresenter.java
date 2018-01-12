@@ -21,7 +21,6 @@ import com.dasset.wallet.base.handler.ActivityHandler;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.utils.FileProviderUtil;
 import com.dasset.wallet.components.utils.IOUtil;
-import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.MessageUtil;
 import com.dasset.wallet.components.utils.ThreadPoolUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
@@ -192,12 +191,12 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
             view.showAddressQRCodePromptDialog(QRCodeEncode.createQRCode(address, ViewUtil.getInstance().dp2px(context, 160)), address);
         } catch (IOException e) {
             e.printStackTrace();
+            view.showPromptDialog(context.getString(R.string.dialog_prompt_get_qrcode_bitmap_error), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR);
         }
     }
 
     @Override
     public void save() {
-        LogUtil.getInstance().print(String.format("address:%s", address));
         ThreadPoolUtil.execute(new Runnable() {
             @Override
             public void run() {
@@ -244,7 +243,6 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
 
     @Override
     public void share() {
-        LogUtil.getInstance().print(String.format("address:%s", address));
         ThreadPoolUtil.execute(new Runnable() {
 
             @Override

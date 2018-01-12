@@ -79,7 +79,7 @@ public class QRCodeRecognitionPresenter extends BasePresenterImplement implement
                     case Constant.StateCode.QRCODE_RECOGNITION_FAILED:
                         stopScan();
                         activity.hideLoadingPromptDialog();
-                        activity.showPromptDialog(R.string.dialog_prompt_qrcode_recognition_error, false, false, Constant.RequestCode.DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR);
+                        activity.showPromptDialog(R.string.dialog_prompt_qrcode_recognition_error, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR);
                         break;
                     default:
                         break;

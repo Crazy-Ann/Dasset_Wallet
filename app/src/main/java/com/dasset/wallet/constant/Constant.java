@@ -44,7 +44,7 @@ public final class Constant {
         public static final int DIALOG_PROMPT_DELETE_ACCOUNT_FAILED = 0x1017;
         public static final int DIALOG_PROGRESS_QRCODE_RECOGNITION = 0x1018;
         public static final int DIALOG_PROMPT_QRCODE_RECOGNITION_ERROR = 0x1019;
-        public static final int DIALOG_PROMPT_GET_QRCODE_BITMAP_ERROR = 0x1020;
+        public static final int DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR = 0x1020;
         public static final int DIALOG_PROMPT_FILE_MANAGER_ERROR = 0x1021;
         public static final int DIALOG_PROMPT_ACCOUNT_INFO_ERROR = 0x1022;
         public static final int DIALOG_PROMPT_QRCODE_EXPORT = 0x1023;
