@@ -16,7 +16,6 @@ import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.GlideUtil;
 import com.dasset.wallet.components.utils.LogUtil;
-import com.dasset.wallet.components.utils.SecurityUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
 import com.dasset.wallet.constant.Constant;
@@ -152,7 +151,7 @@ public class CreateAccountResultActivity extends ActivityViewImplement<CreateAcc
             case Constant.RequestCode.DIALOG_PROMPT_EXPORT_ACCOUNT:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_EXPORT_ACCOUNT");
                 //TODO
-                createAccountResultPresenter.exportAccount(SecurityUtil.getInstance().encryptMD5With16Bit(createAccountResultPresenter.getAccount().getPassword()));
+                createAccountResultPresenter.exportAccount(createAccountResultPresenter.getAccount().getPassword());
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_EXPORT_ACCOUNT_SUCCESS:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_EXPORT_ACCOUNT_SUCCESS");

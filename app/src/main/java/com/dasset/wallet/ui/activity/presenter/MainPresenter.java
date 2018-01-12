@@ -23,7 +23,6 @@ import com.dasset.wallet.components.utils.FileProviderUtil;
 import com.dasset.wallet.components.utils.IOUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.MessageUtil;
-import com.dasset.wallet.components.utils.SecurityUtil;
 import com.dasset.wallet.components.utils.ThreadPoolUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
@@ -136,7 +135,7 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
             public void run() {
                 try {
                     if (!TextUtils.isEmpty(path)) {
-                        AccountStorageFactory.getInstance().importAccount(new File(path), SecurityUtil.getInstance().encryptMD5With16Bit(password));
+                        AccountStorageFactory.getInstance().importAccount(new File(path), password);
                         mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_IMPORT_SUCCESS));
                     } else {
                         mainHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_IMPORT_FAILED, context.getString(R.string.dialog_prompt_import_account_error)));

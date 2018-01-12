@@ -10,14 +10,14 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
 
     private String address1;
     private String device;
-    private String timestamp1;
+    private String times1;
     private String cipher;
     private String cipherText;
     private String accountName;
     private String privateKey;
     private String address2;
     private String password;
-    private String timestamp2;
+    private String times2;
 
     public String getAddress1() {
         return address1;
@@ -35,12 +35,12 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
         this.device = device;
     }
 
-    public String getTimestamp1() {
-        return timestamp1;
+    public String getTimes1() {
+        return times1;
     }
 
-    public void setTimestamp1(String timestamp1) {
-        this.timestamp1 = timestamp1;
+    public void setTimes1(String times1) {
+        this.times1 = times1;
     }
 
     public String getCipher() {
@@ -91,12 +91,12 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
         this.password = password;
     }
 
-    public String getTimestamp2() {
-        return timestamp2;
+    public String getTimes2() {
+        return times2;
     }
 
-    public void setTimestamp2(String timestamp2) {
-        this.timestamp2 = timestamp2;
+    public void setTimes2(String times2) {
+        this.times2 = times2;
     }
 
     @Override
@@ -105,14 +105,14 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
             return "AccountInfo{" +
                     "address1='" + address1 + '\'' +
                     ", device='" + device + '\'' +
-                    ", timestamp1='" + timestamp1 + '\'' +
+                    ", times1='" + times1 + '\'' +
                     ", cipher='" + cipher + '\'' +
                     ", cipherText='" + cipherText + '\'' +
                     ", accountName='" + accountName + '\'' +
                     ", privateKey='" + privateKey + '\'' +
                     ", address2='" + address2 + '\'' +
                     ", password='" + password + '\'' +
-                    ", timestamp2='" + timestamp2 + '\'' +
+                    ", times2='" + times2 + '\'' +
                     '}';
         } else {
             return super.toString();
@@ -137,14 +137,14 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
         super.writeToParcel(dest, flags);
         dest.writeString(this.address1);
         dest.writeString(this.device);
-        dest.writeString(this.timestamp1);
+        dest.writeString(this.times1);
         dest.writeString(this.cipher);
         dest.writeString(this.cipherText);
         dest.writeString(this.accountName);
         dest.writeString(this.privateKey);
         dest.writeString(this.address2);
         dest.writeString(this.password);
-        dest.writeString(this.timestamp2);
+        dest.writeString(this.times2);
     }
 
     public AccountInfo() {}
@@ -153,14 +153,14 @@ public class AccountInfo extends BaseEntity implements OnGroupListener {
         super(in);
         this.address1 = in.readString();
         this.device = in.readString();
-        this.timestamp1 = in.readString();
+        this.times1 = in.readString();
         this.cipher = in.readString();
         this.cipherText = in.readString();
         this.accountName = in.readString();
         this.privateKey = in.readString();
         this.address2 = in.readString();
         this.password = in.readString();
-        this.timestamp2 = in.readString();
+        this.times2 = in.readString();
     }
 
     public static final Creator<AccountInfo> CREATOR = new Creator<AccountInfo>() {

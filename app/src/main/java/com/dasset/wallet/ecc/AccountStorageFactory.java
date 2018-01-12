@@ -111,7 +111,8 @@ public final class AccountStorageFactory {
 
     public void importAccount(File file, String password) throws JSONException, IOException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, IllegalBlockSizeException {
         if (keyStore != null) {
-            keyStore.importAccount(file, password);
+            keyStore.importAccount(file, SecurityUtil.getInstance().encryptMD5With16Bit(password));
+//            keyStore.importAccount(file, password);
         } else {
             throw new NullPointerException("Please check whether the keyStore is initialized!");
         }
@@ -170,13 +171,13 @@ public final class AccountStorageFactory {
                         AccountInfo accountInfo = new AccountInfo();
                         accountInfo.setAddress1(account.getAddress1());
                         accountInfo.setDevice(account.getDevice());
-                        accountInfo.setTimestamp1(account.getTime1());
+                        accountInfo.setTimes1(account.getTime1());
                         accountInfo.setCipher(account.getCipher());
                         accountInfo.setAccountName(account.getAccountName());
                         accountInfo.setPrivateKey(account.getPrivateKey());
                         accountInfo.setAddress2(account.getAddress2());
                         accountInfo.setPassword(account.getPassword());
-                        accountInfo.setTimestamp2(account.getTime2());
+                        accountInfo.setTimes2(account.getTime2());
                         LogUtil.getInstance().print(accountInfo.toString());
                         accountInfos.add(accountInfo);
                     }

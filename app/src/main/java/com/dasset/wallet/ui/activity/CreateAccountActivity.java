@@ -208,7 +208,11 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_CREATE_ACCOUNT");
-                createAccountPresenter.createAccount(false, etAccountName.getText().toString(), etConfirmPassword.getText().toString());
+                if (etAccountName.getText().toString().trim().length() < 10) {
+                    createAccountPresenter.createAccount(false, etAccountName.getText().toString(), etConfirmPassword.getText().toString());
+                } else {
+                    showPromptDialog(R.string.dialog_prompt_create_account_error2, false, false, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR);
+                }
                 break;
             default:
                 break;

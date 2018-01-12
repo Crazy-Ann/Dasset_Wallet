@@ -271,7 +271,6 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
 
     @Override
     public void OnRightIconEvent() {
-        //TODO
         accountInfoPresenter.renameAccount();
     }
 

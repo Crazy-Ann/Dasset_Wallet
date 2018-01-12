@@ -56,7 +56,8 @@
     <string name="dialog_prompt_import_account1">
         1.将其他设备上（PC\移动端）的账户文件备份导出。\n\n2.通过其他应用传输该账户文件到当前手机，并保存。\n\n3.通过文件管理器找到存储路径，选择导入。
     </string>
-    <string name="dialog_prompt_create_account_error">资产帐户建立失败</string>
+    <string name="dialog_prompt_create_account_error1">资产帐户建立失败</string>
+    <string name="dialog_prompt_create_account_error2">资产帐户用户名长度超过十位</string>
     <string name="dialog_prompt_import_account_to">备份至</string>
     <string name="dialog_prompt_account_info_error">账户信息异常</string>
     <string name="dialog_prompt_delete_account">解除的账户将无法恢复，请备份后操作，确定解除账户？</string>

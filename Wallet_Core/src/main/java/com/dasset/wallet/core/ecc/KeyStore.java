@@ -43,13 +43,13 @@ public final class KeyStore {
         return keystoreDirectory;
     }
 
-//    public FilePath getBackupsDirectory() {
-//        return backupsDirectory;
-//    }
+    public File getBackupsDirectory() {
+        return backupsDirectory;
+    }
 
-//    public KeyStore(FilePath keystoreDirectory) {
-//        this.keystoreDirectory = keystoreDirectory;
-//    }
+    public KeyStore(File keystoreDirectory) {
+        this.keystoreDirectory = keystoreDirectory;
+    }
 
     public KeyStore(File keystoreDirectory, File backupsDirectory) {
         this.keystoreDirectory = keystoreDirectory;
@@ -60,7 +60,7 @@ public final class KeyStore {
         if (account != null) {
             try {
                 String keyStoreData = generateKeyStoreData(account, isEncrypt);
-                LogUtil.getInstance().print("keyStoreData:%s" + keyStoreData);
+                LogUtil.getInstance().print(String.format("keyStoreData:%s", keyStoreData));
                 if (!TextUtils.isEmpty(keyStoreData)) {
                     BufferedWriter bufferedWriter = null;
                     try {
@@ -115,6 +115,7 @@ public final class KeyStore {
                                 account.setPrivateKey(jsonObject3.getString("private_key"));
                                 account.setAddress2(jsonObject3.getString("address"));
                                 account.setPassword(jsonObject3.getString("password"));
+                                account.setTime2(jsonObject3.getString("time"));
                             } else {
                                 if (!TextUtils.isEmpty(password)) {
                                     byte[] bytes = SecurityUtil.getInstance().encryptAESEBC(jsonObject3.toJSONString(), password);
@@ -150,6 +151,7 @@ public final class KeyStore {
                             account.setPrivateKey(jsonObject3.getString("private_key"));
                             account.setAddress2(jsonObject3.getString("address"));
                             account.setPassword(jsonObject3.getString("password"));
+                            account.setTime2(jsonObject3.getString("time"));
                             LogUtil.getInstance().print(String.format("default mode data:%s", data));
                             break;
                         }
@@ -180,6 +182,7 @@ public final class KeyStore {
             jsonObject3.put("private_key", account.getPrivateKey());
             jsonObject3.put("address", account.getAddress2());
             jsonObject3.put("password", account.getPassword());
+            jsonObject3.put("time", account.getTime2());
             jsonObject2.put("ciphertext", jsonObject3);
         } else {
             jsonObject2.put("ciphertext", account.getCipherText());
@@ -204,7 +207,7 @@ public final class KeyStore {
                     if (file.exists()) {
                         persistence(file, account, isBackups);
                     } else {
-                        throw new IOException("Failure of account create, there is a error in the directory!");
+                        throw new IOException("Failure of account create, there has an error in the directory!");
                     }
                 }
                 if (BuildConfig.DEBUG) {
@@ -219,25 +222,94 @@ public final class KeyStore {
         }
     }
 
-//    public synchronized Account editAccount(String address, String password, String cipher, String cipherText, String deviceId) throws IOException {
-//        if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
-//            Account account = new Account(address, password, cipher, cipherText, deviceId);
-//            FilePath file = generateAccountFile(keystoreDirectory.getAbsolutePath(), account);
-//            if (file != null && file.exists()) {
-//                persistence(file, account, false);
-//            } else {
-//                throw new IOException("Failure of account create, there is a error in the directory!");
-//            }
-//            return account;
-//        } else {
-//            throw new IOException("Failure of account create, there is a error in the keystore directory!");
-//        }
-//    }
-
     public synchronized Account createAccount(String deviceId, String timestamp1, String cipher, String accountName, String privateKey, String password, String timestamp2, boolean isEncrypt) throws IOException {
-        LogUtil.getInstance().print(String.format("The password of create account is:%s", password));
         if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
             try {
+                if (keystoreDirectory.listFiles().length > 0) {
+                    for (File keystoreDirectoryFile : keystoreDirectory.listFiles()) {
+                        Account keystoreAccount = generateAccount(keystoreDirectoryFile, Cipher.ENCRYPT_MODE, false, null);
+                        if (keystoreAccount != null) {
+                            if (TextUtils.equals(accountName, keystoreAccount.getAccountName())) {
+                                throw new IOException("Failure of account create, the account name has already existed!");
+                            } else {
+                                Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
+                                        , deviceId
+                                        , timestamp1
+                                        , cipher
+                                        , accountName
+                                        , privateKey
+                                        , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
+                                        , password
+                                        , timestamp2);
+                                File file = generateAccountFile(keystoreDirectory.getAbsolutePath(), account, false);
+                                if (file != null && file.exists()) {
+                                    persistence(file, account, isEncrypt);
+                                } else {
+                                    throw new IOException("Failure of account create, there has an error in the directory!");
+                                }
+                                return account;
+                            }
+                        } else {
+                            throw new IOException("Failure of account create, the keystore directory account is null!");
+                        }
+                    }
+                } else {
+                    Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
+                            , deviceId
+                            , timestamp1
+                            , cipher
+                            , accountName
+                            , privateKey
+                            , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
+                            , password
+                            , timestamp2);
+                    File file = generateAccountFile(keystoreDirectory.getAbsolutePath(), account, false);
+                    if (file != null && file.exists()) {
+                        persistence(file, account, isEncrypt);
+                    } else {
+                        throw new IOException("Failure of account create, there has an error in the directory!");
+                    }
+                    return account;
+                }
+            } catch (NoSuchProviderException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException | NoSuchPaddingException e) {
+                e.printStackTrace();
+            }
+        } else {
+            throw new IOException("Failure of account create, there has an error in the keystore directory!");
+        }
+        return null;
+    }
+
+    public synchronized Account editAccount(File file, String deviceId, String timestamp1, String cipher, String accountName, String privateKey, String password, String timestamp2, boolean isEncrypt) throws IOException {
+        try {
+            if (keystoreDirectory.listFiles().length > 0) {
+                for (File keystoreDirectoryFile : keystoreDirectory.listFiles()) {
+                    Account keystoreAccount = generateAccount(keystoreDirectoryFile, Cipher.ENCRYPT_MODE, false, null);
+                    if (keystoreAccount != null) {
+                        if (TextUtils.equals(accountName, keystoreAccount.getAccountName())) {
+                            throw new IOException("Failure of account create, the account name has already existed!");
+                        } else {
+                            Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
+                                    , deviceId
+                                    , timestamp1
+                                    , cipher
+                                    , accountName
+                                    , privateKey
+                                    , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
+                                    , password
+                                    , timestamp2);
+                            if (file != null && file.exists()) {
+                                persistence(file, account, isEncrypt);
+                            } else {
+                                throw new IOException("Failure of account edit, there has an error in the keystore directory!");
+                            }
+                            return account;
+                        }
+                    } else {
+                        throw new IOException("Failure of account create, the keystore directory account is null!");
+                    }
+                }
+            } else {
                 Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
                         , deviceId
                         , timestamp1
@@ -247,67 +319,18 @@ public final class KeyStore {
                         , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
                         , password
                         , timestamp2);
-                File file = generateAccountFile(keystoreDirectory.getAbsolutePath(), account, false);
                 if (file != null && file.exists()) {
                     persistence(file, account, isEncrypt);
                 } else {
-                    throw new IOException("Failure of account create, there is a error in the directory!");
+                    throw new IOException("Failure of account edit, there has an error in the keystore directory!");
                 }
                 return account;
-            } catch (NoSuchProviderException | InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
-                e.printStackTrace();
-                return null;
             }
-        } else {
-            throw new IOException("Failure of account create, there is a error in the keystore directory!");
-        }
-    }
-
-    public synchronized Account editAccount(File file, String deviceId, String timestamp1, String cipher, String accountName, String privateKey, String password, String timestamp2, boolean isEncrypt) throws IOException {
-        try {
-            Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
-                    , deviceId
-                    , timestamp1
-                    , cipher
-                    , accountName
-                    , privateKey
-                    , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.ecc.Constant.AddressType.HYC)
-                    , password
-                    , timestamp2);
-            if (file != null && file.exists()) {
-                persistence(file, account, isEncrypt);
-            } else {
-                throw new IOException("Failure of account edit, there is a error in the keystore directory!");
-            }
-            return account;
-        } catch (NoSuchProviderException | InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
+        } catch (NoSuchProviderException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException | NoSuchPaddingException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
-
-//    public synchronized Account createBackupsAccount(FilePath backupsDirectoryFile, String accountName, String privateKey, String publicKey, String address, String password) throws IOException {
-//        Account account = new Account(accountName, privateKey, publicKey, address, password);
-//        if (backupsDirectoryFile != null && backupsDirectoryFile.exists()) {
-//            persistence(backupsDirectoryFile, account, false);
-//        } else {
-//            throw new IOException("Failure of account create, there is a error in the directory!");
-//        }
-//        return account;
-//    }
-
-//    public synchronized void deleteAccount(FilePath keystoreDirectoryFile) throws IOException, PasswordException {
-//        Account keystoreDirectoryAccount = generateAccount(keystoreDirectoryFile);
-//        if (keystoreDirectoryAccount != null) {
-//            if (keystoreDirectoryFile.delete()) {
-//                LogUtil.getInstance().print(String.format("Keystore directory account %s has been deleted!", keystoreDirectoryAccount.getAddress2()));
-//            } else {
-//                throw new IOException("Failure of keystore directory account delete!");
-//            }
-//        } else {
-//            throw new IOException("Failure of account delete, the keystore directory account is null!");
-//        }
-//    }
 
     public synchronized void deleteAccount(String address) throws IOException {
         if (!TextUtils.isEmpty(address)) {
@@ -330,59 +353,12 @@ public final class KeyStore {
                     throw new IOException("Failure of account delete, the keystore directory is empty!");
                 }
             } else {
-                throw new IOException("Failure of account delete, there is a error in the keystore directory file!");
+                throw new IOException("Failure of account delete, there has an error in the keystore directory file!");
             }
         } else {
             throw new IOException("Failure of account delete, the account address is null!");
         }
     }
-
-//    public synchronized void deleteAccount(String address, String password) throws IOException, PasswordException {
-//        if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
-//            FilePath[] keystoreDirectoryFiles = keystoreDirectory.listFiles();
-//            LogUtil.getInstance().print(String.format("keystore directory file number is %s", keystoreDirectoryFiles.length));
-//            if (keystoreDirectoryFiles.length != 0) {
-//                for (FilePath keystoreDirectoryFile : keystoreDirectoryFiles) {
-//                    if (keystoreDirectoryFile.getName().contains(address)) {
-//                        if (keystoreDirectoryFile.getName().contains(address)) {
-//                            Account keystoreDirectoryAccount = generateAccount(keystoreDirectoryFile);
-//                            if (keystoreDirectoryAccount != null) {
-//                                if (TextUtils.equals(password, keystoreDirectoryAccount.getPassword())) {
-//                                    if (keystoreDirectoryFile.delete()) {
-//                                        LogUtil.getInstance().print(String.format("Keystore directory account %s has been deleted!", keystoreDirectoryAccount.getAddress2()));
-//                                        deleteBackupsAccount(address, password);
-//                                    } else {
-//                                        throw new IOException("Failure of keystore directory account delete!");
-//                                    }
-//                                } else {
-//                                    throw new PasswordException("Please enter the correct password of keystore directory account!");
-//                                }
-//                            } else {
-//                                throw new IOException("Failure of account delete, the keystore directory account is null!");
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                throw new IOException("Failure of account delete, the keystore directory is empty!");
-//            }
-//        } else {
-//            throw new IOException("Failure of account delete, there is a error in the keystore directory file!");
-//        }
-//    }
-
-//    private synchronized void deleteBackupsAccount(FilePath backupsDirectoryFile) throws IOException, PasswordException {
-//        Account backupsDirectoryAccount = generateAccount(backupsDirectoryFile);
-//        if (backupsDirectoryAccount != null) {
-//            if (backupsDirectoryFile.delete()) {
-//                LogUtil.getInstance().print(String.format("Backups directory account %s has been deleted!", backupsDirectoryAccount.getAddress2()));
-//            } else {
-//                throw new IOException("Failure of backups directory account delete!");
-//            }
-//        } else {
-//            throw new IOException("Failure of account delete, the backups directory account is null!");
-//        }
-//    }
 
     public synchronized void deleteBackupsAccount(String address) throws IOException {
         if (!TextUtils.isEmpty(address)) {
@@ -405,35 +381,12 @@ public final class KeyStore {
                     throw new IOException("Failure of account delete, the backups directory is empty!");
                 }
             } else {
-                throw new IOException("Failure of account delete, there is a error in the backups directory file!");
+                throw new IOException("Failure of account delete, there has an error in the backups directory file!");
             }
         } else {
             throw new IOException("Failure of account export, the account address is null!");
         }
     }
-
-//    public synchronized void exportAccount(FilePath directoryPath, String address, String password) throws IOException, PasswordException {
-//        if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
-//            FilePath[] files = keystoreDirectory.listFiles();
-//            LogUtil.getInstance().print(String.format("directory file number is %s", files.length));
-//            if (files.length != 0) {
-//                for (FilePath file : files) {
-//                    if (file.getName().contains(address)) {
-//                        Account account = generateAccountFile(file);
-//                        if (TextUtils.equals(password, account.getPassword())) {
-//                            IOUtil.getInstance().copyFile(file.getAbsolutePath(), new FilePath(directoryPath, file.getName()).getAbsolutePath());
-//                        } else {
-//                            throw new PasswordException("Please enter the correct password!");
-//                        }
-//                    }
-//                }
-//            } else {
-//                throw new IOException("Failure of account export, the directory is empty!");
-//            }
-//        } else {
-//            throw new IOException("Failure of account export, there is a error in the directory file!");
-//        }
-//    }
 
     public synchronized File exportAccount(String address, String password) throws IOException {
         if (!TextUtils.isEmpty(address)) {
@@ -459,7 +412,7 @@ public final class KeyStore {
                     throw new IOException("Failure of account export, the directory is empty!");
                 }
             } else {
-                throw new IOException("Failure of account export, there is a error in the directory file!");
+                throw new IOException("Failure of account export, there has an error in the directory file!");
             }
         } else {
             throw new IOException("Failure of account export, the account address is null!");
@@ -468,7 +421,6 @@ public final class KeyStore {
     }
 
     public synchronized void importAccount(File file, String password) throws IOException, JSONException {
-        LogUtil.getInstance().print(String.format("The password of import account is:%s", password));
         try {
             if (file != null && file.exists()) {
                 if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
@@ -487,7 +439,7 @@ public final class KeyStore {
                                     account.setTime2(jsonObject.getString("time"));
                                     if (verifyAccount(account)) {
                                         generateAccountFile(keystoreDirectory.getAbsolutePath(), account, true);
-                                        //IOUtil.getInstance().copyFile(file.getAbsolutePath(), new FilePath(keystoreDirectory.getAbsoluteFile(), file.getName()).getAbsolutePath());
+                                        //IOUtil.getInstance().copyFile(file.getAbsolutePath(), new File(keystoreDirectory.getAbsoluteFile(), file.getName()).getAbsolutePath());
                                     }
                                 }
                             }
@@ -512,10 +464,10 @@ public final class KeyStore {
                         }
                     }
                 } else {
-                    throw new IOException("Failure of account import, there is a error in the keystore directory file!");
+                    throw new IOException("Failure of account import, there has an error in the keystore directory file!");
                 }
             } else {
-                throw new IOException("Failure of account import, there is a error in the keystore directory file!");
+                throw new IOException("Failure of account import, there has an error in the keystore directory file!");
             }
         } catch (InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException e) {
             e.printStackTrace();
@@ -532,14 +484,18 @@ public final class KeyStore {
                 keystoreAccount = generateAccount(keystoreFile, -1, false, null);
             }
             if (externalAccount != null && keystoreAccount != null) {
-                if (externalFile.getName().startsWith(Regex.UTC.getRegext())) {
-                    if (!externalAccount.getAddress1().equals(keystoreAccount.getAddress2())) {
-                        return true;
-                    } else {
-                        throw new IOException("Failure of account import, the adress of external account is the same as the address of keystore account!");
-                    }
+                if (TextUtils.equals(externalAccount.getAccountName(), keystoreAccount.getAccountName())) {
+                    throw new IOException("Failure of account create, the account name has already existed!");
                 } else {
-                    throw new IOException("Failure of account import, the file format is unavailable!");
+                    if (externalFile.getName().startsWith(Regex.UTC.getRegext())) {
+                        if (!externalAccount.getAddress1().equals(keystoreAccount.getAddress2())) {
+                            return true;
+                        } else {
+                            throw new IOException("Failure of account import, the adress of external account is the same as the address of keystore account!");
+                        }
+                    } else {
+                        throw new IOException("Failure of account import, the file format is unavailable!");
+                    }
                 }
             } else if (externalAccount != null) {
                 return true;
@@ -567,15 +523,15 @@ public final class KeyStore {
         if (!TextUtils.isEmpty(address)) {
             if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
                 File[] keystoreDirectoryFiles = keystoreDirectory.listFiles();
-                LogUtil.getInstance().print(String.format("Beystore directory file number is %s", keystoreDirectoryFiles.length));
+                LogUtil.getInstance().print(String.format("Keystore directory file number is %s", keystoreDirectoryFiles.length));
                 if (keystoreDirectoryFiles.length != 0) {
                     for (File keystoreDirectoryFile : keystoreDirectoryFiles) {
                         if (keystoreDirectoryFile.getName().contains(address)) {
                             if (keystoreDirectoryFile.getName().contains(address)) {
                                 try {
-                                    Account account = generateAccount(keystoreDirectoryFile, Cipher.ENCRYPT_MODE, false, null);
-                                    if (account != null) {
-                                        return editAccount(keystoreDirectoryFile, account.getDevice(), account.getTime1(), account.getCipher(), accountName, account.getPrivateKey(), account.getPassword(), account.getTime2(), false);
+                                    Account keystoreAccount = generateAccount(keystoreDirectoryFile, Cipher.ENCRYPT_MODE, false, null);
+                                    if (keystoreAccount != null) {
+                                        return editAccount(keystoreDirectoryFile, keystoreAccount.getDevice(), keystoreAccount.getTime1(), keystoreAccount.getCipher(), accountName, keystoreAccount.getPrivateKey(), keystoreAccount.getPassword(), keystoreAccount.getTime2(), false);
                                     } else {
                                         throw new IOException("Failure of account rename, the keystore directory account is null!");
                                     }
@@ -590,7 +546,7 @@ public final class KeyStore {
                     throw new IOException("Failure of account rename, the keystore directory is empty!");
                 }
             } else {
-                throw new IOException("Failure of account rename, there is a error in the keystore directory file!");
+                throw new IOException("Failure of account rename, there has an error in the keystore directory file!");
             }
         } else {
             throw new IOException("Failure of account rename, the account address is null!");
@@ -598,59 +554,7 @@ public final class KeyStore {
         return null;
     }
 
-//    public synchronized void renameAccount(String address, String accountName) throws IOException, PasswordException {
-//        if (keystoreDirectory != null && keystoreDirectory.exists() && keystoreDirectory.isDirectory()) {
-//            FilePath[] keystoreDirectoryFiles = keystoreDirectory.listFiles();
-//            LogUtil.getInstance().print(String.format("Beystore directory file number is %s", keystoreDirectoryFiles.length));
-//            if (keystoreDirectoryFiles.length != 0) {
-//                for (FilePath keystoreDirectoryFile : keystoreDirectoryFiles) {
-//                    if (keystoreDirectoryFile.getName().contains(address)) {
-//                        if (keystoreDirectoryFile.getName().contains(address)) {
-//                            Account keystoreDirectoryAccount = generateAccountFile(keystoreDirectoryFile);
-//                            if (keystoreDirectoryAccount != null) {
-//                                editAccount(keystoreDirectoryFile, accountName, keystoreDirectoryAccount.getPrivateKey(), keystoreDirectoryAccount.getPublicKey(), keystoreDirectoryAccount.getAddress2(), keystoreDirectoryAccount.getPassword());
-//                                renameBackupsAccount(address, accountName);
-//                            } else {
-//                                throw new IOException("Failure of account delete, the keystore directory account is null!");
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                throw new IOException("Failure of account delete, the keystore directory is empty!");
-//            }
-//        } else {
-//            throw new IOException("Failure of account delete, there is a error in the keystore directory file!");
-//        }
-//    }
-
-//    public synchronized void renameBackupsAccount(String address, String accountName) throws IOException, PasswordException {
-//        if (backupsDirectory != null && backupsDirectory.exists() && backupsDirectory.isDirectory()) {
-//            FilePath[] backupsDirectoryFiles = backupsDirectory.listFiles();
-//            LogUtil.getInstance().print(String.format("Backups directory file number is %s", backupsDirectoryFiles.length));
-//            if (backupsDirectoryFiles.length != 0) {
-//                for (FilePath backupsDirectoryFile : backupsDirectoryFiles) {
-//                    if (backupsDirectoryFile.getName().contains(address)) {
-//                        if (backupsDirectoryFile.getName().contains(address)) {
-//                            Account keystoreDirectoryAccount = generateAccountFile(backupsDirectoryFile);
-//                            if (keystoreDirectoryAccount != null) {
-//                                editAccount(backupsDirectoryFile, accountName, keystoreDirectoryAccount.getPrivateKey(), keystoreDirectoryAccount.getPublicKey(), keystoreDirectoryAccount.getAddress2(), keystoreDirectoryAccount.getPassword());
-//                            } else {
-//                                throw new IOException("Failure of account delete, the backups directory account is null!");
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                throw new IOException("Failure of account delete, the backups directory is empty!");
-//            }
-//        } else {
-//            throw new IOException("Failure of account delete, there is a error in the backups directory file!");
-//        }
-//    }
-
     public synchronized File[] directoryTraversal(File directory) {
-        LogUtil.getInstance().print(String.format("The directory is %s", directory.getAbsolutePath()));
         if (directory != null && directory.exists()) {
             File[] files = directory.listFiles();
             LogUtil.getInstance().print(String.format("The files numbers of %s is %s", directory.getAbsolutePath(), files.length));

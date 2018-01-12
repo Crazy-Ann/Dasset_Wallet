@@ -161,6 +161,9 @@ public class AccountRenameActivity extends ActivityViewImplement<AccountRenameCo
             return;
         }
         switch (v.getId()) {
+            case R.id.ibAccountNameEmpty:
+                etAccountName.setText(null);
+                break;
             case R.id.btnConfirm:
                 if (editTextValidator.validate(this)) {
                     accountRenamePresenter.renameAccount(etAccountName.getText().toString());

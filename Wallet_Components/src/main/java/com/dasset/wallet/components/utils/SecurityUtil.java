@@ -333,7 +333,7 @@ public final class SecurityUtil {
 
 //    public byte[] encryptAESEBC(String data, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 //            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
-//            Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+//            Cipher cipher = Cipher.getInstance(Regex.AES_ECB_PKCS5PADDING.getRegext());
 //            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
 //            return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
 //    }
@@ -343,18 +343,20 @@ public final class SecurityUtil {
     }
 
     public byte[] encryptAESEBC(String data, String key, int keySize) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        LogUtil.getInstance().print(String.format("aes encrypt key is:%s", key));
         KeyGenerator keyGenerator = KeyGenerator.getInstance(Regex.AES.getRegext());
         keyGenerator.init(keySize, new SecureRandom(key.getBytes()));
-        SecretKey secretKey = keyGenerator.generateKey();
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
-        Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+//        SecretKey secretKey = keyGenerator.generateKey();
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
+        Cipher cipher = Cipher.getInstance(Regex.AES_ECB_PKCS5PADDING.getRegext());
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
         return cipher.doFinal(data.getBytes(Regex.UTF_8.getRegext()));
     }
 
 //    public byte[] decryptAESEBC(byte[] data, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException {
 //            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
-//            Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+//            Cipher cipher = Cipher.getInstance(Regex.AES_ECB_PKCS5PADDING.getRegext());
 //            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
 //            return cipher.doFinal(data);
 //    }
@@ -364,11 +366,13 @@ public final class SecurityUtil {
     }
 
     public byte[] decryptAESEBC(byte[] data, String key, int keySize) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, UnsupportedEncodingException {
+        LogUtil.getInstance().print(String.format("aes decrypt key is:%s", key));
         KeyGenerator keyGenerator = KeyGenerator.getInstance(Regex.AES.getRegext());
         keyGenerator.init(keySize, new SecureRandom(key.getBytes()));
-        SecretKey secretKey = keyGenerator.generateKey();
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
-        Cipher cipher = Cipher.getInstance(Regex.AES_EBC_PKCS5PADDING.getRegext());
+//        SecretKey secretKey = keyGenerator.generateKey();
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), Regex.AES.getRegext());
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(Regex.UTF_8.getRegext()), Regex.AES.getRegext());
+        Cipher cipher = Cipher.getInstance(Regex.AES_ECB_PKCS5PADDING.getRegext());
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
         return cipher.doFinal(data);
     }
@@ -403,7 +407,6 @@ public final class SecurityUtil {
 
     public String encryptMD5With16Bit(String data) {
         if (!TextUtils.isEmpty(data)) {
-            LogUtil.getInstance().print(String.format("encryptMD5With16Bit:%s", data));
             return encryptMD5With16Bit(data.getBytes());
         } else {
             return null;
