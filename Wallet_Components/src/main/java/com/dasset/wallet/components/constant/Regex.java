@@ -51,6 +51,7 @@ public enum Regex {
     IMAGE_DIRECTORY_TYPE("image/*"),
     FILE_URI("file://"),
     ZIP(".zip"),
+    TXT(".txt"),
     ASMX(".asmx"),
     HTTP("http://"),
     HTTPS("https://"),

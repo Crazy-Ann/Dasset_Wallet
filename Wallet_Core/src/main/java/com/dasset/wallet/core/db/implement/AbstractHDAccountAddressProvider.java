@@ -16,7 +16,7 @@
 
 package com.dasset.wallet.core.db.implement;
 
-import com.dasset.wallet.core.HDAccount;
+import com.dasset.wallet.core.wallet.hd.HDAccount;
 import com.dasset.wallet.core.OutPoint;
 import com.dasset.wallet.core.Tx;
 import com.dasset.wallet.core.contant.BitherjSettings;
@@ -28,7 +28,7 @@ import com.dasset.wallet.core.utils.Sha256Hash;
 import com.dasset.wallet.core.utils.Utils;
 import com.google.common.base.Function;
 
-import com.dasset.wallet.core.AbstractHD;
+import com.dasset.wallet.core.wallet.hd.AbstractHD;
 import com.dasset.wallet.core.In;
 import com.dasset.wallet.core.Out;
 import com.dasset.wallet.core.db.AbstractDb;

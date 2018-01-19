@@ -152,7 +152,7 @@ public class DownloadFile {
 
     private String getCookie() {
         String cookieStr = "";
-        for (Cookie cookie : AbstractApp.bitherjSetting.getCookieStore().getCookies()) {
+        for (Cookie cookie : AbstractApp.iSetting.getCookieStore().getCookies()) {
             cookieStr = cookie.getName() + "=" + cookie.getValue() + ";";
         }
         //LogUtil.d("cookie",cookieStr);

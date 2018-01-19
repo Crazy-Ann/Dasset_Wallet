@@ -1,9 +1,9 @@
 package com.dasset.wallet.core.db;
 
 import com.dasset.wallet.core.Address;
-import com.dasset.wallet.core.HDMAddress;
-import com.dasset.wallet.core.HDMBId;
-import com.dasset.wallet.core.HDMKeychain;
+import com.dasset.wallet.core.wallet.hd.HDMAddress;
+import com.dasset.wallet.core.wallet.hd.HDMBId;
+import com.dasset.wallet.core.wallet.hd.HDMKeychain;
 import com.dasset.wallet.core.crypto.PasswordSeed;
 
 import org.jetbrains.annotations.Nullable;

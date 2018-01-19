@@ -17,6 +17,7 @@
 package com.dasset.wallet.core.db;
 
 public abstract class AbstractDb {
+    
     public static final String CREATE_PEER_SQL = "create table if not exists peers " +
             "(peer_address integer primary key" +
             ", peer_port integer not null" +
@@ -246,7 +247,6 @@ public abstract class AbstractDb {
         public static final String HD_ACCOUNT_ADDRESS = "hd_account_addresses";
 
         //enterprise hdm
-
         public static final String ENTERPRISE_HD_ACCOUNT = "enterprise_hd_account";
         public static final String ENTERPRISE_MULTI_SIGN_SET = "enterprise_multi_sign_set";
         public static final String ENTERPRISE_HDM_ADDRESS = "enterprise_hdm_addresses";
@@ -311,7 +311,6 @@ public abstract class AbstractDb {
     }
 
     //address
-
     public interface AddressesColumns {
         public static final String ADDRESS = "address";
         public static final String ENCRYPT_PRIVATE_KEY = "encrypt_private_key";
@@ -409,6 +408,4 @@ public abstract class AbstractDb {
         public static final String ADDRESS = "address";
         public static final String IS_SYNCED = "is_synced";
     }
-
-
 }

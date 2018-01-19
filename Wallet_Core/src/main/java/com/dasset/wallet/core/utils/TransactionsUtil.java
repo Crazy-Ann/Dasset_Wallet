@@ -22,8 +22,8 @@ import com.dasset.wallet.core.Block;
 import com.dasset.wallet.core.BlockChain;
 import com.dasset.wallet.core.DesktopHDMAddress;
 import com.dasset.wallet.core.DesktopHDMKeychain;
-import com.dasset.wallet.core.HDAccount;
-import com.dasset.wallet.core.HDMAddress;
+import com.dasset.wallet.core.wallet.hd.HDAccount;
+import com.dasset.wallet.core.wallet.hd.HDMAddress;
 import com.dasset.wallet.core.Tx;
 import com.dasset.wallet.core.UnSignTransaction;
 import com.dasset.wallet.core.api.BitherMytransactionsApi;
@@ -31,7 +31,7 @@ import com.dasset.wallet.core.contant.AbstractApp;
 import com.dasset.wallet.core.contant.BitherjSettings;
 import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
-import com.dasset.wallet.core.AbstractHD;
+import com.dasset.wallet.core.wallet.hd.AbstractHD;
 import com.dasset.wallet.core.In;
 import com.dasset.wallet.core.api.BlockChainMytransactionsApi;
 import com.dasset.wallet.core.db.AbstractDb;
@@ -256,11 +256,11 @@ public class TransactionsUtil {
 
 
     public static void getMyTxFromBither() throws Exception {
-        if (AbstractApp.bitherjSetting.getAppMode() != BitherjSettings.AppMode.HOT) {
+        if (AbstractApp.iSetting.getAppMode() != BitherjSettings.AppMode.HOT) {
             return;
         }
         // TODO: web type
-        int flag = AbstractApp.bitherjSetting.getApiConfig().value();
+        int flag = AbstractApp.iSetting.getApiConfig().value();
         getTxForAddress(flag);
         if (AddressManager.getInstance().getHDAccountHot() != null) {
             getTxForHDAccount(AddressManager.getInstance().getHDAccountHot().getHdSeedId(), flag);

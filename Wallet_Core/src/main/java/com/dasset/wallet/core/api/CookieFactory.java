@@ -32,7 +32,7 @@ public class CookieFactory {
     public synchronized static boolean initCookie() {
         boolean success = true;
         isRunning = true;
-        CookieStore cookieStore = AbstractApp.bitherjSetting.getCookieStore();
+        CookieStore cookieStore = AbstractApp.iSetting.getCookieStore();
         if (cookieStore.getCookies() == null
                 || cookieStore.getCookies().size() == 0) {
             try {

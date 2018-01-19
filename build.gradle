@@ -6,10 +6,12 @@ buildscript {
         google()
         jcenter()
         mavenCentral()
+        maven { url "http://objectbox.net/beta-repo/" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.51"
+        classpath 'io.objectbox:objectbox-gradle-plugin:1.4.0'
+//        debugCompile 'io.objectbox:objectbox-android-objectbrowser:1.4.0'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -20,6 +22,7 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
+        maven { url "http://objectbox.net/beta-repo/" }
     }
 }
 
@@ -54,6 +57,8 @@ ext.deps = [
 //        glide                : 'com.github.bumptech.glide:glide:4.0.0',
         //        glide_compiler       : 'com.github.bumptech.glide:compiler:4.0.0',
         guava                      : 'com.google.guava:guava:20.0',
+        commons_lang3              : 'org.apache.commons:commons-lang3:3.7',
+        commons_codec              : 'commons-codec:commons-codec:1.11',
         jsr305                     : 'com.google.code.findbugs:jsr305:3.0.2@jar',
         scrypt                     : 'com.lambdaworks:scrypt:1.4.0@jar',
         fastjson                   : 'com.alibaba:fastjson:1.2.31',
@@ -72,12 +77,15 @@ ext.deps = [
         JsBridge                   : 'com.yjt.bridge:JsBridge:0.0.2',
         NumericKeyboard            : 'com.yjt.keyboard:NumericKeyboard:0.0.1',
         Password                   : 'com.yjt.password:Password:0.0.2',
+        bitcoinj_core              : 'org.bitcoinj:bitcoinj-core:0.14.5',
         geth                       : 'org.ethereum:geth:1.7.3',
+        web3j                      : 'org.web3j:core-android:2.2.1',
 //        transitionseverywhere: "com.andkulikov:transitionseverywhere:1.7.4",
 //        zip4j                : 'net.lingala.zip4j:zip4j:1.3.2',
 //        eventbus             : 'org.greenrobot:eventbus:3.0.0',
-//        objectbox            : 'io.objectbox:objectbox-android:1.1.0',
-//        objectbox_processor  : 'io.objectbox:objectbox-processor:1.1.0'
+        objectbox                  : 'io.objectbox:objectbox-android:1.4.0',
+        objectbox_processor        : 'io.objectbox:objectbox-processor:1.4.0',
+        objectbox_browser          : 'io.objectbox:objectbox-android-objectbrowser:1.4.0'
 //        bugly                : 'com.tencent.bugly:crashreport:latest.release'
 //        walle                : 'com.meituan.android.walle:library:1.1.5'
 //        lifecycle            : "android.arch.lifecycle:runtime:1.0.0-alpha3",

@@ -37,7 +37,7 @@ public class AccountAdapter extends FixedStickyHeaderAdapter<AccountInfo, Accoun
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, int position) {
         super.onBindViewHolder(viewHolder, position);
         final int itemPosition = position;
         if (viewHolder.getItemViewType() == TYPE_CONTENT_VIEW) {
@@ -46,7 +46,7 @@ public class AccountAdapter extends FixedStickyHeaderAdapter<AccountInfo, Accoun
                 @Override
                 public void onClick(View view) {
                     if (onItemClickListener != null) {
-                        onItemClickListener.onItemClick(itemPosition, view);
+                        onItemClickListener.onItemClick(itemPosition, view, viewHolder);
                     }
                 }
             });

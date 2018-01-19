@@ -10,14 +10,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.dasset.wallet.R;
-import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.base.toolbar.listener.OnRightTextEventListener;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
-import com.dasset.wallet.components.zxing.camera.CameraManager;
 import com.dasset.wallet.components.zxing.listener.OnDecodeHandlerListener;
 import com.dasset.wallet.components.zxing.view.ViewfinderView;
 import com.dasset.wallet.constant.Constant;
@@ -37,7 +35,6 @@ public class QRCodeRecognitionActivity extends ActivityViewImplement<QRCodeRecog
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CameraManager.initialize(BaseApplication.getInstance());
         setContentView(R.layout.activity_qrcode_recognition);
         getSavedInstanceState(savedInstanceState);
         findViewById();

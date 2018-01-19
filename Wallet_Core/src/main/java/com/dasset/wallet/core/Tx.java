@@ -33,6 +33,7 @@ import com.dasset.wallet.core.script.ScriptOpCodes;
 import com.dasset.wallet.core.utils.PrivateKeyUtil;
 import com.dasset.wallet.core.utils.Utils;
 import com.dasset.wallet.core.utils.VarInt;
+import com.dasset.wallet.core.wallet.hd.HDAccount;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

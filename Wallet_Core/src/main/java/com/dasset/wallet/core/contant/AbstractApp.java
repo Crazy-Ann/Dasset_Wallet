@@ -20,14 +20,14 @@ package com.dasset.wallet.core.contant;
 import com.dasset.wallet.core.api.TrustCert;
 
 public abstract class AbstractApp {
-    public static NotificationService notificationService;
-    public static ISetting            bitherjSetting;
-    public static TrustCert           trustCert;
 
+    public static NotificationService notificationService;
+    public static ISetting iSetting;
+    public static TrustCert trustCert;
     public static boolean addressIsReady = false;
 
     public void construct() {
-        bitherjSetting = initSetting();
+        iSetting = initSetting();
         notificationService = initNotification();
         trustCert = initTrustCert();
     }

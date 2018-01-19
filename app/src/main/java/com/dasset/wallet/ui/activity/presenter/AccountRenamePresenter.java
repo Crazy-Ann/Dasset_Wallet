@@ -11,7 +11,7 @@ import com.dasset.wallet.components.utils.BundleUtil;
 import com.dasset.wallet.components.utils.MessageUtil;
 import com.dasset.wallet.components.utils.ThreadPoolUtil;
 import com.dasset.wallet.constant.Constant;
-import com.dasset.wallet.core.ecc.Account;
+import com.dasset.wallet.core.wallet.Account;
 import com.dasset.wallet.ecc.AccountStorageFactory;
 import com.dasset.wallet.model.AccountInfo;
 import com.dasset.wallet.ui.BasePresenterImplement;

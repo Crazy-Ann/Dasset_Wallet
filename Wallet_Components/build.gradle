@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'io.objectbox'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -49,10 +50,14 @@ dependencies {
     api deps.appcompat_v7
     api deps.design
     api deps.guava
+    api deps.commons_lang3
+    api deps.commons_codec
     api deps.okhttp3
     api deps.okio
     api deps.fastjson
     api deps.glide
     api deps.zxing
     api deps.JsBridge
+    debugImplementation deps.objectbox_browser
+    releaseImplementation deps.objectbox
 }

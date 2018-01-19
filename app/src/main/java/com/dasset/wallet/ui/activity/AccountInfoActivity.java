@@ -32,7 +32,7 @@ import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.widget.sticky.LinearLayoutDividerItemDecoration;
 import com.dasset.wallet.components.zxing.encode.QRCodeEncode;
 import com.dasset.wallet.constant.Constant;
-import com.dasset.wallet.core.ecc.Account;
+import com.dasset.wallet.core.wallet.Account;
 import com.dasset.wallet.model.TransactionRecord;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.AccountInfoContract;
@@ -309,7 +309,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     }
 
     @Override
-    public void onItemClick(int position, View view) {
+    public void onItemClick(int position, View view, RecyclerView.ViewHolder viewHolder) {
 
     }
 

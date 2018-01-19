@@ -16,12 +16,12 @@
 
 package com.dasset.wallet.core.qrcode;
 
-import com.dasset.wallet.core.AbstractHD;
+import com.dasset.wallet.core.wallet.hd.AbstractHD;
 import com.dasset.wallet.core.AddressManager;
 import com.dasset.wallet.core.DesktopHDMAddress;
 import com.dasset.wallet.core.EnterpriseHDMAddress;
-import com.dasset.wallet.core.HDAccount;
-import com.dasset.wallet.core.HDMAddress;
+import com.dasset.wallet.core.wallet.hd.HDAccount;
+import com.dasset.wallet.core.wallet.hd.HDMAddress;
 import com.dasset.wallet.core.Tx;
 import com.dasset.wallet.core.exception.AddressFormatException;
 import com.dasset.wallet.core.utils.Base58;

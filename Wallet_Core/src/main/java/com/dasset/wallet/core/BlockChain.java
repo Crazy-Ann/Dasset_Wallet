@@ -163,7 +163,7 @@ public class BlockChain {
     }
 
     /*
-     * if result is true, means the block is in main chain, if result is false, means the block is single
+     * if result is true, means the block is in getPath chain, if result is false, means the block is single
      * or orphan.
      * */
     public boolean relayedBlock(Block block) throws VerificationException {

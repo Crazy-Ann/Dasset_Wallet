@@ -399,7 +399,7 @@ public class Script {
     }
 
     /**
-     * Gets the destination address from this script, if it's in the required form (see getPubKey).
+     * Gets the destination address from this script, if it's in the required form (see getPublicKey).
      */
     public String getToAddress() throws ScriptException {
         if (isSentToAddress()) {

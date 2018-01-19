@@ -66,7 +66,7 @@ public class Base58 {
         }
         // The actual encoding.
         byte[] temp = new byte[input.length * 2];
-        int    j    = temp.length;
+        int j = temp.length;
 
         int startAt = zeroCount;
         while (startAt < input.length) {
@@ -146,7 +146,7 @@ public class Base58 {
         }
         // The encoding
         byte[] temp = new byte[input.length()];
-        int    j    = temp.length;
+        int j = temp.length;
 
         int startAt = zeroCount;
         while (startAt < input58.length) {
@@ -173,15 +173,14 @@ public class Base58 {
      * Uses the checksum in the last 4 bytes of the decoded data to verify the rest are correct. The checksum is
      * removed from the returned data.
      *
-     * @throws AddressFormatException
-     *         if the input is not base 58 or the checksum does not validate.
+     * @throws AddressFormatException if the input is not base 58 or the checksum does not validate.
      */
     public static byte[] decodeChecked(String input) throws AddressFormatException {
         byte tmp[] = decode(input);
         if (tmp.length < 4) {
             throw new AddressFormatException("Input too short");
         }
-        byte[] bytes    = copyOfRange(tmp, 0, tmp.length - 4);
+        byte[] bytes = copyOfRange(tmp, 0, tmp.length - 4);
         byte[] checksum = copyOfRange(tmp, tmp.length - 4, tmp.length);
 
         tmp = Utils.doubleDigest(bytes);
@@ -200,7 +199,7 @@ public class Base58 {
         int remainder = 0;
         for (int i = startAt; i < number.length; i++) {
             int digit256 = (int) number[i] & 0xFF;
-            int temp     = remainder * 256 + digit256;
+            int temp = remainder * 256 + digit256;
 
             number[i] = (byte) (temp / 58);
 
@@ -217,7 +216,7 @@ public class Base58 {
         int remainder = 0;
         for (int i = startAt; i < number58.length; i++) {
             int digit58 = (int) number58[i] & 0xFF;
-            int temp    = remainder * 58 + digit58;
+            int temp = remainder * 58 + digit58;
 
             number58[i] = (byte) (temp / 256);
 
@@ -237,15 +236,15 @@ public class Base58 {
     //added by jjz (bither)
     public static String bas58ToHexWithAddress(String address) throws AddressFormatException {
         byte[] bytes = Base58.decodeChecked(address);
-        String hex   = Utils.bytesToHexString(bytes);
+        String hex = Utils.bytesToHexString(bytes);
         return hex.toUpperCase(Locale.US);
     }
 
     //added by jjz (bither)
     public static String hexToBase58WithAddress(String hex) {
-        byte[] bytes    = Utils.hexStringToByteArray(hex);
+        byte[] bytes = Utils.hexStringToByteArray(hex);
         byte[] checksum = copyOfRange(Utils.doubleDigest(bytes), 0, 4);
-        byte[] result   = new byte[bytes.length + checksum.length];
+        byte[] result = new byte[bytes.length + checksum.length];
         System.arraycopy(bytes, 0, result, 0, bytes.length);
         System.arraycopy(checksum, 0, result, bytes.length, 4);
         String address = encode(result);

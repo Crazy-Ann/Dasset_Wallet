@@ -3,6 +3,7 @@ package com.dasset.wallet.ui.binder;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.sticky.binder.BaseViewBinder;
@@ -15,6 +16,9 @@ public class AccountBinder extends BaseViewBinder {
     private Context context;
     private RecyclerView recyclerView;
 
+    private RecyclerView.ViewHolder viewHolder;
+    private int position;
+
     public AccountBinder(Context context, RecyclerView recyclerView) {
         this.context = context;
         this.recyclerView = recyclerView;
@@ -22,6 +26,8 @@ public class AccountBinder extends BaseViewBinder {
 
     @Override
     public void bind(RecyclerView.ViewHolder viewHolder, Object object, int position, boolean checkable) {
+        this.viewHolder = viewHolder;
+        this.position = position;
         if (viewHolder instanceof AccountHolder) {
             AccountHolder accountHolder = (AccountHolder) viewHolder;
             AccountInfo accountInfo = (AccountInfo) object;
@@ -36,5 +42,13 @@ public class AccountBinder extends BaseViewBinder {
     @Override
     public RecyclerView.ViewHolder getViewHolder(int type) {
         return new AccountHolder(LayoutInflater.from(context).inflate(R.layout.holder_account, recyclerView, false));
+    }
+
+
+    @Override
+    public void onClick(View view) {
+        if (onViewClickListener != null) {
+            onViewClickListener.onViewClick(position, view, viewHolder);
+        }
     }
 }

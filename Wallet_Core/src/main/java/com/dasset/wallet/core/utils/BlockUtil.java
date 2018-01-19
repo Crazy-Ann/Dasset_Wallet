@@ -110,7 +110,7 @@ public class BlockUtil {
     }
 
     public synchronized static Block dowloadSpvBlock() throws Exception {
-        if (AbstractApp.bitherjSetting.getDownloadSpvFinish()) {
+        if (AbstractApp.iSetting.getDownloadSpvFinish()) {
             return null;
         }
         Block block = null;
@@ -135,7 +135,7 @@ public class BlockUtil {
         }
         if (block.getBlockNo() % BitherjSettings.INTERVAL == 0) {
             BlockChain.getInstance().addSPVBlock(block);
-            AbstractApp.bitherjSetting.setDownloadSpvFinish(true);
+            AbstractApp.iSetting.setDownloadSpvFinish(true);
             AbstractApp.notificationService.sendBroadcastGetSpvBlockComplete(true);
         } else {
             log.debug("spv", "service is not vaild");

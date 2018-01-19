@@ -2,6 +2,7 @@ package com.dasset.wallet.ui.activity;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSONException;
@@ -26,8 +28,10 @@ import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.ActivityUtil;
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.components.utils.PopWindowUtil;
 import com.dasset.wallet.components.utils.ToastUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
+import com.dasset.wallet.components.widget.sticky.LinearLayoutDividerItemDecoration;
 import com.dasset.wallet.constant.Constant;
 import com.dasset.wallet.ecc.AccountStorageFactory;
 import com.dasset.wallet.ui.ActivityViewImplement;
@@ -36,8 +40,11 @@ import com.dasset.wallet.ui.activity.presenter.MainPresenter;
 import com.dasset.wallet.ui.adapter.AccountAdapter;
 import com.dasset.wallet.ui.adapter.MenuAdapter;
 import com.dasset.wallet.ui.binder.AccountBinder;
+import com.dasset.wallet.ui.binder.MenuBinder;
 import com.dasset.wallet.ui.dialog.ImagePromptDialog;
 import com.dasset.wallet.ui.dialog.PromptDialog;
+import com.dasset.wallet.ui.holder.AccountHolder;
+import com.dasset.wallet.ui.holder.MenuHolder;
 
 import java.io.IOException;
 import java.util.List;
@@ -46,12 +53,14 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
     private MainPresenter mainPresenter;
 
-    private RecyclerView accountRecycleView;
-    private RecyclerView menuRecycleView;
+    private RecyclerView accountRecyclerView;
     private AccountAdapter accountAdapter;
-    private MenuAdapter menuAdapter;
-    private LinearLayoutManager linearLayoutManager;
     private AccountBinder accountBinder;
+
+    private RecyclerView menuRecyclerView;
+    private MenuAdapter menuAdapter;
+
+    private View view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +96,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     @Override
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
-        accountRecycleView = ViewUtil.getInstance().findView(this, R.id.recycleView);
+        accountRecyclerView = ViewUtil.getInstance().findView(this, R.id.recycleView);
     }
 
     @Override
@@ -96,19 +105,26 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
         mainPresenter = new MainPresenter(this, this);
         mainPresenter.initialize();
         setBasePresenterImplement(mainPresenter);
-        accountBinder = new AccountBinder(this, accountRecycleView);
+        accountBinder = new AccountBinder(this, accountRecyclerView);
         accountAdapter = new AccountAdapter(this, accountBinder, false);
-//        menuAdapter = new MenuAdapter(new MenuBinder(this, menuRecycleView));
-        linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        accountRecycleView.setHasFixedSize(true);
-        accountRecycleView.setLayoutManager(linearLayoutManager);
-        accountRecycleView.setAdapter(accountAdapter);
-//        menuRecycleView.setHasFixedSize(true);
-//        menuRecycleView.setLayoutManager(linearLayoutManager);
-//        menuRecycleView.setAdapter(menuAdapter);
+        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(this);
+        linearLayoutManager1.setOrientation(LinearLayoutManager.VERTICAL);
+        accountRecyclerView.setHasFixedSize(true);
+        accountRecyclerView.setLayoutManager(linearLayoutManager1);
+        accountRecyclerView.setAdapter(accountAdapter);
         setAddAccountView();
-        LogUtil.getInstance().print(mainPresenter.getMenus());
+
+        menuRecyclerView = new RecyclerView(this);
+        menuAdapter = new MenuAdapter(new MenuBinder(this, menuRecyclerView));
+        LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(this);
+        linearLayoutManager2.setOrientation(LinearLayoutManager.VERTICAL);
+        menuRecyclerView.setHasFixedSize(true);
+        menuRecyclerView.setLayoutManager(linearLayoutManager2);
+        menuRecyclerView.addItemDecoration(new LinearLayoutDividerItemDecoration(Color.GRAY, 1, LinearLayoutManager.VERTICAL));
+        menuRecyclerView.setAdapter(menuAdapter);
+        menuAdapter.setData(mainPresenter.getMenus().getMenus());
+
+        view = LayoutInflater.from(this).inflate(R.layout.view_address, null);
     }
 
     @Override
@@ -116,6 +132,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
         accountAdapter.setOnHeaderOrFooterItemClickListener(this);
         accountAdapter.setItemClickListener(this);
         accountBinder.setOnViewClickListener(this);
+        menuAdapter.setItemClickListener(this);
     }
 
     @Override
@@ -292,18 +309,13 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
                                                  @Override
                                                  public RecyclerView.ViewHolder generate() {
-                                                     return new BaseViewHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.holder_add_account, accountRecycleView, false));
+                                                     return new BaseViewHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.holder_add_account, menuRecyclerView, false));
                                                  }
                                              });
             } else {
                 accountAdapter.bindDataToHeaderOrFooter(Constant.RecycleView.FOOTER_VIEW_ID, null, FixedStickyViewAdapter.TYPE_FOOTER_VIEW);
             }
         }
-    }
-
-    @Override
-    public void setMenuView() {
-
     }
 
     @Override
@@ -328,7 +340,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                 showPromptDialog(e.getMessage(), false, false, Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR);
             }
         } else {
-
+            //TODO
         }
     }
 
@@ -353,16 +365,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
 
     @Override
     public void OnRightIconEvent() {
-        //todo
-//        showImportAccountPromptDialog();
-        try {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType(Regex.UNLIMITED_DIRECTORY_TYPE.getRegext());
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            startActivityForResult(intent, Constant.RequestCode.FILE_MANAGER);
-        } catch (ActivityNotFoundException e) {
-            showPromptDialog(R.string.dialog_prompt_file_manager_error, false, false, Constant.RequestCode.DIALOG_PROMPT_FILE_MANAGER_ERROR);
-        }
+        PopWindowUtil.getInstance().showPopWindow((View) ViewUtil.getInstance().findView(inToolbar, R.id.ivTitleRightIcon), menuRecyclerView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true, com.dasset.wallet.components.constant.Constant.View.POP_WINDOW_RIGHT);
     }
 
     @Override
@@ -377,22 +380,38 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     }
 
     @Override
-    public void onItemClick(int position, View view) {
-        try {
-            Bundle bundle = new Bundle();
-            bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position));
-            startActivity(AccountInfoActivity.class, bundle);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showPromptDialog(R.string.dialog_prompt_account_info_error, false, false, Constant.RequestCode.DIALOG_PROMPT_ACCOUNT_INFO_ERROR);
+    public void onItemClick(int position, View view, RecyclerView.ViewHolder viewHolder) {
+        if (viewHolder instanceof AccountHolder) {
+            try {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(Constant.BundleKey.WALLET_ACCOUNT, AccountStorageFactory.getInstance().getAccountInfos(AccountStorageFactory.getInstance().getKeystoreDirectory()).get(position));
+                startActivity(AccountInfoActivity.class, bundle);
+            } catch (IOException e) {
+                e.printStackTrace();
+                showPromptDialog(R.string.dialog_prompt_account_info_error, false, false, Constant.RequestCode.DIALOG_PROMPT_ACCOUNT_INFO_ERROR);
+            }
+        } else if (viewHolder instanceof MenuHolder) {
+            switch (position) {
+                case 0:
+                    startActivityForResult(CreateAccountActivity.class, Constant.RequestCode.CREATE_ACCOUNT);
+                    break;
+                case 1:
+                    showImportAccountPromptDialog();
+                    break;
+                case 2:
+                    startActivity(SettingActivity.class);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     @Override
-    public void onViewClick(int position, View view) {
+    public void onViewClick(int position, View view, RecyclerView.ViewHolder viewHolder) {
         switch (view.getId()) {
             case R.id.tvAddress:
-                LogUtil.getInstance().print("tvAddress," + position);
+                PopWindowUtil.getInstance().showPopWindow(((AccountHolder) viewHolder).tvAddress, view, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true, com.dasset.wallet.components.constant.Constant.View.POP_WINDOW_RIGHT);
                 break;
             case R.id.ivAddressQRCode:
                 mainPresenter.generateAddresQRCode(position);

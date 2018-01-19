@@ -1,17 +1,14 @@
 package com.dasset.wallet.ui.activity.presenter;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.base.http.model.BaseEntity;
 import com.dasset.wallet.components.constant.Regex;
-import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.ApplicationUtil;
 import com.dasset.wallet.components.utils.IOUtil;
 import com.dasset.wallet.components.utils.LogUtil;
@@ -28,7 +25,6 @@ import com.dasset.wallet.ui.activity.contract.WelcomeContract;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class WelcomePresenter extends BasePresenterImplement implements WelcomeContract.Presenter {
 
@@ -69,7 +65,7 @@ public class WelcomePresenter extends BasePresenterImplement implements WelcomeC
                         checkPageSignature();
                     }
                 } else {
-
+                    view.showPromptDialog(R.string.dialog_prompt_get_version_error, true, false, Constant.RequestCode.DIALOG_PROMPT_GET_VERSION_ERROR);
                 }
             }
 
@@ -86,21 +82,7 @@ public class WelcomePresenter extends BasePresenterImplement implements WelcomeC
             if (ApplicationUtil.getInstance().getVersionCode(context) < Integer.valueOf(version.getLowestClientVersion())) {
                 ((WelcomeActivity) view).onFinish("onPositiveButtonClicked_DIALOG_PROMPT_VERSION_UPDATE");
             } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    checkPermission(new PermissionCallback() {
-                        @Override
-                        public void onSuccess(int requestCode, @NonNull List<String> grantPermissions) {
-                            checkPageSignature();
-                        }
-
-                        @Override
-                        public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
-                            view.showPermissionPromptDialog();
-                        }
-                    });
-                } else {
-                    checkPageSignature();
-                }
+                checkPageSignature();
             }
         } else {
             view.showPromptDialog(R.string.dialog_prompt_get_version_error, true, false, Constant.RequestCode.DIALOG_PROMPT_GET_VERSION_ERROR);

@@ -18,8 +18,8 @@
 package com.dasset.wallet.core.db;
 
 import com.dasset.wallet.core.Tx;
-import com.dasset.wallet.core.AbstractHD;
-import com.dasset.wallet.core.HDAccount;
+import com.dasset.wallet.core.wallet.hd.AbstractHD;
+import com.dasset.wallet.core.wallet.hd.HDAccount;
 import com.dasset.wallet.core.In;
 import com.dasset.wallet.core.Out;
 

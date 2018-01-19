@@ -22,7 +22,7 @@ public class BaseViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     @Override
     public void onClick(View view) {
         if (onViewClickListener != null) {
-            onViewClickListener.onViewClick(position, view);
+            onViewClickListener.onViewClick(position, view, this);
         }
     }
 }

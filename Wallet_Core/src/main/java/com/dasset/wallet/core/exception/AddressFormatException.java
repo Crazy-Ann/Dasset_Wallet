@@ -18,6 +18,7 @@ package com.dasset.wallet.core.exception;
 
 @SuppressWarnings("serial")
 public class AddressFormatException extends Exception {
+    
     public AddressFormatException() {
         super();
     }

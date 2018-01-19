@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/ivMagnetic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_8"
+        android:contentDescription="@null"
+        android:src="@mipmap/xrandom_sensor_magnetic"/>
+
+    <ImageView
+        android:id="@+id/ivAccelerometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_8"
+        android:contentDescription="@null"
+        android:src="@mipmap/xrandom_sensor_accelerometer"/>
+
+    <ImageView
+        android:id="@+id/ivLight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_8"
+        android:contentDescription="@null"
+        android:src="@mipmap/xrandom_sensor_light"/>
+
+    <ImageView
+        android:id="@+id/ivGravity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_8"
+        android:contentDescription="@null"
+        android:src="@mipmap/xrandom_sensor_gravity"/>
+</merge>

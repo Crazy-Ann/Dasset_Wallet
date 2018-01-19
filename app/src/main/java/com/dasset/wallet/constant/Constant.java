@@ -55,11 +55,12 @@ public final class Constant {
         public static final int DIALOG_PROMPT_QRCODE_SHARE_ERROR = 0x1028;
         public static final int DIALOG_PROMPT_GET_VERSION = 0x1029;
         public static final int DIALOG_PROMPT_GET_VERSION_ERROR = 0x1030;
-        public static final int DIALOG_PROMPT_VERSION_UPDATE = 0x1031;
-        public static final int DIALOG_PROMPT_DOWNLOAD = 0x1032;
-        public static final int DIALOG_PROMPT_DOWNLOAD_ERROR = 0x1033;
-        public static final int DIALOG_PROMPT_INSTALL = 0x1034;
-        public static final int DIALOG_PROMPT_INSTALL_ERROR = 0x1035;
+        public static final int DIALOG_PROMPT_GET_VERSION_SUCCESS = 0x1031;
+        public static final int DIALOG_PROMPT_VERSION_UPDATE = 0x1032;
+        public static final int DIALOG_PROMPT_DOWNLOAD = 0x1033;
+        public static final int DIALOG_PROMPT_DOWNLOAD_ERROR = 0x1034;
+        public static final int DIALOG_PROMPT_INSTALL = 0x1035;
+        public static final int DIALOG_PROMPT_INSTALL_ERROR = 0x1036;
         public static final int CREATE_ACCOUNT = 0x2000;
         public static final int QRCODE_RECOGNITION = 0x2001;
         public static final int QRCODE_RECOGNITION_ALBUM = 0x2002;

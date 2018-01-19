@@ -22,6 +22,8 @@ import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.script.ScriptBuilder;
+import com.dasset.wallet.core.wallet.hd.AbstractHD;
+import com.dasset.wallet.core.wallet.hd.HDMAddress;
 
 import java.util.ArrayList;
 import java.util.List;

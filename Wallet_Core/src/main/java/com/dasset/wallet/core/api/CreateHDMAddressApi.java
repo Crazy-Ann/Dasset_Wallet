@@ -16,7 +16,7 @@
 
 package com.dasset.wallet.core.api;
 
-import com.dasset.wallet.core.HDMAddress;
+import com.dasset.wallet.core.wallet.hd.HDMAddress;
 import com.dasset.wallet.core.api.http.BitherUrl;
 import com.dasset.wallet.core.api.http.HttpSetting;
 import com.dasset.wallet.core.api.http.HttpsPostResponse;

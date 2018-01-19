@@ -37,7 +37,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Bip38 {
 
-    public static final String BIP38_CHARACTER_ENCODING = "UTF-8";
     public static final int SCRYPT_N = 16384;
     public static final int SCRYPT_LOG2_N = 14;
     public static final int SCRYPT_R = 8;
@@ -56,11 +55,11 @@ public class Bip38 {
      */
     public static String encryptNoEcMultiply(CharSequence passphrase, String base58EncodedPrivateKey) throws InterruptedException, AddressFormatException {
         DumpedPrivateKey dumpedPrivateKey = new DumpedPrivateKey(base58EncodedPrivateKey);
-        ECKey            key              = dumpedPrivateKey.getKey();
+        ECKey ecKey = dumpedPrivateKey.getKey();
         dumpedPrivateKey.clearPrivateKey();
-        byte[] salt = Bip38.calculateScryptSalt(key.toAddress());
+        byte[] salt = Bip38.calculateScryptSalt(ecKey.toAddress());
         byte[] stretchedKeyMaterial = bip38Stretch1(passphrase, salt, SCRYPT_LENGTH);
-        return encryptNoEcMultiply(stretchedKeyMaterial, key, salt);
+        return encryptNoEcMultiply(stretchedKeyMaterial, ecKey, salt);
     }
 
     /**
@@ -155,7 +154,7 @@ public class Bip38 {
 
         // Checksum
         Sha256Hash checkSum = Bip38Util.doubleSha256(encoded, 0, 39);
-        byte[]     start    = checkSum.firstFourBytes();
+        byte[] start = checkSum.firstFourBytes();
         System.arraycopy(start, 0, encoded, 39, checksumLength);
 
         // Base58 encode

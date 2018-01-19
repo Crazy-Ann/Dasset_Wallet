@@ -151,7 +151,7 @@ public class QRCodeUtil {
     }
 
     public static int getNumOfQrCodeString(int length) {
-        int quality = AbstractApp.bitherjSetting.getQRQuality().getQuality();
+        int quality = AbstractApp.iSetting.getQRQuality().getQuality();
         if (length < quality) {
             return 1;
         } else if (length <= (quality - 4) * 10) {

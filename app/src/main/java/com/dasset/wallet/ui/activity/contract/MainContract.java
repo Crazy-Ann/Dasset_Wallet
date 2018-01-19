@@ -14,8 +14,6 @@ public interface MainContract {
 
         void setAddAccountView();
 
-        void setMenuView();
-
         void showImportAccountPromptDialog();
 
         void loadAccountData();

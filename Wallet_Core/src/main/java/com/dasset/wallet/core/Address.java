@@ -21,11 +21,11 @@ import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.exception.AddressFormatException;
-import com.dasset.wallet.core.exception.PasswordException;
 import com.dasset.wallet.core.exception.TxBuilderException;
 import com.dasset.wallet.core.script.ScriptBuilder;
 import com.dasset.wallet.core.utils.PrivateKeyUtil;
 import com.dasset.wallet.core.utils.Utils;
+import com.dasset.wallet.core.wallet.hd.HDAccount;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,15 +67,12 @@ public class Address implements Comparable<Address> {
         super();
     }
 
-    public Address(String address, byte[] pubKey, String encryptString, boolean isSyncComplete
-            , boolean isFromXRandom) {
-        this(address, pubKey, AddressManager.getInstance().getSortTime(!Utils.isEmpty
-                (encryptString)), isSyncComplete, isFromXRandom, false, encryptString);
+    public Address(String address, byte[] pubKey, String encryptString, boolean isSyncComplete, boolean isFromXRandom) {
+        this(address, pubKey, AddressManager.getInstance().getSortTime(!Utils.isEmpty(encryptString)), isSyncComplete, isFromXRandom, false, encryptString);
 
     }
 
-    public Address(String address, byte[] pubKey, long sortTime, boolean isSyncComplete,
-                   boolean isFromXRandom, boolean isTrashed, String encryptPrivKey) {
+    public Address(String address, byte[] pubKey, long sortTime, boolean isSyncComplete, boolean isFromXRandom, boolean isTrashed, String encryptPrivKey) {
         this.encryptPrivKey = encryptPrivKey;
         this.address = address;
         this.pubKey = pubKey;

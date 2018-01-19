@@ -27,8 +27,7 @@ public interface NotificationService {
 
     void sendLastBlockChange();
 
-    void notificatTx(String address, Tx tx, Tx.TxNotificationType txNotificationType,
-                     long deltaBalance);
+    void notificatTx(String address, Tx tx, Tx.TxNotificationType txNotificationType, long deltaBalance);
 
     void sendBroadcastPeerState(int numPeers);
 

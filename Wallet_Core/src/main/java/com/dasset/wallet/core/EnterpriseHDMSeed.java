@@ -24,6 +24,7 @@ import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicException;
 import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.utils.Utils;
+import com.dasset.wallet.core.wallet.hd.AbstractHD;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;

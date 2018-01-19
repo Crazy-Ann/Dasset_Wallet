@@ -8,6 +8,7 @@ import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
+import com.dasset.wallet.base.BuildConfig;
 import com.dasset.wallet.components.constant.Constant;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.http.Configuration;
@@ -31,6 +32,7 @@ import com.dasset.wallet.components.utils.TypefaceUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.google.common.collect.Lists;
 
+import io.objectbox.android.AndroidObjectBrowser;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 

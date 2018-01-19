@@ -17,6 +17,8 @@
 package com.dasset.wallet.core.crypto;
 
 
+import android.text.TextUtils;
+
 import com.dasset.wallet.core.utils.Base58;
 import com.dasset.wallet.core.utils.PrivateKeyUtil;
 import com.dasset.wallet.core.db.AbstractDb;
@@ -25,23 +27,23 @@ import com.dasset.wallet.core.qrcode.QRCodeUtil;
 import com.dasset.wallet.core.utils.Utils;
 
 public class PasswordSeed {
+
     private String address;
-    private String keyStr;
+    private String key;
 
-    public PasswordSeed(String str) {
-        int indexOfSplit = QRCodeUtil.indexOfOfPasswordSeed(str);
-        this.address = QRCodeUtil.getAddressFromPasswordSeed(str);
-        this.keyStr = str.substring(indexOfSplit + 1);
+    public PasswordSeed(String key) {
+        int indexOfSplit = QRCodeUtil.indexOfOfPasswordSeed(key);
+        this.address = QRCodeUtil.getAddressFromPasswordSeed(key);
+        this.key = key.substring(indexOfSplit + 1);
     }
-
 
     public PasswordSeed(String address, String encryptedKey) {
         this.address = address;
-        this.keyStr = encryptedKey;
+        this.key = encryptedKey;
     }
 
     public boolean checkPassword(CharSequence password) {
-        ECKey  ecKey = PrivateKeyUtil.getECKeyFromSingleString(keyStr, password);
+        ECKey ecKey = PrivateKeyUtil.getECKeyFromSingleString(key, password);
         String ecKeyAddress;
         if (ecKey == null) {
             return false;
@@ -49,40 +51,31 @@ public class PasswordSeed {
             ecKeyAddress = ecKey.toAddress();
             ecKey.clearPrivateKey();
         }
-        return Utils.compareString(this.address,
-                                   ecKeyAddress);
-
+        return Utils.compareString(this.address, ecKeyAddress);
     }
 
     public boolean changePassword(CharSequence oldPassword, CharSequence newPassword) {
-        keyStr = PrivateKeyUtil.changePassword(keyStr, oldPassword, newPassword);
-        return !Utils.isEmpty(keyStr);
-
+        return !TextUtils.isEmpty(PrivateKeyUtil.changePassword(key, oldPassword, newPassword));
     }
 
     public ECKey getECKey(CharSequence password) {
-        return PrivateKeyUtil.getECKeyFromSingleString(keyStr, password);
+        return PrivateKeyUtil.getECKeyFromSingleString(key, password);
     }
 
     public String getAddress() {
         return this.address;
     }
 
-    public String getKeyStr() {
-        return this.keyStr;
+    public String getKey() {
+        return this.key;
     }
-
 
     public String toPasswordSeedString() {
         try {
-            String passwordSeedString = Base58.bas58ToHexWithAddress(this.address) + QRCodeUtil.QR_CODE_SPLIT
-                    + QRCodeUtil.getNewVersionEncryptPrivKey(this.keyStr);
-            return passwordSeedString;
+            return Base58.bas58ToHexWithAddress(this.address) + QRCodeUtil.QR_CODE_SPLIT + QRCodeUtil.getNewVersionEncryptPrivKey(this.key);
         } catch (AddressFormatException e) {
-            throw new RuntimeException("passwordSeed  address is format error ," + this.address);
-
+            throw new RuntimeException("The address of password Seed is format error, " + this.address);
         }
-
     }
 
     public static boolean hasPasswordSeed() {

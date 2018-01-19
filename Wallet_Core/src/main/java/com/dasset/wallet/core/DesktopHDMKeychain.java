@@ -35,6 +35,9 @@ import com.dasset.wallet.core.script.ScriptBuilder;
 import com.dasset.wallet.core.utils.Base58;
 import com.dasset.wallet.core.utils.PrivateKeyUtil;
 import com.dasset.wallet.core.utils.Utils;
+import com.dasset.wallet.core.wallet.hd.AbstractHD;
+import com.dasset.wallet.core.wallet.hd.HDMAddress;
+import com.dasset.wallet.core.wallet.hd.HDMBId;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

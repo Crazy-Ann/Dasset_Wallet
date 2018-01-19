@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'io.objectbox'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -7,6 +8,12 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         testInstrumentationRunner rootProject.ext.testInstrumentationRunner
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ['objectbox.debug': 'true']
+                arguments = ['objectbox.modelPath': 'Wallet_Core/src/main/assets/Account.json']
+            }
+        }
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
         }
@@ -60,6 +67,10 @@ dependencies {
     api deps.annotation_java5
     api deps.jsr305
     api deps.scrypt
+    implementation deps.bitcoinj_core
+    implementation deps.geth
+    implementation 'org.web3j:core-android:2.2.1'
+    annotationProcessor deps.objectbox_processor
     implementation deps.slf4j
     implementation 'org.apache.httpcomponents:httpclient:4.5@jar'
     implementation 'org.apache.httpcomponents:httpmime:4.3.6@jar'

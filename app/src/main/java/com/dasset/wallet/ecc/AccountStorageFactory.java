@@ -10,10 +10,10 @@ import com.dasset.wallet.components.utils.FileProviderUtil;
 import com.dasset.wallet.components.utils.IOUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.SecurityUtil;
-import com.dasset.wallet.core.ecc.Account;
-import com.dasset.wallet.core.ecc.Constant;
-import com.dasset.wallet.core.ecc.KeyStore;
-import com.dasset.wallet.core.ecc.PasswordManagerFactory;
+import com.dasset.wallet.core.wallet.Account;
+import com.dasset.wallet.core.wallet.Constant;
+import com.dasset.wallet.core.wallet.KeyStore;
+import com.dasset.wallet.core.wallet.PasswordManagerFactory;
 import com.dasset.wallet.model.AccountInfo;
 import com.google.common.collect.Lists;
 
