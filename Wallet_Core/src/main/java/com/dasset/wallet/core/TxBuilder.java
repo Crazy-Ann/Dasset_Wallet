@@ -1,41 +1,27 @@
-/*
-* Copyright 2014 http://Bither.net
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
 package com.dasset.wallet.core;
 
 import com.dasset.wallet.core.contant.BitherjSettings;
+import com.dasset.wallet.core.contant.Coin;
+import com.dasset.wallet.core.contant.SplitCoin;
+import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.exception.TxBuilderException;
 import com.dasset.wallet.core.script.Script;
 import com.dasset.wallet.core.script.ScriptBuilder;
-import com.dasset.wallet.core.db.AbstractDb;
-import com.dasset.wallet.core.exception.AddressFormatException;
 import com.dasset.wallet.core.utils.Utils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class TxBuilder {
-    private static TxBuilder uniqueInstance = new TxBuilder();
-    protected static long TX_FREE_MIN_PRIORITY = 57600000l;
+    private static   TxBuilder uniqueInstance       = new TxBuilder();
+    protected static long      TX_FREE_MIN_PRIORITY = 57600000l;
 
-    private TxBuilderProtocol emptyWallet = new TxBuilderEmptyWallet();
-    private List<TxBuilderProtocol> txBuilders = new ArrayList<TxBuilderProtocol>();
+    private TxBuilderProtocol       emptyWallet = new TxBuilderEmptyWallet();
+    private List<TxBuilderProtocol> txBuilders  = new ArrayList<TxBuilderProtocol>();
 
     TxBuilder() {
         txBuilders.add(new TxBuilderDefault());
@@ -45,7 +31,7 @@ public class TxBuilder {
         return uniqueInstance;
     }
 
-    public Tx buildTxFromAllAddress(List<Out> unspendOuts, String changeAddress, List<Long> amounts, List<String> addresses) throws TxBuilderException, AddressFormatException {
+    public Tx buildTxFromAllAddress(List<Out> unspendOuts, String changeAddress, List<Long> amounts, List<String> addresses) throws TxBuilderException {
 
         long value = 0;
         for (long amount : amounts) {
@@ -71,8 +57,8 @@ public class TxBuilder {
             }
         }
 
-        boolean mayMaxTxSize = false;
-        List<Tx> txs = new ArrayList<Tx>();
+        boolean  mayMaxTxSize = false;
+        List<Tx> txs          = new ArrayList<Tx>();
         for (TxBuilderProtocol builder : this.txBuilders) {
             Tx tx = builder.buildTx(changeAddress, unspendOuts, prepareTx(amounts, addresses));
             // note: need all unspent out is pay-to-pubkey-hash
@@ -92,7 +78,46 @@ public class TxBuilder {
         }
     }
 
-    public Tx buildTx(Address address, String changeAddress, List<Long> amounts, List<String> addresses) throws TxBuilderException, AddressFormatException {
+    public List<Tx> buildSplitCoinTxsFromAllAddress(List<Out> unspendOuts, String changeAddress, List<Long> amounts, List<String> addresses, SplitCoin splitCoin) throws TxBuilderException {
+        long value = 0;
+        for (long amount : amounts) {
+            value += amount;
+        }
+
+        if (value > getAmount(unspendOuts)) {
+            throw new TxBuilderException.TxBuilderNotEnoughMoneyException(value - TxBuilder.getAmount(unspendOuts));
+        }
+
+        List<Tx> emptyWalletTxs = getEmptyWalletTxs(addresses, changeAddress, unspendOuts, 1, splitCoin);
+        if (emptyWalletTxs == null || emptyWalletTxs.size() == 0) {
+            throw new TxBuilderException();
+        }
+        return emptyWalletTxs;
+    }
+
+    private List<Tx> getEmptyWalletTxs(List<String> addresses, String changeAddress, List<Out> unspendOuts, int splitNumber, SplitCoin splitCoin) {
+        List<Tx> emptyWalletTxs = new ArrayList<Tx>();
+        int      count          = (unspendOuts.size() % splitNumber == (splitNumber - 1) && splitNumber != 1) ? (unspendOuts.size() / splitNumber + 1) : unspendOuts.size() / splitNumber;
+        for (int i = 0; i < splitNumber; i++) {
+            int        fromIndex     = i * count;
+            int        toIndex       = fromIndex + Math.min(count, unspendOuts.size() - fromIndex);
+            List<Out>  outs          = unspendOuts.subList(fromIndex, toIndex);
+            List<Long> amounts       = Arrays.asList(TxBuilder.getAmount(outs));
+            Tx         emptyWalletTx = emptyWallet.buildTx(changeAddress, outs, prepareTx(amounts, addresses), splitCoin.getCoin());
+            if (emptyWalletTx != null && TxBuilder.estimationTxSize(emptyWalletTx.getIns().size(), emptyWalletTx.getOuts().size()) <= BitherjSettings.MAX_TX_SIZE) {
+                emptyWalletTx.setCoin(splitCoin.getCoin());
+                emptyWalletTxs.add(emptyWalletTx);
+            } else if (emptyWalletTx != null) {
+                if (count == 1) {
+                    return null;
+                }
+                return getEmptyWalletTxs(addresses, changeAddress, unspendOuts, splitNumber + 1, splitCoin);
+            }
+        }
+        return emptyWalletTxs;
+    }
+
+    public Tx buildTx(Address address, String changeAddress, List<Long> amounts, List<String> addresses, Coin coin) throws TxBuilderException {
         Script scriptPubKey = null;
         if (address.isHDM()) {
             scriptPubKey = new Script(address.getPubKey());
@@ -107,9 +132,16 @@ public class TxBuilder {
         for (long amount : amounts) {
             value += amount;
         }
-        List<Tx> unspendTxs = AbstractDb.txProvider.getUnspendTxWithAddress(address.getAddress());
-        List<Out> unspendOuts = getUnspendOuts(unspendTxs);
-        List<Out> canSpendOuts = getCanSpendOuts(unspendTxs);
+        List<Tx>  unspendTxs;
+        List<Out> unspendOuts;
+        if (coin == Coin.BTC) {
+            unspendTxs = AbstractDb.txProvider.getUnspendTxWithAddress(address.getAddress());
+            unspendOuts = getUnspendOuts(unspendTxs);
+        } else {
+            unspendOuts = AbstractDb.txProvider.getUnspentOutputByBlockNo(coin.getForkBlockHeight(), address.getAddress());
+            unspendTxs = AbstractDb.txProvider.getUnspendTxWithAddress(address.getAddress(), unspendOuts);
+        }
+        List<Out> canSpendOuts    = getCanSpendOuts(unspendTxs);
         List<Out> canNotSpendOuts = getCanNotSpendOuts(unspendTxs);
         if (value > getAmount(unspendOuts)) {
             throw new TxBuilderException.TxBuilderNotEnoughMoneyException(value - TxBuilder.getAmount(unspendOuts));
@@ -133,8 +165,8 @@ public class TxBuilder {
             }
         }
 
-        boolean mayMaxTxSize = false;
-        List<Tx> txs = new ArrayList<Tx>();
+        boolean  mayMaxTxSize = false;
+        List<Tx> txs          = new ArrayList<Tx>();
         for (TxBuilderProtocol builder : this.txBuilders) {
             Tx tx = builder.buildTx(address, changeAddress, unspendTxs, prepareTx(amounts, addresses));
             if (tx != null && TxBuilder.estimationTxSize(tx.getIns().size(), scriptPubKey, tx.getOuts(), address.isCompressed()) <= BitherjSettings.MAX_TX_SIZE) {
@@ -153,7 +185,110 @@ public class TxBuilder {
         }
     }
 
-    static Tx prepareTx(List<Long> amounts, List<String> addresses) throws AddressFormatException {
+    public List<Tx> buildSplitCoinTx(Address address, String changeAddress, List<Long> amounts, List<String> addresses, SplitCoin splitCoin) throws TxBuilderException {
+        Script scriptPubKey = null;
+        if (address.isHDM()) {
+            scriptPubKey = new Script(address.getPubKey());
+        } else {
+            scriptPubKey = ScriptBuilder.createOutputScript(address.address);
+        }
+
+        if (Utils.isEmpty(changeAddress)) {
+            changeAddress = address.getAddress();
+        }
+        long value = 0;
+        for (long amount : amounts) {
+            value += amount;
+        }
+        List<Out> unspendOuts     = AbstractDb.txProvider.getUnspentOutputByBlockNo(splitCoin.getForkBlockHeight(), address.getAddress());
+        List<Tx>  unspendTxs      = AbstractDb.txProvider.getUnspendTxWithAddress(address.getAddress(), unspendOuts);
+        List<Out> canSpendOuts    = getCanSpendOuts(unspendTxs);
+        List<Out> canNotSpendOuts = getCanNotSpendOuts(unspendTxs);
+        if (value > getAmount(unspendOuts)) {
+            throw new TxBuilderException.TxBuilderNotEnoughMoneyException(value - TxBuilder.getAmount(unspendOuts));
+        } else if (value > getAmount(canSpendOuts)) {
+            throw new TxBuilderException.TxBuilderWaitConfirmException(TxBuilder.getAmount(canNotSpendOuts));
+        } else if (value == TxBuilder.getAmount(unspendOuts) && TxBuilder.getAmount(canNotSpendOuts) != 0) {
+            // there is some unconfirm tx, it will not empty wallet
+            throw new TxBuilderException.TxBuilderWaitConfirmException(TxBuilder.getAmount(canNotSpendOuts));
+        }
+
+        List<Tx> txs = getEmptyWalletTxs(address, changeAddress, unspendTxs, addresses, scriptPubKey, 1, splitCoin.getCoin());
+        if (txs == null || txs.size() == 0) {
+            throw new TxBuilderException();
+        }
+        return txs;
+    }
+
+    public List<Tx> buildBccTx(Address address, String changeAddress, List<Long> amounts, List<String> addresses, List<Out> unspendOuts) throws TxBuilderException {
+        Script scriptPubKey = null;
+        if (address.isHDM()) {
+            scriptPubKey = new Script(address.getPubKey());
+        } else {
+            scriptPubKey = ScriptBuilder.createOutputScript(address.address);
+        }
+
+        if (Utils.isEmpty(changeAddress)) {
+            changeAddress = address.getAddress();
+        }
+        long value = 0;
+        for (long amount : amounts) {
+            value += amount;
+        }
+
+        List<Tx> txs = getEmptyWalletBCCTxs(address, changeAddress, unspendOuts, addresses, scriptPubKey, 1);
+        if (txs == null || txs.size() == 0) {
+            throw new TxBuilderException();
+        }
+        return txs;
+    }
+
+    private List<Tx> getEmptyWalletTxs(Address address, String changeAddress, List<Tx> unspendTxs, List<String> addresses, Script scriptPubKey, int splitNumber, Coin coin) {
+        List<Tx> emptyWalletTxs = new ArrayList<Tx>();
+        int      count          = (unspendTxs.size() % splitNumber == (splitNumber - 1) && splitNumber != 1) ? (unspendTxs.size() / splitNumber + 1) : unspendTxs.size() / splitNumber;
+        for (int i = 0; i < splitNumber; i++) {
+            int        fromIndex     = i * count;
+            int        toIndex       = fromIndex + Math.min(count, unspendTxs.size() - fromIndex);
+            List<Tx>   txs           = unspendTxs.subList(fromIndex, toIndex);
+            List<Out>  outs          = TxBuilder.getUnspendOuts(txs);
+            List<Long> amounts       = Arrays.asList(TxBuilder.getAmount(outs));
+            Tx         emptyWalletTx = emptyWallet.buildTx(address, changeAddress, txs, prepareTx(amounts, addresses), coin);
+            if (emptyWalletTx != null && TxBuilder.estimationTxSize(emptyWalletTx.getIns().size(), scriptPubKey, emptyWalletTx.getOuts(), address.isCompressed()) <= BitherjSettings.MAX_TX_SIZE) {
+                emptyWalletTx.setCoin(coin);
+                emptyWalletTxs.add(emptyWalletTx);
+            } else if (emptyWalletTx != null) {
+                if (count == 1) {
+                    return null;
+                }
+                return getEmptyWalletTxs(address, changeAddress, unspendTxs, addresses, scriptPubKey, splitNumber + 1, coin);
+            }
+        }
+        return emptyWalletTxs;
+    }
+
+    private List<Tx> getEmptyWalletBCCTxs(Address address, String changeAddress, List<Out> unspendOuts, List<String> addresses, Script scriptPubKey, int splitNumber) {
+        List<Tx> emptyWalletTxs = new ArrayList<Tx>();
+        int      count          = (unspendOuts.size() % splitNumber == (splitNumber - 1) && splitNumber != 1) ? (unspendOuts.size() / splitNumber + 1) : unspendOuts.size() / splitNumber;
+        for (int i = 0; i < splitNumber; i++) {
+            int        fromIndex     = i * count;
+            int        toIndex       = fromIndex + Math.min(count, unspendOuts.size() - fromIndex);
+            List<Out>  outs          = unspendOuts.subList(fromIndex, toIndex);
+            List<Long> amounts       = Arrays.asList(TxBuilder.getAmount(outs));
+            Tx         emptyWalletTx = emptyWallet.buildBCCTx(address, changeAddress, outs, prepareTx(amounts, addresses));
+            if (emptyWalletTx != null && TxBuilder.estimationTxSize(emptyWalletTx.getIns().size(), scriptPubKey, emptyWalletTx.getOuts(), address.isCompressed()) <= BitherjSettings.MAX_TX_SIZE) {
+                emptyWalletTx.setCoin(Coin.BCC);
+                emptyWalletTxs.add(emptyWalletTx);
+            } else if (emptyWalletTx != null) {
+                if (count == 1) {
+                    return null;
+                }
+                return getEmptyWalletBCCTxs(address, changeAddress, unspendOuts, addresses, scriptPubKey, splitNumber + 1);
+            }
+        }
+        return emptyWalletTxs;
+    }
+
+    static Tx prepareTx(List<Long> amounts, List<String> addresses) {
         Tx tx = new Tx();
         for (int i = 0; i < amounts.size(); i++) {
             tx.addOutput(amounts.get(i), addresses.get(i));
@@ -234,14 +369,15 @@ public class TxBuilder {
 }
 
 interface TxBuilderProtocol {
-    public Tx buildTx(Address address, String changeAddress, List<Tx> unspendTxs, Tx tx) throws AddressFormatException;
+    public Tx buildTx(Address address, String changeAddress, List<Tx> unspendTxs, Tx tx, Coin... coin);
 
-    public Tx buildTx(String changeAddress, List<Out> unspendOuts, Tx tx) throws AddressFormatException;
+    public Tx buildBCCTx(Address address, String changeAddress, List<Out> unspendOuts, Tx tx, Coin... coin);
+
+    public Tx buildTx(String changeAddress, List<Out> unspendOuts, Tx tx, Coin... coin);
 }
 
 class TxBuilderEmptyWallet implements TxBuilderProtocol {
-
-    public Tx buildTx(Address address, String changeAddress, List<Tx> unspendTxs, Tx tx) throws AddressFormatException {
+    public Tx buildTx(Address address, String changeAddress, List<Tx> unspendTxs, Tx tx, Coin... coin) {
         Script scriptPubKey = null;
         if (address.isHDM()) {
             scriptPubKey = new Script(address.getPubKey());
@@ -249,7 +385,7 @@ class TxBuilderEmptyWallet implements TxBuilderProtocol {
             scriptPubKey = ScriptBuilder.createOutputScript(address.address);
         }
 
-        List<Out> outs = TxBuilder.getCanSpendOuts(unspendTxs);
+        List<Out> outs        = TxBuilder.getCanSpendOuts(unspendTxs);
         List<Out> unspendOuts = TxBuilder.getUnspendOuts(unspendTxs);
 
         long value = 0;
@@ -264,7 +400,11 @@ class TxBuilderEmptyWallet implements TxBuilderProtocol {
 
         long fees = 0;
         if (needMinFee) {
-            fees = Utils.getFeeBase();
+            if (coin != null && coin.length > 0) {
+                fees = coin[0].getSplitNormalFee();
+            } else {
+                fees = Utils.getFeeBase();
+            }
         } else {
             // no fee logic
             int s = TxBuilder.estimationTxSize(outs.size(), scriptPubKey, tx.getOuts(), address.isCompressed());
@@ -296,7 +436,14 @@ class TxBuilderEmptyWallet implements TxBuilderProtocol {
     }
 
     @Override
-    public Tx buildTx(String changeAddress, List<Out> unspendOuts, Tx tx) {
+    public Tx buildBCCTx(Address address, String changeAddress, List<Out> unspendOuts, Tx tx, Coin... coin) {
+        Script scriptPubKey = null;
+        if (address.isHDM()) {
+            scriptPubKey = new Script(address.getPubKey());
+        } else {
+            scriptPubKey = ScriptBuilder.createOutputScript(address.address);
+        }
+
         List<Out> outs = unspendOuts;
 
         long value = 0;
@@ -311,7 +458,62 @@ class TxBuilderEmptyWallet implements TxBuilderProtocol {
 
         long fees = 0;
         if (needMinFee) {
-            fees = Utils.getFeeBase();
+            if (coin != null && coin.length > 0) {
+                fees = coin[0].getSplitNormalFee();
+            } else {
+                fees = Utils.getFeeBase();
+            }
+        } else {
+            // no fee logic
+            int s = TxBuilder.estimationTxSize(outs.size(), scriptPubKey, tx.getOuts(), address.isCompressed());
+            if (TxBuilder.getCoinDepth(outs) <= TxBuilder.TX_FREE_MIN_PRIORITY * s) {
+                fees = Utils.getFeeBase();
+            }
+        }
+
+        int size = TxBuilder.estimationTxSize(outs.size(), scriptPubKey, tx.getOuts(), address.isCompressed());
+        if (size > 1000) {
+            fees = (size / 1000 + 1) * Utils.getFeeBase();
+        }
+
+        // note : like bitcoinj, empty wallet will not check min output
+        if (fees > 0) {
+            Out lastOut = tx.getOuts().get(tx.getOuts().size() - 1);
+            if (lastOut.getOutValue() > fees) {
+                lastOut.setOutValue(lastOut.getOutValue() - fees);
+            } else {
+                return null;
+            }
+        }
+        for (Out out : outs) {
+            tx.addInput(out);
+        }
+
+        tx.setSource(Tx.SourceType.self.getValue());
+        return tx;
+    }
+
+    @Override
+    public Tx buildTx(String changeAddress, List<Out> unspendOuts, Tx tx, Coin... coin) {
+        List<Out> outs = unspendOuts;
+
+        long value = 0;
+        for (Out out : tx.getOuts()) {
+            value += out.getOutValue();
+        }
+        boolean needMinFee = TxBuilder.needMinFee(tx.getOuts());
+
+        if (value != TxBuilder.getAmount(unspendOuts) || value != TxBuilder.getAmount(outs)) {
+            return null;
+        }
+
+        long fees = 0;
+        if (needMinFee) {
+            if (coin != null && coin.length > 0) {
+                fees = coin[0].getSplitNormalFee();
+            } else {
+                fees = Utils.getFeeBase();
+            }
         } else {
             // no fee logic
             int s = TxBuilder.estimationTxSize(outs.size(), tx.getOuts().size());
@@ -344,10 +546,9 @@ class TxBuilderEmptyWallet implements TxBuilderProtocol {
 }
 
 class TxBuilderDefault implements TxBuilderProtocol {
-
-    public Tx buildTx(Address address, String changeAddress, List<Tx> unspendTxs, Tx tx) throws AddressFormatException {
+    public Tx buildTx(Address address, String changeAddress, List<Tx> unspendTxs, Tx tx, Coin... coin) {
         boolean isCompressed = address.isCompressed();
-        Script scriptPubKey = null;
+        Script  scriptPubKey = null;
         if (address.isHDM()) {
             scriptPubKey = new Script(address.getPubKey());
         } else {
@@ -358,24 +559,26 @@ class TxBuilderDefault implements TxBuilderProtocol {
 
         Collections.sort(outs, new Comparator<Out>() {
             public int compare(Out out1, Out out2) {
-                int depth1 = 0;
-                int depth2 = 0;
+                int  depth1     = 0;
+                int  depth2     = 0;
                 long coinDepth1 = BlockChain.getInstance().lastBlock.getBlockNo() * out1.getOutValue() - out1.getCoinDepth() + out1.getOutValue();
                 long coinDepth2 = BlockChain.getInstance().lastBlock.getBlockNo() * out2.getOutValue() - out2.getCoinDepth() + out2.getOutValue();
                 if (coinDepth1 != coinDepth2) {
-                    if (coinDepth2 > coinDepth1)
+                    if (coinDepth2 > coinDepth1) {
                         return 1;
-                    else
+                    } else {
                         return -1;
+                    }
                 } else if (out1.getOutValue() != out2.getOutValue()) {
-                    if (out2.getOutValue() > out1.getOutValue())
+                    if (out2.getOutValue() > out1.getOutValue()) {
                         return 1;
-                    else
+                    } else {
                         return -1;
+                    }
                 } else {
-                    BigInteger hash1 = new BigInteger(1, out1.getTxHash());
-                    BigInteger hash2 = new BigInteger(1, out2.getTxHash());
-                    int result = hash1.compareTo(hash2);
+                    BigInteger hash1  = new BigInteger(1, out1.getTxHash());
+                    BigInteger hash2  = new BigInteger(1, out2.getTxHash());
+                    int        result = hash1.compareTo(hash2);
                     if (result != 0) {
                         return result;
                     } else {
@@ -385,16 +588,16 @@ class TxBuilderDefault implements TxBuilderProtocol {
             }
         });
 
-        long additionalValueForNextCategory = 0;
-        List<Out> selection3 = null;
-        List<Out> selection2 = null;
-        Out selection2Change = null;
-        List<Out> selection1 = null;
-        Out selection1Change = null;
+        long      additionalValueForNextCategory = 0;
+        List<Out> selection3                     = null;
+        List<Out> selection2                     = null;
+        Out       selection2Change               = null;
+        List<Out> selection1                     = null;
+        Out       selection1Change               = null;
 
-        int lastCalculatedSize = 0;
+        int  lastCalculatedSize = 0;
         long valueNeeded;
-        long value = 0;
+        long value              = 0;
         for (Out out : tx.getOuts()) {
             value += out.getOutValue();
         }
@@ -402,7 +605,7 @@ class TxBuilderDefault implements TxBuilderProtocol {
         boolean needAtLeastReferenceFee = TxBuilder.needMinFee(tx.getOuts());
 
         List<Out> bestCoinSelection = null;
-        Out bestChangeOutput = null;
+        Out       bestChangeOutput  = null;
         while (true) {
             long fees = 0;
 
@@ -410,20 +613,23 @@ class TxBuilderDefault implements TxBuilderProtocol {
                 // If the size is exactly 1000 bytes then we'll over-pay, but this should be rare.
                 fees += (lastCalculatedSize / 1000 + 1) * Utils.getFeeBase();
             }
-            if (needAtLeastReferenceFee && fees < Utils.getFeeBase())
+            if (needAtLeastReferenceFee && fees < Utils.getFeeBase()) {
                 fees = Utils.getFeeBase();
+            }
 
             valueNeeded = value + fees;
 
-            if (additionalValueForNextCategory > 0)
+            if (additionalValueForNextCategory > 0) {
                 valueNeeded += additionalValueForNextCategory;
+            }
 
             long additionalValueSelected = additionalValueForNextCategory;
 
             List<Out> selectedOuts = this.selectOuts(outs, valueNeeded);
 
-            if (TxBuilder.getAmount(selectedOuts) < valueNeeded)
+            if (TxBuilder.getAmount(selectedOuts) < valueNeeded) {
                 break;
+            }
 
             // no fee logic
             if (!needAtLeastReferenceFee) {
@@ -433,8 +639,9 @@ class TxBuilderDefault implements TxBuilderProtocol {
                     continue;
                 }
                 int s = TxBuilder.estimationTxSize(selectedOuts.size(), scriptPubKey, tx.getOuts(), isCompressed);
-                if (total - value > Utils.CENT)
+                if (total - value > Utils.CENT) {
                     s += 34;
+                }
                 if (TxBuilder.getCoinDepth(selectedOuts) <= TxBuilder.TX_FREE_MIN_PRIORITY * s) {
                     needAtLeastReferenceFee = true;
                     continue;
@@ -442,11 +649,12 @@ class TxBuilderDefault implements TxBuilderProtocol {
             }
 
             boolean eitherCategory2Or3 = false;
-            boolean isCategory3 = false;
+            boolean isCategory3        = false;
 
             long change = TxBuilder.getAmount(selectedOuts) - valueNeeded;
-            if (additionalValueSelected > 0)
+            if (additionalValueSelected > 0) {
                 change += additionalValueSelected;
+            }
 
             if (BitherjSettings.ensureMinRequiredFee && change != 0 && change < Utils.CENT
                     && fees < Utils.getFeeBase()) {
@@ -457,7 +665,7 @@ class TxBuilderDefault implements TxBuilderProtocol {
                 change -= Utils.getFeeBase() - fees;
             }
 
-            int size = 0;
+            int size         = 0;
             Out changeOutput = null;
             if (change > 0) {
                 changeOutput = new Out();
@@ -472,7 +680,9 @@ class TxBuilderDefault implements TxBuilderProtocol {
                     size += 34;
                     // This solution is either category 1 or 2
                     if (!eitherCategory2Or3) // must be category 1
+                    {
                         additionalValueForNextCategory = 0;
+                    }
                 }
             } else {
                 if (eitherCategory2Or3) {
@@ -490,8 +700,9 @@ class TxBuilderDefault implements TxBuilderProtocol {
             }
 
             if (isCategory3) {
-                if (selection3 == null)
+                if (selection3 == null) {
                     selection3 = selectedOuts;
+                }
             } else if (eitherCategory2Or3) {
                 // If we are in selection2, we will require at least CENT additional. If we do that, there is no way
                 // we can end up back here because CENT additional will always get us to 1
@@ -541,10 +752,11 @@ class TxBuilderDefault implements TxBuilderProtocol {
         long lowestFee = 0;
 
         if (selection1 != null) {
-            if (selection1Change != null)
+            if (selection1Change != null) {
                 lowestFee = TxBuilder.getAmount(selection1) - selection1Change.getOutValue() - value;
-            else
+            } else {
                 lowestFee = TxBuilder.getAmount(selection1) - value;
+            }
             bestCoinSelection = selection1;
             bestChangeOutput = selection1Change;
         }
@@ -578,19 +790,24 @@ class TxBuilderDefault implements TxBuilderProtocol {
     }
 
     @Override
-    public Tx buildTx(String changeAddress, List<Out> unspendOuts, Tx tx) throws AddressFormatException {
+    public Tx buildBCCTx(Address address, String changeAddress, List<Out> unspendOuts, Tx tx, Coin... coin) {
+        return null;
+    }
+
+    @Override
+    public Tx buildTx(String changeAddress, List<Out> unspendOuts, Tx tx, Coin... coin) {
         List<Out> outs = unspendOuts;
 
-        long additionalValueForNextCategory = 0;
-        List<Out> selection3 = null;
-        List<Out> selection2 = null;
-        Out selection2Change = null;
-        List<Out> selection1 = null;
-        Out selection1Change = null;
+        long      additionalValueForNextCategory = 0;
+        List<Out> selection3                     = null;
+        List<Out> selection2                     = null;
+        Out       selection2Change               = null;
+        List<Out> selection1                     = null;
+        Out       selection1Change               = null;
 
-        int lastCalculatedSize = 0;
+        int  lastCalculatedSize = 0;
         long valueNeeded;
-        long value = 0;
+        long value              = 0;
         for (Out out : tx.getOuts()) {
             value += out.getOutValue();
         }
@@ -598,7 +815,7 @@ class TxBuilderDefault implements TxBuilderProtocol {
         boolean needAtLeastReferenceFee = TxBuilder.needMinFee(tx.getOuts());
 
         List<Out> bestCoinSelection = null;
-        Out bestChangeOutput = null;
+        Out       bestChangeOutput  = null;
         while (true) {
             long fees = 0;
 
@@ -606,20 +823,23 @@ class TxBuilderDefault implements TxBuilderProtocol {
                 // If the size is exactly 1000 bytes then we'll over-pay, but this should be rare.
                 fees += (lastCalculatedSize / 1000 + 1) * Utils.getFeeBase();
             }
-            if (needAtLeastReferenceFee && fees < Utils.getFeeBase())
+            if (needAtLeastReferenceFee && fees < Utils.getFeeBase()) {
                 fees = Utils.getFeeBase();
+            }
 
             valueNeeded = value + fees;
 
-            if (additionalValueForNextCategory > 0)
+            if (additionalValueForNextCategory > 0) {
                 valueNeeded += additionalValueForNextCategory;
+            }
 
             long additionalValueSelected = additionalValueForNextCategory;
 
             List<Out> selectedOuts = this.selectOuts(outs, valueNeeded);
 
-            if (TxBuilder.getAmount(selectedOuts) < valueNeeded)
+            if (TxBuilder.getAmount(selectedOuts) < valueNeeded) {
                 break;
+            }
 
             // no fee logic
             if (!needAtLeastReferenceFee) {
@@ -629,8 +849,9 @@ class TxBuilderDefault implements TxBuilderProtocol {
                     continue;
                 }
                 int s = TxBuilder.estimationTxSize(selectedOuts.size(), tx.getOuts().size());
-                if (total - value > Utils.CENT)
+                if (total - value > Utils.CENT) {
                     s += 34;
+                }
                 if (TxBuilder.getCoinDepth(selectedOuts) <= TxBuilder.TX_FREE_MIN_PRIORITY * s) {
                     needAtLeastReferenceFee = true;
                     continue;
@@ -638,11 +859,12 @@ class TxBuilderDefault implements TxBuilderProtocol {
             }
 
             boolean eitherCategory2Or3 = false;
-            boolean isCategory3 = false;
+            boolean isCategory3        = false;
 
             long change = TxBuilder.getAmount(selectedOuts) - valueNeeded;
-            if (additionalValueSelected > 0)
+            if (additionalValueSelected > 0) {
                 change += additionalValueSelected;
+            }
 
             if (BitherjSettings.ensureMinRequiredFee && change != 0 && change < Utils.CENT
                     && fees < Utils.getFeeBase()) {
@@ -653,7 +875,7 @@ class TxBuilderDefault implements TxBuilderProtocol {
                 change -= Utils.getFeeBase() - fees;
             }
 
-            int size = 0;
+            int size         = 0;
             Out changeOutput = null;
             if (change > 0) {
                 changeOutput = new Out();
@@ -668,7 +890,9 @@ class TxBuilderDefault implements TxBuilderProtocol {
                     size += 34;
                     // This solution is either category 1 or 2
                     if (!eitherCategory2Or3) // must be category 1
+                    {
                         additionalValueForNextCategory = 0;
+                    }
                 }
             } else {
                 if (eitherCategory2Or3) {
@@ -686,8 +910,9 @@ class TxBuilderDefault implements TxBuilderProtocol {
             }
 
             if (isCategory3) {
-                if (selection3 == null)
+                if (selection3 == null) {
                     selection3 = selectedOuts;
+                }
             } else if (eitherCategory2Or3) {
                 // If we are in selection2, we will require at least CENT additional. If we do that, there is no way
                 // we can end up back here because CENT additional will always get us to 1
@@ -737,10 +962,11 @@ class TxBuilderDefault implements TxBuilderProtocol {
         long lowestFee = 0;
 
         if (selection1 != null) {
-            if (selection1Change != null)
+            if (selection1Change != null) {
                 lowestFee = TxBuilder.getAmount(selection1) - selection1Change.getOutValue() - value;
-            else
+            } else {
                 lowestFee = TxBuilder.getAmount(selection1) - value;
+            }
             bestCoinSelection = selection1;
             bestChangeOutput = selection1Change;
         }
@@ -775,7 +1001,7 @@ class TxBuilderDefault implements TxBuilderProtocol {
 
     private List<Out> selectOuts(List<Out> outs, long amount) {
         List<Out> result = new ArrayList<Out>();
-        long sum = 0;
+        long      sum    = 0;
         for (Out out : outs) {
             sum += out.getOutValue();
             result.add(out);

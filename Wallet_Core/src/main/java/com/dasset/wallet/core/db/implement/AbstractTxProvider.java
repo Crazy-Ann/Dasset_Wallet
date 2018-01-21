@@ -588,7 +588,7 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
 //        final List<Out> outItems = new ArrayList<Out>();
 //        String unspendOutSql = "select a.* from outs a,txs b where a.tx_hash=b.tx_hash " +
 //                " and a.out_address=? and a.out_status=?";
-//        this.execQueryLoop(unspendOutSql, new String[]{address, Integer.toString(Out.OutStatus.unspent.getValue())}, new Function<ICursor, Void>() {
+//        this.execQueryLoop(unspendOutSql, new String[]{address, Integer.toString(Out.OutStatus.unspent.getType())}, new Function<ICursor, Void>() {
 //            @Nullable
 //            @Override
 //            public Void apply(@Nullable ICursor c) {

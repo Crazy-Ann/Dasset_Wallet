@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.dasset.wallet.base.presenter.BasePresenter;
 import com.dasset.wallet.base.view.BaseView;
+import com.dasset.wallet.core.crypto.mnemonic.listener.OnMnemonicDictionaryResourcelistener;
 
 import java.io.File;
 
@@ -27,7 +28,7 @@ public interface WelcomeContract {
         void getVersion();
 
         void checkForceUpdate();
-        
+
         void checkPageSignature();
 
         void download();

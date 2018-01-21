@@ -8,6 +8,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         testInstrumentationRunner rootProject.ext.testInstrumentationRunner
+        ndk {
+            abiFilters "armeabi"
+        }
     }
     buildTypes {
         debug {
@@ -58,6 +61,7 @@ dependencies {
     api deps.glide
     api deps.zxing
     api deps.JsBridge
-    debugImplementation deps.objectbox_browser
-    releaseImplementation deps.objectbox
+    api deps.objectbox
+//    debugImplementation deps.objectbox_browser
+//    releaseImplementation deps.objectbox
 }

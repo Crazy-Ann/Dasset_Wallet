@@ -49,9 +49,9 @@ import javax.crypto.NoSuchPaddingException;
 public class MainPresenter extends BasePresenterImplement implements MainContract.Presenter {
 
     private MainContract.View view;
-    private MainHandler mainHandler;
+    private MainHandler       mainHandler;
 
-    private Menus menus;
+    private Menus  menus;
     private String address;
 
     private class MainHandler extends ActivityHandler<MainActivity> {
@@ -154,7 +154,7 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
             if (DocumentsContract.isDocumentUri(context, uri)) {
                 String documentId = DocumentsContract.getDocumentId(uri);
                 if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                    String selection = MediaStore.Images.Media._ID + "=?";
+                    String   selection     = MediaStore.Images.Media._ID + "=?";
                     String[] selectionArgs = {documentId.split(Regex.COLON.getRegext())[1]};
                     filePath = getDataColumn(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs);
                 } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
@@ -174,9 +174,9 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
 
     @Override
     public String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-        String path = null;
+        String   path       = null;
         String[] projection = new String[]{MediaStore.Images.Media.DATA};
-        Cursor cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+        Cursor   cursor     = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
         if (cursor != null && cursor.moveToFirst()) {
             path = cursor.getString(cursor.getColumnIndexOrThrow(projection[0]));
             cursor.close();
@@ -202,14 +202,14 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
             public void run() {
                 if (!TextUtils.isEmpty(address)) {
                     OutputStream outputStream = null;
-                    InputStream inputStream = null;
+                    InputStream  inputStream  = null;
                     try {
                         inputStream = new ByteArrayInputStream(QRCodeEncode.createQRCode(address, ViewUtil.getInstance().dp2px(context, 160)));
                         SoftReference softReference = new SoftReference(BitmapFactory.decodeStream(inputStream));
-                        Bitmap bitmap = (Bitmap) softReference.get();
+                        Bitmap        bitmap        = (Bitmap) softReference.get();
                         if (bitmap != null) {
                             String fileName = address + Regex.IMAGE_JPG.getRegext();
-                            File file = new File(IOUtil.getInstance().getExternalStorageDirectory(Constant.FilePath.IMAGE_CACHE), fileName);
+                            File   file     = new File(IOUtil.getInstance().getExternalStorageDirectory(Constant.FilePath.IMAGE_CACHE), fileName);
                             outputStream = new FileOutputStream(file);
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
                             if (!TextUtils.isEmpty(MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), fileName, null))) {
@@ -248,15 +248,15 @@ public class MainPresenter extends BasePresenterImplement implements MainContrac
             @Override
             public void run() {
                 OutputStream outputStream = null;
-                InputStream inputStream = null;
+                InputStream  inputStream  = null;
                 try {
                     if (!TextUtils.isEmpty(address)) {
                         inputStream = new ByteArrayInputStream(QRCodeEncode.createQRCode(address, ViewUtil.getInstance().dp2px(context, 160)));
                         SoftReference softReference = new SoftReference(BitmapFactory.decodeStream(inputStream));
-                        Bitmap bitmap = (Bitmap) softReference.get();
+                        Bitmap        bitmap        = (Bitmap) softReference.get();
                         if (bitmap != null) {
                             String fileName = address + Regex.IMAGE_JPG.getRegext();
-                            File file = new File(IOUtil.getInstance().getExternalStorageDirectory(Constant.FilePath.IMAGE_CACHE), fileName);
+                            File   file     = new File(IOUtil.getInstance().getExternalStorageDirectory(Constant.FilePath.IMAGE_CACHE), fileName);
                             outputStream = new FileOutputStream(file);
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
                             outputStream.flush();

@@ -9,6 +9,7 @@ import com.dasset.wallet.components.BuildConfig;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.SecurityUtil;
+import com.dasset.wallet.core.contant.Constant;
 import com.google.common.collect.Lists;
 
 import org.spongycastle.util.encoders.Hex;

@@ -19,7 +19,9 @@ package com.dasset.wallet.core.utils;
 
 import com.dasset.wallet.core.Address;
 import com.dasset.wallet.core.AddressManager;
+import com.dasset.wallet.core.contant.Constant;
 import com.dasset.wallet.core.crypto.EncryptedData;
+import com.dasset.wallet.core.password.SecureCharSequence;
 import com.dasset.wallet.core.wallet.hd.HDAccount;
 import com.dasset.wallet.core.wallet.hd.HDAccountCold;
 import com.dasset.wallet.core.wallet.hd.HDMKeychain;
@@ -31,7 +33,6 @@ import com.dasset.wallet.core.crypto.KeyCrypter;
 import com.dasset.wallet.core.exception.KeyCrypterException;
 import com.dasset.wallet.core.crypto.KeyCrypterScrypt;
 import com.dasset.wallet.core.crypto.PasswordSeed;
-import com.dasset.wallet.core.crypto.SecureCharSequence;
 import com.dasset.wallet.core.crypto.bip38.Bip38;
 import com.dasset.wallet.core.exception.AddressFormatException;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
@@ -61,8 +62,8 @@ public class PrivateKeyUtil {
             salt = Utils.bytesToHexString(scrypt.getSalt());
         }
         EncryptedPrivateKey key = ecKey.getEncryptedPrivateKey();
-        return Utils.bytesToHexString(key.getEncryptedBytes()) + QRCodeUtil.QR_CODE_SPLIT + Utils
-                .bytesToHexString(key.getInitialisationVector()) + QRCodeUtil.QR_CODE_SPLIT + salt;
+        return Utils.bytesToHexString(key.getEncryptedBytes()) + Constant.QR_CODE_SPLIT + Utils
+                .bytesToHexString(key.getInitialisationVector()) + Constant.QR_CODE_SPLIT + salt;
     }
 
     public static ECKey getECKeyFromSingleString(String str, CharSequence password) {
@@ -92,16 +93,16 @@ public class PrivateKeyUtil {
             return null;
         }
         SaltForQRCode saltForQRCode = new SaltForQRCode(temp);
-        byte[] salt = saltForQRCode.getSalt();
-        boolean isCompressed = saltForQRCode.isCompressed();
-        boolean isFromXRandom = saltForQRCode.isFromXRandom();
+        byte[]        salt          = saltForQRCode.getSalt();
+        boolean       isCompressed  = saltForQRCode.isCompressed();
+        boolean       isFromXRandom = saltForQRCode.isFromXRandom();
 
         KeyCrypterScrypt crypter = new KeyCrypterScrypt(salt);
         EncryptedPrivateKey epk = new EncryptedPrivateKey(Utils.hexStringToByteArray
                 (strs[1]), Utils.hexStringToByteArray(strs[0]));
         byte[] decrypted = crypter.decrypt(epk, crypter.deriveKey(password));
 
-        ECKey ecKey = null;
+        ECKey              ecKey          = null;
         SecureCharSequence privateKeyText = null;
         if (needPrivteKeyText) {
             DumpedPrivateKey dumpedPrivateKey = new DumpedPrivateKey(decrypted, isCompressed);
@@ -109,7 +110,7 @@ public class PrivateKeyUtil {
             dumpedPrivateKey.clearPrivateKey();
         } else {
             BigInteger bigInteger = new BigInteger(1, decrypted);
-            byte[] pub = ECKey.publicKeyFromPrivate(bigInteger, isCompressed);
+            byte[]     pub        = ECKey.publicKeyFromPrivate(bigInteger, isCompressed);
 
             ecKey = new ECKey(epk, pub, crypter);
             ecKey.setFromXRandom(isFromXRandom);
@@ -173,23 +174,23 @@ public class PrivateKeyUtil {
         EncryptedPrivateKey epk = new EncryptedPrivateKey(Utils.hexStringToByteArray
                 (strs[1]), Utils.hexStringToByteArray(strs[0]));
 
-        byte[] decrypted = crypter.decrypt(epk, crypter.deriveKey(oldpassword));
+        byte[]              decrypted           = crypter.decrypt(epk, crypter.deriveKey(oldpassword));
         EncryptedPrivateKey encryptedPrivateKey = crypter.encrypt(decrypted, crypter.deriveKey(newPassword));
-        byte[] newDecrypted = crypter.decrypt(encryptedPrivateKey, crypter.deriveKey(newPassword));
+        byte[]              newDecrypted        = crypter.decrypt(encryptedPrivateKey, crypter.deriveKey(newPassword));
         if (!Arrays.equals(decrypted, newDecrypted)) {
             throw new KeyCrypterException("change Password, cannot be successfully decrypted after encryption so aborting wallet encryption.");
         }
         Utils.wipeBytes(decrypted);
         Utils.wipeBytes(newDecrypted);
         return Utils.bytesToHexString(encryptedPrivateKey.getEncryptedBytes())
-                + QRCodeUtil.QR_CODE_SPLIT + Utils.bytesToHexString(encryptedPrivateKey.getInitialisationVector())
-                + QRCodeUtil.QR_CODE_SPLIT + strs[2];
+                + Constant.QR_CODE_SPLIT + Utils.bytesToHexString(encryptedPrivateKey.getInitialisationVector())
+                + Constant.QR_CODE_SPLIT + strs[2];
 
     }
 
 
     public static String getEncryptPrivateKeyStringFromAllAddresses() {
-        String content = "";
+        String        content  = "";
         List<Address> privates = AddressManager.getInstance().getPrivKeyAddresses();
         for (int i = 0;
              i < privates.size();
@@ -197,7 +198,7 @@ public class PrivateKeyUtil {
             Address address = privates.get(i);
             content += address.getFullEncryptPrivKey();
             if (i < privates.size() - 1) {
-                content += QRCodeUtil.QR_CODE_SPLIT;
+                content += Constant.QR_CODE_SPLIT;
             }
         }
         HDMKeychain keychain = AddressManager.getInstance().getHdmKeychain();
@@ -205,7 +206,7 @@ public class PrivateKeyUtil {
             if (Utils.isEmpty(content)) {
                 content += keychain.getQRCodeFullEncryptPrivKey();
             } else {
-                content += QRCodeUtil.QR_CODE_SPLIT + keychain.getQRCodeFullEncryptPrivKey();
+                content += Constant.QR_CODE_SPLIT + keychain.getQRCodeFullEncryptPrivKey();
             }
         }
         HDAccount hdAccount = AddressManager.getInstance().getHDAccountHot();
@@ -213,7 +214,7 @@ public class PrivateKeyUtil {
             if (Utils.isEmpty(content)) {
                 content += hdAccount.getQRCodeFullEncryptPrivKey();
             } else {
-                content += QRCodeUtil.QR_CODE_SPLIT + hdAccount.getQRCodeFullEncryptPrivKey();
+                content += Constant.QR_CODE_SPLIT + hdAccount.getQRCodeFullEncryptPrivKey();
             }
         }
         HDAccountCold hdAccountCold = AddressManager.getInstance().getHDAccountCold();
@@ -221,7 +222,7 @@ public class PrivateKeyUtil {
             if (Utils.isEmpty(content)) {
                 content += hdAccountCold.getQRCodeFullEncryptPrivKey();
             } else {
-                content += QRCodeUtil.QR_CODE_SPLIT + hdAccountCold.getQRCodeFullEncryptPrivKey();
+                content += Constant.QR_CODE_SPLIT + hdAccountCold.getQRCodeFullEncryptPrivKey();
             }
         }
         return content;
@@ -229,7 +230,7 @@ public class PrivateKeyUtil {
 
     public static HDMKeychain getHDMKeychain(String str, CharSequence password) {
         HDMKeychain hdmKeychain = null;
-        String[] strs = QRCodeUtil.splitOfPasswordSeed(str);
+        String[]    strs        = QRCodeUtil.splitOfPasswordSeed(str);
         if (strs.length % 3 != 0) {
             log.error("Backup: PrivateKeyFromString format error");
             return null;
@@ -238,10 +239,10 @@ public class PrivateKeyUtil {
              i < strs.length;
              i += 3) {
 
-            if (strs[i].indexOf(QRCodeUtil.HDM_QR_CODE_FLAG) == 0) {
+            if (strs[i].indexOf(Constant.HDM_QR_CODE_FLAG) == 0) {
                 try {
-                    String encryptedString = strs[i].substring(1) + QRCodeUtil.QR_CODE_SPLIT + strs[i + 1]
-                            + QRCodeUtil.QR_CODE_SPLIT + strs[i + 2];
+                    String encryptedString = strs[i].substring(1) + Constant.QR_CODE_SPLIT + strs[i + 1]
+                            + Constant.QR_CODE_SPLIT + strs[i + 2];
                     hdmKeychain = new HDMKeychain(new EncryptedData(encryptedString)
                             , password, null);
                 } catch (Exception e) {
@@ -254,7 +255,7 @@ public class PrivateKeyUtil {
 
     public static HDAccountCold getHDAccountCold(String str, CharSequence password) {
         HDAccountCold hdAccountCold = null;
-        String[] strs = QRCodeUtil.splitOfPasswordSeed(str);
+        String[]      strs          = QRCodeUtil.splitOfPasswordSeed(str);
         if (strs.length % 3 != 0) {
             log.error("Backup: PrivateKeyFromString format error");
             return null;
@@ -263,10 +264,10 @@ public class PrivateKeyUtil {
              i < strs.length;
              i += 3) {
 
-            if (strs[i].indexOf(QRCodeUtil.HD_QR_CODE_FLAG) == 0) {
+            if (strs[i].indexOf(Constant.HD_QR_CODE_FLAG) == 0) {
                 try {
-                    String encryptedString = strs[i].substring(1) + QRCodeUtil.QR_CODE_SPLIT + strs[i + 1]
-                            + QRCodeUtil.QR_CODE_SPLIT + strs[i + 2];
+                    String encryptedString = strs[i].substring(1) + Constant.QR_CODE_SPLIT + strs[i + 1]
+                            + Constant.QR_CODE_SPLIT + strs[i + 2];
                     hdAccountCold = new HDAccountCold(new EncryptedData(encryptedString), password);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -286,14 +287,14 @@ public class PrivateKeyUtil {
         for (int i = 0;
              i < strs.length;
              i += 3) {
-            if (strs[i].indexOf(QRCodeUtil.HDM_QR_CODE_FLAG) == 0) {
+            if (strs[i].indexOf(Constant.HDM_QR_CODE_FLAG) == 0) {
                 continue;
             }
-            if (strs[i].indexOf(QRCodeUtil.HD_QR_CODE_FLAG) == 0) {
+            if (strs[i].indexOf(Constant.HD_QR_CODE_FLAG) == 0) {
                 continue;
             }
-            String encryptedString = strs[i] + QRCodeUtil.QR_CODE_SPLIT + strs[i + 1]
-                    + QRCodeUtil.QR_CODE_SPLIT + strs[i + 2];
+            String encryptedString = strs[i] + Constant.QR_CODE_SPLIT + strs[i + 1]
+                    + Constant.QR_CODE_SPLIT + strs[i + 2];
             ECKey key = getECKeyFromSingleString(encryptedString, password);
 
             if (key == null) {
@@ -317,9 +318,9 @@ public class PrivateKeyUtil {
      * @return
      */
     public static ECKey encrypt(ECKey key, CharSequence password) {
-        KeyCrypter scrypt = new KeyCrypterScrypt();
-        KeyParameter derivedKey = scrypt.deriveKey(password);
-        ECKey encryptedKey = key.encrypt(scrypt, derivedKey);
+        KeyCrypter   scrypt       = new KeyCrypterScrypt();
+        KeyParameter derivedKey   = scrypt.deriveKey(password);
+        ECKey        encryptedKey = key.encrypt(scrypt, derivedKey);
 
         // Check that the encrypted key can be successfully decrypted.
         // This is done as it is a critical failure if the private key cannot be decrypted successfully
@@ -339,7 +340,7 @@ public class PrivateKeyUtil {
             this.privateKeyText = privateKeyText;
         }
 
-        public ECKey ecKey;
+        public ECKey              ecKey;
         public SecureCharSequence privateKeyText;
 
     }
@@ -349,7 +350,7 @@ public class PrivateKeyUtil {
         try {
             signatureText = signatureText.replaceAll("\n", "").replaceAll("\r", "");
 
-            ECKey key = ECKey.signedMessageToKey(messageText, signatureText);
+            ECKey  key         = ECKey.signedMessageToKey(messageText, signatureText);
             String signAddress = key.toAddress();
             return Utils.compareString(address, signAddress);
         } catch (SignatureException e) {
@@ -364,36 +365,36 @@ public class PrivateKeyUtil {
             return encryptPrivateKey;
         }
         String[] strs = QRCodeUtil.splitOfPasswordSeed(encryptPrivateKey);
-        byte[] temp = Utils.hexStringToByteArray(strs[2]);
-        byte[] salt = new byte[KeyCrypterScrypt.SALT_LENGTH];
+        byte[]   temp = Utils.hexStringToByteArray(strs[2]);
+        byte[]   salt = new byte[KeyCrypterScrypt.SALT_LENGTH];
         if (temp.length == KeyCrypterScrypt.SALT_LENGTH + 1) {
             System.arraycopy(temp, 1, salt, 0, salt.length);
         } else {
             salt = temp;
         }
         strs[2] = Utils.bytesToHexString(salt);
-        return Utils.joinString(strs, QRCodeUtil.QR_CODE_SPLIT);
+        return Utils.joinString(strs, Constant.QR_CODE_SPLIT);
 
     }
 
     public static String getFullencryptPrivateKey(Address address, String encryptPrivKey) {
-        String[] strings = QRCodeUtil.splitString(encryptPrivKey);
-        byte[] salt = Utils.hexStringToByteArray(strings[2]);
+        String[] strings = QRCodeUtil.split(encryptPrivKey);
+        byte[]   salt    = Utils.hexStringToByteArray(strings[2]);
         if (salt.length == KeyCrypterScrypt.SALT_LENGTH) {
             SaltForQRCode saltForQRCode = new SaltForQRCode(salt, address.isCompressed(), address.isFromXRandom());
             strings[2] = Utils.bytesToHexString(saltForQRCode.getQrCodeSalt());
         }
-        return Utils.joinString(strings, QRCodeUtil.QR_CODE_SPLIT);
+        return Utils.joinString(strings, Constant.QR_CODE_SPLIT);
     }
 
     public static String getFullencryptHDMKeyChain(boolean isFromXRandom, String encryptPrivKey) {
-        String[] strings = QRCodeUtil.splitString(encryptPrivKey);
-        byte[] salt = Utils.hexStringToByteArray(strings[2]);
+        String[] strings = QRCodeUtil.split(encryptPrivKey);
+        byte[]   salt    = Utils.hexStringToByteArray(strings[2]);
         if (salt.length == KeyCrypterScrypt.SALT_LENGTH) {
             SaltForQRCode saltForQRCode = new SaltForQRCode(salt, true, isFromXRandom);
             strings[2] = Utils.bytesToHexString(saltForQRCode.getQrCodeSalt()).toUpperCase();
         }
-        return Utils.joinString(strings, QRCodeUtil.QR_CODE_SPLIT);
+        return Utils.joinString(strings, Constant.QR_CODE_SPLIT);
     }
 
     public static String getBackupPrivateKeyStr() throws AddressFormatException {
@@ -411,23 +412,23 @@ public class PrivateKeyUtil {
         if (keychain != null) {
             if (!keychain.isInRecovery()) {
                 String address = keychain.getFirstAddressFromDb();
-                backupString += QRCodeUtil.HDM_QR_CODE_FLAG + Base58.bas58ToHexWithAddress(address)
-                        + QRCodeUtil.QR_CODE_SPLIT
+                backupString += Constant.HDM_QR_CODE_FLAG + Base58.bas58ToHexWithAddress(address)
+                        + Constant.QR_CODE_SPLIT
                         + keychain.getFullEncryptPrivKey() + BACKUP_KEY_SPLIT_MUTILKEY_STRING;
             }
         }
         HDAccount hdAccount = AddressManager.getInstance().getHDAccountHot();
         if (hdAccount != null) {
             String address = hdAccount.getFirstAddressFromDb();
-            backupString += QRCodeUtil.HD_QR_CODE_FLAG + Base58.bas58ToHexWithAddress(address)
-                    + QRCodeUtil.QR_CODE_SPLIT
+            backupString += Constant.HD_QR_CODE_FLAG + Base58.bas58ToHexWithAddress(address)
+                    + Constant.QR_CODE_SPLIT
                     + hdAccount.getFullEncryptPrivKey() + BACKUP_KEY_SPLIT_MUTILKEY_STRING;
         }
         HDAccountCold hdAccountCold = AddressManager.getInstance().getHDAccountCold();
         if (hdAccountCold != null) {
             String address = hdAccountCold.getFirstAddressFromDb();
-            backupString += QRCodeUtil.HD_QR_CODE_FLAG + Base58.bas58ToHexWithAddress
-                    (address) + QRCodeUtil.QR_CODE_SPLIT + hdAccountCold
+            backupString += Constant.HD_QR_CODE_FLAG + Base58.bas58ToHexWithAddress
+                    (address) + Constant.QR_CODE_SPLIT + hdAccountCold
                     .getFullEncryptPrivKey() + BACKUP_KEY_SPLIT_MUTILKEY_STRING;
         }
         return backupString;

@@ -1,20 +1,5 @@
-/*
-* Copyright 2014 http://Bither.net
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
 package com.dasset.wallet.core;
+
 
 import com.dasset.wallet.core.contant.AbstractApp;
 import com.dasset.wallet.core.contant.BitherjSettings;
@@ -31,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +36,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
     protected HashSet<String> addressHashSet     = new HashSet<String>();
     protected HDMKeychain              hdmKeychain;
     protected EnterpriseHDMKeychain    enterpriseHDMKeychain;
-    protected HDAccount hdAccountHot;
+    protected HDAccount                hdAccountHot;
     protected HDAccount                hdAccountMonitored;
     protected List<DesktopHDMKeychain> desktopHDMKeychains;
 
@@ -137,7 +123,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
     }
 
     private void initHDAccounts() {
-        if (AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode.HOT) {
+        if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.HOT) {
             List<Integer> seeds = AbstractDb.hdAccountProvider.getHDAccountSeeds();
             for (int seedId : seeds) {
                 if (hdAccountHot == null && AbstractDb.hdAccountProvider.hasMnemonicSeed(seedId)) {
@@ -235,10 +221,10 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
         }
 
 //        for (HDAccount.HDAccountAddress hdAccountAddress : relatedAddresses) {
-//            relatedAddressesHS.add(hdAccountAddress.getAddress2());
+//            relatedAddressesHS.add(hdAccountAddress.getAddress());
 //        }
 //        for (HDAccount.HDAccountAddress hdAccountAddress : relatedHDMonitoredAddresses) {
-//            relatedHDMonitoredAddressesHS.add(hdAccountAddress.getAddress2());
+//            relatedHDMonitoredAddressesHS.add(hdAccountAddress.getAddress());
 //        }
         for (DesktopHDMAddress desktopHDMAddress : relatedDesktopHDMAddresses) {
             relatedDesktopHDMAddressesHS.add(desktopHDMAddress.getAddress());
@@ -324,7 +310,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 //        List<HDAccount.HDAccountAddress> needNotifityAddressList = new ArrayList<HDAccount
 //                .HDAccountAddress>();
 //        for (HDAccount.HDAccountAddress hdAccountAddress : relatedAddresses) {
-//            if (needNotifyHDAccountHS.contains(hdAccountAddress.getAddress2())) {
+//            if (needNotifyHDAccountHS.contains(hdAccountAddress.getAddress())) {
 //                needNotifityAddressList.add(hdAccountAddress);
 //            }
 //        }
@@ -332,7 +318,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 //        List<HDAccount.HDAccountAddress> needNotifyHDMonitoredAddressList = new
 //                ArrayList<HDAccount.HDAccountAddress>();
 //        for (HDAccount.HDAccountAddress hdAccountAddress : relatedHDMonitoredAddresses) {
-//            if (needNotifyHDAccountMonitoredHS.contains(hdAccountAddress.getAddress2())) {
+//            if (needNotifyHDAccountMonitoredHS.contains(hdAccountAddress.getAddress())) {
 //                needNotifyHDMonitoredAddressList.add(hdAccountAddress);
 //            }
 //        }
@@ -643,7 +629,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 
     public boolean hasHDMKeychain() {
         synchronized (lock) {
-            if (AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
+            if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
                 return hdmKeychain != null;
             } else {
                 return hdmKeychain != null && hdmKeychain.getAddresses().size() > 0;
@@ -677,7 +663,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 
     public boolean hasEnterpriseHDMKeychain() {
         synchronized (lock) {
-            if (AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
+            if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
                 return false;
             } else {
                 return enterpriseHDMKeychain != null;
@@ -723,7 +709,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 
     public boolean hasHDAccountCold() {
         synchronized (lock) {
-            if (AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
+            if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
                 List<Integer> seeds = AbstractDb.hdAccountProvider.getHDAccountSeeds();
                 for (int seedId : seeds) {
                     if (AbstractDb.hdAccountProvider.hasMnemonicSeed(seedId)) {
@@ -737,7 +723,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 
     public HDAccountCold getHDAccountCold() {
         synchronized (lock) {
-            if (AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
+            if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
                 List<Integer> seeds = AbstractDb.hdAccountProvider.getHDAccountSeeds();
                 for (int seedId : seeds) {
                     if (AbstractDb.hdAccountProvider.hasMnemonicSeed(seedId)) {
@@ -749,12 +735,12 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
         }
     }
 
-    @Override
+    //    @Override
     public void hdmAddressAdded(HDMAddress address) {
         addressHashSet.add(address.getAddress());
     }
 
-    @Override
+    //    @Override
     public void enterpriseHDMKeychainAddedAddress(EnterpriseHDMAddress address) {
         if (address != null) {
             addressHashSet.add(address.getAddress());
@@ -952,10 +938,10 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 
 
     public static boolean isPrivateLimit() {
-        int maxPrivateKey = AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode
+        int maxPrivateKey = AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode
                 .COLD ?
-                AbstractApp.iSetting.watchOnlyAddressCountLimit()
-                : AbstractApp.iSetting.privateKeyOfHotCountLimit();
+                AbstractApp.bitherjSetting.watchOnlyAddressCountLimit()
+                : AbstractApp.bitherjSetting.privateKeyOfHotCountLimit();
         return AddressManager.getInstance().getPrivKeyAddresses() != null
                 && AddressManager.getInstance().getPrivKeyAddresses().size() >= maxPrivateKey;
     }
@@ -963,17 +949,17 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
     public static boolean isWatchOnlyLimit() {
         return AddressManager.getInstance().getWatchOnlyAddresses() != null
                 && AddressManager.getInstance().getWatchOnlyAddresses().size() >= AbstractApp
-                .iSetting.watchOnlyAddressCountLimit();
+                .bitherjSetting.watchOnlyAddressCountLimit();
     }
 
     public static int canAddPrivateKeyCount() {
         int max;
-        if (AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
-            max = AbstractApp.iSetting.watchOnlyAddressCountLimit() - AddressManager
+        if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
+            max = AbstractApp.bitherjSetting.watchOnlyAddressCountLimit() - AddressManager
                     .getInstance()
                     .getAllAddresses().size();
         } else {
-            max = AbstractApp.iSetting.privateKeyOfHotCountLimit() - AddressManager
+            max = AbstractApp.bitherjSetting.privateKeyOfHotCountLimit() - AddressManager
                     .getInstance()
                     .getPrivKeyAddresses().size();
         }
@@ -981,7 +967,7 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
     }
 
     public static boolean isHDMKeychainLimit() {
-        if (AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
+        if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
             return AddressManager.getInstance().getHdmKeychain() != null;
         } else {
             if (AddressManager.getInstance().getHdmKeychain() == null) {
@@ -994,14 +980,14 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
 
 
     public static boolean isHDMAddressLimit() {
-        if (AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
+        if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
             return true;
         }
         if (AddressManager.getInstance().getHdmKeychain() == null) {
             return false;
         }
         return AddressManager.getInstance().getHdmKeychain().getAllCompletedAddresses().size()
-                >= AbstractApp.iSetting.hdmAddressPerSeedCount();
+                >= AbstractApp.bitherjSetting.hdmAddressPerSeedCount();
     }
 
     public HashMap<String, Address> getNeededPrivKeyAddresses(Tx tx) {
@@ -1017,5 +1003,13 @@ public class AddressManager implements HDMKeychain.HDMAddressChangeDelegate,
             }
         }
         return result;
+    }
+
+    public long getAmount(List<Out> outs) {
+        long amount = 0;
+        for (Out out : outs) {
+            amount += out.getOutValue();
+        }
+        return amount;
     }
 }

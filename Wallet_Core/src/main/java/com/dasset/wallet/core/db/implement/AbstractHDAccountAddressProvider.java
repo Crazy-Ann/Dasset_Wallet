@@ -16,6 +16,7 @@
 
 package com.dasset.wallet.core.db.implement;
 
+import com.dasset.wallet.core.contant.PathType;
 import com.dasset.wallet.core.wallet.hd.HDAccount;
 import com.dasset.wallet.core.OutPoint;
 import com.dasset.wallet.core.Tx;
@@ -26,6 +27,7 @@ import com.dasset.wallet.core.db.base.IDb;
 import com.dasset.wallet.core.utils.Base58;
 import com.dasset.wallet.core.utils.Sha256Hash;
 import com.dasset.wallet.core.utils.Utils;
+import com.dasset.wallet.core.wallet.hd.HDAddress;
 import com.google.common.base.Function;
 
 import com.dasset.wallet.core.wallet.hd.AbstractHD;
@@ -44,19 +46,19 @@ import javax.annotation.Nullable;
 public abstract class AbstractHDAccountAddressProvider extends AbstractProvider implements IHDAccountAddressProvider {
 
     @Override
-    public void addAddress(List<HDAccount.HDAccountAddress> hdAccountAddresses) {
-        String sql     = "insert into hd_account_addresses(hd_account_id,path_type,address_index,is_issued,address,pub,is_synced) values(?,?,?,?,?,?,?)";
-        IDb writeDb = this.getWriteDb();
+    public void addAddress(List<HDAddress> hdAddresses) {
+        String sql     = "insert into hd_account_addresses(hd_account_id,path_type,address_index,is_issued,address,publicKey,is_synced) values(?,?,?,?,?,?,?)";
+        IDb    writeDb = this.getWriteDb();
         writeDb.beginTransaction();
-        for (HDAccount.HDAccountAddress hdAccountAddress : hdAccountAddresses) {
+        for (HDAddress hdAddress : hdAddresses) {
             this.execUpdate(writeDb, sql, new String[]{
-                    Integer.toString(hdAccountAddress.getHdAccountId())
-                    , Integer.toString(hdAccountAddress.getPathType().getValue())
-                    , Integer.toString(hdAccountAddress.getIndex())
-                    , hdAccountAddress.isIssued() ? "1" : "0"
-                    , hdAccountAddress.getAddress()
-                    , Base58.encode(hdAccountAddress.getPub())
-                    , hdAccountAddress.isSyncedComplete() ? "1" : "0"
+                    Integer.toString(hdAddress.getHdAccountId())
+                    , Integer.toString(hdAddress.getPathType().getType())
+                    , Integer.toString(hdAddress.getIndex())
+                    , hdAddress.isIssued() ? "1" : "0"
+                    , hdAddress.getAddress()
+                    , Base58.encode(hdAddress.getPublicKey())
+                    , hdAddress.hasSyncedCompleted() ? "1" : "0"
             });
         }
         writeDb.endTransaction();
@@ -64,12 +66,12 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
 
 
     @Override
-    public int issuedIndex(int hdAccountId, AbstractHD.PathType pathType) {
+    public int issuedIndex(int hdAccountId, PathType pathType) {
         String sql = "select ifnull(max(address_index),-1) address_index " +
                 " from hd_account_addresses" +
                 " where path_type=? and is_issued=? and hd_account_id=?";
         final int[] issuedIndex = {-1};
-        this.execQueryOneRecord(sql, new String[]{Integer.toString(pathType.getValue()), "1", String.valueOf(hdAccountId)}, new Function<ICursor, Void>() {
+        this.execQueryOneRecord(sql, new String[]{Integer.toString(pathType.getType()), "1", String.valueOf(hdAccountId)}, new Function<ICursor, Void>() {
             @Nullable
             @Override
             public Void apply(ICursor c) {
@@ -84,12 +86,12 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
     }
 
     @Override
-    public int allGeneratedAddressCount(int hdAccountId, AbstractHD.PathType pathType) {
+    public int allGeneratedAddressCount(int hdAccountId, PathType pathType) {
         String sql = "select ifnull(count(address),0) count " +
                 " from hd_account_addresses " +
                 " where path_type=? and hd_account_id=?";
         final int[] count = {0};
-        this.execQueryOneRecord(sql, new String[]{Integer.toString(pathType.getValue()), String.valueOf(hdAccountId)}, new Function<ICursor, Void>() {
+        this.execQueryOneRecord(sql, new String[]{Integer.toString(pathType.getType()), String.valueOf(hdAccountId)}, new Function<ICursor, Void>() {
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
@@ -108,7 +110,7 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
         String sql = "select address from hd_account_addresses" +
                 " where path_type=? and is_issued=? and hd_account_id=? order by address_index asc limit 1 ";
         final String[] address = {null};
-        this.execQueryOneRecord(sql, new String[]{Integer.toString(AbstractHD.PathType.EXTERNAL_ROOT_PATH.getValue())
+        this.execQueryOneRecord(sql, new String[]{Integer.toString(PathType.EXTERNAL_ROOT_PATH.getType())
                 , "0", Integer.toString(hdAccountId)}, new Function<ICursor, Void>() {
             @Nullable
             @Override
@@ -256,10 +258,10 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
     }
 
     @Override
-    public List<byte[]> getPubs(int hdAccountId, AbstractHD.PathType pathType) {
-        String             sql           = "select pub from hd_account_addresses where path_type=? and hd_account_id=?";
+    public List<byte[]> getPubs(int hdAccountId, PathType pathType) {
+        String             sql           = "select publicKey from hd_account_addresses where path_type=? and hd_account_id=?";
         final List<byte[]> adressPubList = new ArrayList<byte[]>();
-        this.execQueryLoop(sql, new String[]{Integer.toString(pathType.getValue()), Integer.toString(hdAccountId)}, new Function<ICursor, Void>() {
+        this.execQueryLoop(sql, new String[]{Integer.toString(pathType.getType()), Integer.toString(hdAccountId)}, new Function<ICursor, Void>() {
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
@@ -277,16 +279,15 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
         return adressPubList;
     }
 
-    public List<HDAccount.HDAccountAddress> getAllHDAddress(int hdAccountId) {
-        final List<HDAccount.HDAccountAddress> adressPubList = new ArrayList<HDAccount
-                .HDAccountAddress>();
-        String sql = "select address,pub,path_type,address_index,is_issued,is_synced,hd_account_id " +
+    public List<HDAddress> getAllHDAddress(int hdAccountId) {
+        final List<HDAddress> adressPubList = new ArrayList<>();
+        String sql = "select address,publicKey,path_type,address_index,is_issued,is_synced,hd_account_id " +
                 "from hd_account_addresses where hd_account_id=? ";
         this.execQueryLoop(sql, new String[]{Integer.toString(hdAccountId)}, new Function<ICursor, Void>() {
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                HDAccount.HDAccountAddress hdAccountAddress = formatAddress(c);
+                HDAddress hdAccountAddress = formatAddress(c);
                 if (hdAccountAddress != null) {
                     adressPubList.add(hdAccountAddress);
                 }
@@ -314,12 +315,12 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
     }
 
     @Override
-    public HDAccount.HDAccountAddress addressForPath(int hdAccountId, AbstractHD.PathType type, int index) {
-        String sql = "select address,pub,path_type,address_index,is_issued," +
+    public HDAddress addressForPath(int hdAccountId, PathType type, int index) {
+        String sql = "select address,publicKey,path_type,address_index,is_issued," +
                 "is_synced,hd_account_id from hd_account_addresses" +
                 " where path_type=? and address_index=? and hd_account_id=?";
-        final HDAccount.HDAccountAddress[] accountAddress = {null};
-        this.execQueryOneRecord(sql, new String[]{Integer.toString(type.getValue()), Integer.toString(index), Integer.toString(hdAccountId)}, new Function<ICursor, Void>() {
+        final HDAddress[] accountAddress = {null};
+        this.execQueryOneRecord(sql, new String[]{Integer.toString(type.getType()), Integer.toString(index), Integer.toString(hdAccountId)}, new Function<ICursor, Void>() {
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
@@ -331,21 +332,20 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
     }
 
     @Override
-    public void updateIssuedIndex(int hdAccountId, AbstractHD.PathType pathType, int index) {
+    public void updateIssuedIndex(int hdAccountId, PathType pathType, int index) {
         String sql = "update hd_account_addresses set is_issued=? where path_type=? and address_index<=? and hd_account_id=?";
-        this.execUpdate(sql, new String[]{"1", Integer.toString(pathType.getValue()), Integer.toString(index), Integer.toString(hdAccountId)});
+        this.execUpdate(sql, new String[]{"1", Integer.toString(pathType.getType()), Integer.toString(index), Integer.toString(hdAccountId)});
     }
 
 
     @Override
-    public List<HDAccount.HDAccountAddress> belongAccount(int hdAccountId, List<String> addresses) {
-        final List<HDAccount.HDAccountAddress> hdAccountAddressList = new ArrayList<HDAccount
-                .HDAccountAddress>();
-        List<String> temp = new ArrayList<String>();
+    public List<HDAddress> belongAccount(int hdAccountId, List<String> addresses) {
+        final List<HDAddress> hdAccountAddressList = new ArrayList<>();
+        List<String>          temp                 = new ArrayList<String>();
         for (String str : addresses) {
             temp.add(Utils.format("'%s'", str));
         }
-        String sql = "select address,pub,path_type,address_index,is_issued,is_synced,hd_account_id " +
+        String sql = "select address,publicKey,path_type,address_index,is_issued,is_synced,hd_account_id " +
                 " from hd_account_addresses" +
                 " where hd_account_id=? and address in (" + Utils.joinString(temp, ",") + ")";
         this.execQueryLoop(sql, new String[]{Integer.toString(hdAccountId)}, new Function<ICursor, Void>() {
@@ -443,9 +443,9 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
 
 
     @Override
-    public List<HDAccount.HDAccountAddress> getSigningAddressesForInputs(int hdAccountId, List<In> inList) {
-        final List<HDAccount.HDAccountAddress> hdAccountAddressList =
-                new ArrayList<HDAccount.HDAccountAddress>();
+    public List<HDAddress> getSigningAddressesForInputs(int hdAccountId, List<In> inList) {
+        final List<HDAddress> hdAccountAddressList =
+                new ArrayList<HDAddress>();
         for (In in : inList) {
             String sql = "select a.address,a.path_type,a.address_index,a.is_synced,a.hd_account_id" +
                     " from hd_account_addresses a ,outs b" +
@@ -467,16 +467,16 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
 
 
     @Override
-    public void updateSyncdComplete(int hdAccountId, HDAccount.HDAccountAddress address) {
+    public void updateSyncdComplete(int hdAccountId, HDAddress address) {
         String sql = "update hd_account_addresses set is_synced=? where address=? and hd_account_id=?";
-        this.execUpdate(sql, new String[]{address.isSyncedComplete() ? "1" : "0", address.getAddress()
+        this.execUpdate(sql, new String[]{address.hasSyncedCompleted() ? "1" : "0", address.getAddress()
                 , Integer.toString(hdAccountId)});
     }
 
     @Override
-    public void updateSyncedForIndex(int hdAccountId, AbstractHD.PathType pathType, int index) {
+    public void updateSyncedForIndex(int hdAccountId, PathType pathType, int index) {
         String sql = "update hd_account_addresses set is_synced=? where path_type=? and address_index>? and hd_account_id=?";
-        this.execUpdate(sql, new String[]{"1", Integer.toString(pathType.getValue())
+        this.execUpdate(sql, new String[]{"1", Integer.toString(pathType.getType())
                 , Integer.toString(index), Integer.toString(hdAccountId)});
     }
 
@@ -721,13 +721,13 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
     }
 
     @Override
-    public int getUnspendOutCountByHDAccountWithPath(int hdAccountId, AbstractHD.PathType
+    public int getUnspendOutCountByHDAccountWithPath(int hdAccountId, PathType
             pathType) {
         final int[] result = {0};
         String sql = "select count(tx_hash) cnt from outs where out_address in " +
                 "(select address from hd_account_addresses where path_type =? and out_status=?) " +
                 "and hd_account_id=?";
-        this.execQueryOneRecord(sql, new String[]{Integer.toString(pathType.getValue())
+        this.execQueryOneRecord(sql, new String[]{Integer.toString(pathType.getType())
                 , Integer.toString(Out.OutStatus.unspent.getValue())
                 , Integer.toString(hdAccountId)
         }, new Function<ICursor, Void>() {
@@ -745,14 +745,14 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
     }
 
     @Override
-    public List<Out> getUnspendOutByHDAccountWithPath(int hdAccountId, AbstractHD.PathType
+    public List<Out> getUnspendOutByHDAccountWithPath(int hdAccountId, PathType
             pathType) {
         String sql = "select * from outs where out_address in " +
                 "(select address from hd_account_addresses where path_type =? and " +
                 "out_status=?) " +
                 "and hd_account_id=?";
         final List<Out> outList = new ArrayList<Out>();
-        this.execQueryLoop(sql, new String[]{Integer.toString(pathType.getValue())
+        this.execQueryLoop(sql, new String[]{Integer.toString(pathType.getType())
                 , Integer.toString(Out.OutStatus.unspent.getValue())
                 , Integer.toString(hdAccountId)
         }, new Function<ICursor, Void>() {
@@ -767,14 +767,14 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
     }
 
     @Override
-    public int getUnconfirmedSpentOutCountByHDAccountWithPath(int hdAccountId, AbstractHD.PathType
+    public int getUnconfirmedSpentOutCountByHDAccountWithPath(int hdAccountId, PathType
             pathType) {
         final int[] result = {0};
         String sql = "select count(0) cnt from outs o, ins i, txs t, hd_account_addresses a " +
                 "  where o.tx_hash=i.prev_tx_hash and o.out_sn=i.prev_out_sn and t.tx_hash=i.tx_hash " +
                 "    and o.out_address=a.address and a.path_type=?" +
                 "    and o.out_status=? and t.block_no is null and a.hd_account_id=?";
-        this.execQueryOneRecord(sql, new String[]{Integer.toString(pathType.getValue())
+        this.execQueryOneRecord(sql, new String[]{Integer.toString(pathType.getType())
                 , Integer.toString(Out.OutStatus.spent.getValue())
                 , Integer.toString(hdAccountId)
         }, new Function<ICursor, Void>() {
@@ -792,14 +792,14 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
     }
 
     @Override
-    public List<Out> getUnconfirmedSpentOutByHDAccountWithPath(int hdAccountId, AbstractHD.PathType
+    public List<Out> getUnconfirmedSpentOutByHDAccountWithPath(int hdAccountId, PathType
             pathType) {
         String sql = "select o.* from outs o, ins i, txs t, hd_account_addresses a " +
                 "  where o.tx_hash=i.prev_tx_hash and o.out_sn=i.prev_out_sn and t.tx_hash=i.tx_hash " +
                 "    and o.out_address=a.address and a.path_type=?" +
                 "    and o.out_status=? and t.block_no is null and a.hd_account_id=?";
         final List<Out> outList = new ArrayList<Out>();
-        this.execQueryLoop(sql, new String[]{Integer.toString(pathType.getValue())
+        this.execQueryLoop(sql, new String[]{Integer.toString(pathType.getType())
                 , Integer.toString(Out.OutStatus.spent.getValue())
                 , Integer.toString(hdAccountId)
         }, new Function<ICursor, Void>() {
@@ -815,7 +815,7 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
 
     @Override
     public boolean requestNewReceivingAddress(int hdAccountId) {
-        int             issuedIndex = this.issuedIndex(hdAccountId, AbstractHD.PathType.EXTERNAL_ROOT_PATH);
+        int             issuedIndex = this.issuedIndex(hdAccountId, PathType.EXTERNAL_ROOT_PATH);
         final boolean[] result      = {false};
         if (issuedIndex >= HDAccount.MaxUnusedNewAddressCount - 2) {
             String sql = "select count(0) from hd_account_addresses a,outs b " +
@@ -832,21 +832,21 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
             result[0] = true;
         }
         if (result[0]) {
-            this.updateIssuedIndex(hdAccountId, AbstractHD.PathType.EXTERNAL_ROOT_PATH, issuedIndex + 1);
+            this.updateIssuedIndex(hdAccountId, PathType.EXTERNAL_ROOT_PATH, issuedIndex + 1);
         }
         return result[0];
     }
 
-    private HDAccount.HDAccountAddress formatAddress(ICursor c) {
-        String                     address          = null;
-        byte[]                     pubs             = null;
-        AbstractHD.PathType        ternalRootType   = AbstractHD.PathType.EXTERNAL_ROOT_PATH;
-        int                        index            = 0;
-        boolean                    isIssued         = false;
-        boolean                    isSynced         = true;
-        int                        hdAccountId      = 0;
-        HDAccount.HDAccountAddress hdAccountAddress = null;
-        int                        idColumn         = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.ADDRESS);
+    private HDAddress formatAddress(ICursor c) {
+        String    address          = null;
+        byte[]    pubs             = null;
+        PathType  ternalRootType   = PathType.EXTERNAL_ROOT_PATH;
+        int       index            = 0;
+        boolean   isIssued         = false;
+        boolean   isSynced         = true;
+        int       hdAccountId      = 0;
+        HDAddress hdAccountAddress = null;
+        int       idColumn         = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.ADDRESS);
         if (idColumn != -1) {
             address = c.getString(idColumn);
         }
@@ -878,8 +878,8 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
         if (idColumn != -1) {
             hdAccountId = c.getInt(idColumn);
         }
-        hdAccountAddress = new HDAccount.HDAccountAddress(address, pubs,
-                                                          ternalRootType, index, isIssued, isSynced, hdAccountId);
+        hdAccountAddress = new HDAddress(address, pubs,
+                                         ternalRootType, index, isIssued, isSynced, hdAccountId);
         return hdAccountAddress;
     }
 }

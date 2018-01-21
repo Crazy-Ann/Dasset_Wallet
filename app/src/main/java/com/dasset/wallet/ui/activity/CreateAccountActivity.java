@@ -38,19 +38,19 @@ public class CreateAccountActivity extends ActivityViewImplement<CreateAccountCo
 
     private CreateAccountPresenter createAccountPresenter;
 
-    private EditText etAccountName;
+    private EditText    etAccountName;
     private ImageButton ibAccountNameEmpty;
-    private EditText etTransactionPassword;
+    private EditText    etTransactionPassword;
     private ImageButton ibTransactionPasswordDisplay;
     private ImageButton ibTransactionPasswordEmpty;
-    private EditText etConfirmPassword;
+    private EditText    etConfirmPassword;
     private ImageButton ibConfirmPasswordDisplay;
     private ImageButton ibConfirmPasswordEmpty;
-    private Button btnSubmit;
+    private Button      btnSubmit;
 
     private EditTextValidator editTextValidator;
-    private boolean isTransactionPasswordHidden;
-    private boolean isConfirmPasswordHidden;
+    private boolean           isTransactionPasswordHidden;
+    private boolean           isConfirmPasswordHidden;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

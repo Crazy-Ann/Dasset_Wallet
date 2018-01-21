@@ -39,13 +39,13 @@ public class HttpTask implements Callback, OnUpdateProgressListener {
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
 
-    private HttpRequestType httpRequestType;
-    private String url;
+    private HttpRequestType  httpRequestType;
+    private String           url;
     private RequestParameter parameter;
-    private OkHttpClient okHttpClient;
-    private HttpResponse httpResponse;
-    private Headers headers;
-    private String httpTaskKey;
+    private OkHttpClient     okHttpClient;
+    private HttpResponse     httpResponse;
+    private Headers          headers;
+    private String           httpTaskKey;
 
     public HttpTask(HttpRequestType httpRequestType, String url, RequestParameter requestParameter, OkHttpClient.Builder builder, HttpResponse httpResponse) {
         this.httpRequestType = httpRequestType;
@@ -77,8 +77,8 @@ public class HttpTask implements Callback, OnUpdateProgressListener {
 
     private void enqueue() {
         LogUtil.getInstance().print("enqueue invoked!!");
-        String original = url;
-        Request.Builder builder = new Request.Builder();
+        String          original = url;
+        Request.Builder builder  = new Request.Builder();
         switch (httpRequestType) {
             case GET:
                 url = getCompleteUrl(url, parameter.getParameters(), parameter.isUrlEncode());
@@ -201,33 +201,31 @@ public class HttpTask implements Callback, OnUpdateProgressListener {
             httpResponse.onResponse(parameter.getResponse(), parameter.getResponseResult(), parameter.getHeaders());
             httpResponse.onResponse(parameter.getResponseResult(), parameter.getHeaders());
         }
-        int code = parameter.getResponseCode();
+        int    code   = parameter.getResponseCode();
         String messge = parameter.getResponseMessage();
-        LogUtil.getInstance().print("code:" + code + ",messge:" + messge + ",parameter:" + parameter.isNoResponse());
-        httpResponse.onEnd();
+        LogUtil.getInstance().print(String.format("url=%s, messge=%s, parameter=%s", url, messge, parameter.isNoResponse()));
+        if (httpResponse != null) {
+            httpResponse.onEnd();
+        }
         if (!parameter.isNoResponse()) {
             if (parameter.isSuccess()) {
-                LogUtil.getInstance().print("url=" + url + ",result=" + JsonFormatUtil.formatJson(parameter.getResponseResult()) + ",headers=" + parameter.getHeaders().toString());
+                LogUtil.getInstance().print(String.format("url=%s, result=%s ,headers=%s", url, JsonFormatUtil.formatJson(parameter.getResponseResult()), parameter.getHeaders().toString()));
                 parseResponseBody(parameter, httpResponse);
             } else {
-                LogUtil.getInstance().print("url=" + url + ",response failure code=" + code + ",messge=" + messge);
+                LogUtil.getInstance().print(String.format("url=%s, response failure code=%s ,messge=%s", url, code, messge));
                 if (httpResponse != null) {
                     httpResponse.onFailed(code, messge);
                 }
             }
         } else {
-            LogUtil.getInstance().print("url=" + url + "\n response failure code=" + code + " msg=" + messge);
+            LogUtil.getInstance().print(String.format("url=%s, response failure code=%s ,messge=%s", url, code, messge));
             if (httpResponse != null) {
                 httpResponse.onFailed(code, messge);
             }
         }
-//        if (httpResponse != null) {
-//            httpResponse.onEnd();
-//        }
     }
 
     private void parseResponseBody(ResponseParameter parameter, HttpResponse response) {
-//        LogUtil.getInstance().print("parseResponseBody invoked!!");
         if (response == null) {
             return;
         }
@@ -274,7 +272,7 @@ public class HttpTask implements Callback, OnUpdateProgressListener {
         }
         int flag = 0;
         for (Parameter parameter : parameters) {
-            String key = parameter.getKey();
+            String key   = parameter.getKey();
             String value = parameter.getValue();
             if (isUrlEncode) {
                 try {

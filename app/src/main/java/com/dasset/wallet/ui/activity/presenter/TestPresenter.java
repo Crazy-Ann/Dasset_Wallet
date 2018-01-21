@@ -106,7 +106,7 @@ public class TestPresenter extends BasePresenterImplement implements TestContrac
 //            Element keyPair = Element.editAccount(false);
                     eccTest.setPrivateKey(Hex.toHexString(keyPair.getPrivateKey().toByteArray()));
                     eccTest.setPublicKey(Hex.toHexString(keyPair.getPublicKey()));
-                    eccTest.setAddress(AddressFactory.generatorAddress(keyPair.getPublicKey(), com.dasset.wallet.core.wallet.Constant.AddressType.HYC));
+                    eccTest.setAddress(AddressFactory.generatorAddress(keyPair.getPublicKey(), com.dasset.wallet.core.contant.Constant.AddressType.HYC));
                     String signature = Hex.toHexString(ECSignatureFactory.getInstance().generateSignature(keyPair.getPrivateKey(), keyPair.getPublicKey(), data, false, false));
                     eccTest.setSignature(signature);
                     eccTest.setSignatureResult(ECSignatureFactory.getInstance().verifySignature(data, signature, keyPair.getPublicKey()));

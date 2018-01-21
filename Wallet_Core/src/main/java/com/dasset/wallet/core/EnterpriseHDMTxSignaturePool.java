@@ -18,6 +18,7 @@
 
 package com.dasset.wallet.core;
 
+import com.dasset.wallet.core.contant.SigHash;
 import com.dasset.wallet.core.script.ScriptBuilder;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.TransactionSignature;
@@ -59,7 +60,7 @@ public class EnterpriseHDMTxSignaturePool {
              i < tx.getIns().size();
              i++) {
             TransactionSignature txSig = new TransactionSignature(ECKey.ECDSASignature
-                                                                          .decodeFromDER(sigs.get(i)), TransactionSignature.SigHash.ALL, false);
+                                                                          .decodeFromDER(sigs.get(i)), SigHash.ALL, false);
             if (i == 0) {
                 byte[] pub = recoverPub(sigs.get(i), unsignedHashes().get(i));
                 if (pub == null) {

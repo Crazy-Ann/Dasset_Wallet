@@ -1,36 +1,23 @@
-/*
- * Copyright 2014 http://Bither.net
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dasset.wallet.core;
 
-import com.dasset.wallet.core.exception.ScriptException;
-import com.dasset.wallet.core.script.ScriptBuilder;
-import com.dasset.wallet.core.utils.UnsafeByteArrayOutputStream;
 import com.dasset.wallet.core.contant.BitherjSettings;
+import com.dasset.wallet.core.contant.Coin;
+import com.dasset.wallet.core.contant.SigHash;
+import com.dasset.wallet.core.contant.SplitCoin;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.db.AbstractDb;
-import com.dasset.wallet.core.exception.AddressFormatException;
 import com.dasset.wallet.core.exception.ProtocolException;
+import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.exception.VerificationException;
 import com.dasset.wallet.core.message.BlockMessage;
 import com.dasset.wallet.core.message.Message;
 import com.dasset.wallet.core.script.Script;
+import com.dasset.wallet.core.script.ScriptBuilder;
 import com.dasset.wallet.core.script.ScriptOpCodes;
 import com.dasset.wallet.core.utils.PrivateKeyUtil;
+import com.dasset.wallet.core.utils.Sha256Hash;
+import com.dasset.wallet.core.utils.UnsafeByteArrayOutputStream;
 import com.dasset.wallet.core.utils.Utils;
 import com.dasset.wallet.core.utils.VarInt;
 import com.dasset.wallet.core.wallet.hd.HDAccount;
@@ -44,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -54,6 +42,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static com.dasset.wallet.core.utils.Utils.uint32ToByteStreamLE;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -137,15 +126,27 @@ public class Tx extends Message implements Comparable<Tx> {
         this(msg, 0, msg.length);
     }
 
+    public Tx(byte[] msg, boolean isDetectBcc, Coin coin) {
+        this(msg, 0, msg.length, isDetectBcc, coin);
+    }
+
     public Tx(byte[] msg, int offset, int length) {
         super(msg, offset, length);
         blockNo = TX_UNCONFIRMED;
         this.txTime = (int) (System.currentTimeMillis() / 1000);
     }
 
+    public Tx(byte[] msg, int offset, int length, boolean isDetectBcc, Coin coin) {
+        super(msg, offset, length);
+        blockNo = TX_UNCONFIRMED;
+        this.txTime = (int) (System.currentTimeMillis() / 1000);
+        this.isDetectBcc = isDetectBcc;
+        this.coin = coin;
+    }
+
     public static final int  TX_UNCONFIRMED = Integer.MAX_VALUE;
-    public static final long TX_VERSION     = 1l;
-    public static final long TX_LOCKTIME    = 0l;
+    public static final long TX_VERSION     = 1L;
+    public static final long TX_LOCKTIME    = 0L;
 
     private int       blockNo;
     private byte[]    txHash;
@@ -156,11 +157,22 @@ public class Tx extends Message implements Comparable<Tx> {
     private int       sawByPeerCnt;
     private List<In>  ins;
     private List<Out> outs;
+    private Coin    coin        = Coin.BTC;
+    private boolean isDetectBcc = false;
+    private byte[] blockHash;
 
 //    public int length;
 
     private transient int optimalEncodingMessageSize;
 
+
+    public Coin getCoin() {
+        return coin;
+    }
+
+    public void setCoin(Coin coin) {
+        this.coin = coin;
+    }
 
     public int getBlockNo() {
         return blockNo;
@@ -168,6 +180,14 @@ public class Tx extends Message implements Comparable<Tx> {
 
     public void setBlockNo(int blockNo) {
         this.blockNo = blockNo;
+    }
+
+    public byte[] getBlockHash() {
+        return blockHash;
+    }
+
+    public void setBlockHash(byte[] blockHash) {
+        this.blockHash = blockHash;
     }
 
     /**
@@ -252,6 +272,14 @@ public class Tx extends Message implements Comparable<Tx> {
 
     public void setOuts(List<Out> outs) {
         this.outs = outs;
+    }
+
+    public boolean isDetectBcc() {
+        return isDetectBcc;
+    }
+
+    public void setDetectBcc(boolean detectBcc) {
+        isDetectBcc = detectBcc;
     }
 
     public int getSawByPeerCnt() {
@@ -379,7 +407,7 @@ public class Tx extends Message implements Comparable<Tx> {
     public long amountSentToAddress(String address) {
         long amount = 0;
         for (Out out : getOuts()) {
-            if (Utils.compareString(out.getOutAddress(), address)) {
+            if (Utils.compareString(out.getOutAddress(coin), address)) {
                 amount += out.getOutValue();
             }
         }
@@ -456,6 +484,7 @@ public class Tx extends Message implements Comparable<Tx> {
         return cursor - offset + 4;
     }
 
+    @Override
     protected void parse() throws ProtocolException {
         //skip this if the length has been provided i.e. the tx is not part of a block
         if (length == UNKNOWN_LENGTH) {
@@ -603,11 +632,11 @@ public class Tx extends Message implements Comparable<Tx> {
      * of this method
      * that sets them to typical defaults.
      *
-     * @throws net.bither.bitherj.exception.ScriptException
+     * @throws ScriptException
      *         if the scriptPubKey is not a pay to address or pay to pubkey script.
      */
     public In addSignedInput(Out prevOut, Script scriptPubKey, ECKey sigKey,
-                             TransactionSignature.SigHash sigHash, boolean anyoneCanPay) throws
+                             SigHash sigHash, boolean anyoneCanPay) throws
             ScriptException {
         In input = new In(this, new byte[]{}, prevOut);
         addInput(input);
@@ -626,13 +655,13 @@ public class Tx extends Message implements Comparable<Tx> {
     }
 
     /**
-     * Same as {@link #addSignedInput(net.bither.bitherj.core.Out, net.bither.bitherj.script.Script, net.bither.bitherj.crypto.ECKey, net.bither.bitherj.crypto.TransactionSignature.SigHash, boolean)}
-     * but defaults to {@link net.bither.bitherj.crypto.TransactionSignature.SigHash#ALL} and
+     * Same as {@link #addSignedInput(Out, Script, ECKey, SigHash, boolean)}
+     * but defaults to {@link SigHash#ALL} and
      * "false" for the anyoneCanPay flag. This is normally what you want.
      */
     public In addSignedInput(Out prevOut, Script scriptPubKey,
                              ECKey sigKey) throws ScriptException {
-        return addSignedInput(prevOut, scriptPubKey, sigKey, TransactionSignature.SigHash.ALL,
+        return addSignedInput(prevOut, scriptPubKey, sigKey, SigHash.ALL,
                               false);
     }
 
@@ -665,7 +694,7 @@ public class Tx extends Message implements Comparable<Tx> {
      * Creates an output based on the given address and value, adds it to this transaction,
      * and returns the new output.
      */
-    public Out addOutput(long value, String address) throws AddressFormatException {
+    public Out addOutput(long value, String address) {
         return addOutput(new Out(this, value, address));
     }
 
@@ -701,20 +730,20 @@ public class Tx extends Message implements Comparable<Tx> {
      * @param address
      *         A wallet is required to fetch the keys needed for signing.
      */
-    public synchronized void signInputs(TransactionSignature.SigHash hashType,
+    public synchronized void signInputs(SigHash hashType,
                                         Address address) throws ScriptException {
         signInputs(hashType, address, null);
     }
 
 
-    public synchronized void signInputs(TransactionSignature.SigHash hashType, Address address,
+    public synchronized void signInputs(SigHash hashType, Address address,
                                         CharSequence password) throws ScriptException {
         checkState(ins.size() > 0);
         checkState(outs.size() > 0);
 
         // I don't currently have an easy way to test other modes work,
         // as the official client does not use them.
-        checkArgument(hashType == TransactionSignature.SigHash.ALL,
+        checkArgument(hashType == SigHash.ALL,
                       "Only SIGHASH_ALL is currently supported");
 
         // The transaction is signed with the input scripts empty except for the input we are
@@ -828,14 +857,14 @@ public class Tx extends Message implements Comparable<Tx> {
         // Every input is now complete.
     }
 
-    public synchronized void signInputs(TransactionSignature.SigHash hashType, HashMap<String, Address> addressMap,
+    public synchronized void signInputs(SigHash hashType, HashMap<String, Address> addressMap,
                                         CharSequence password) throws ScriptException {
         checkState(ins.size() > 0);
         checkState(outs.size() > 0);
 
         // I don't currently have an easy way to test other modes work,
         // as the official client does not use them.
-        checkArgument(hashType == TransactionSignature.SigHash.ALL,
+        checkArgument(hashType == SigHash.ALL,
                       "Only SIGHASH_ALL is currently supported");
 
         // The transaction is signed with the input scripts empty except for the input we are
@@ -949,11 +978,11 @@ public class Tx extends Message implements Comparable<Tx> {
     /**
      * Calculates a signature that is valid for being inserted into the input at the given
      * position. This is simply
-     * a wrapper around calling {@link net.bither.bitherj.core.Tx#hashForSignature(int, byte[],
-     * net.bither.bitherj.crypto.TransactionSignature.SigHash, boolean)}
-     * followed by {@link net.bither.bitherj.crypto.ECKey#sign(byte[], org.spongycastle.crypto.params.KeyParameter)} and
+     * a wrapper around calling {@link Tx#hashForSignature(int, byte[],
+     * SigHash, boolean)}
+     * followed by {@link ECKey#sign(byte[], KeyParameter)} and
      * then returning
-     * a new {@link net.bither.bitherj.crypto.TransactionSignature}.
+     * a new {@link TransactionSignature}.
      *
      * @param inputIndex
      *         Which input to calculate the signature for, as an index.
@@ -974,7 +1003,7 @@ public class Tx extends Message implements Comparable<Tx> {
     public synchronized TransactionSignature calculateSignature(int inputIndex, ECKey key,
                                                                 @Nullable KeyParameter aesKey,
                                                                 byte[] connectedPubKeyScript,
-                                                                TransactionSignature.SigHash
+                                                                SigHash
                                                                         hashType,
                                                                 boolean anyoneCanPay) {
         byte[] hash = hashForSignature(inputIndex, connectedPubKeyScript, hashType, anyoneCanPay);
@@ -984,9 +1013,9 @@ public class Tx extends Message implements Comparable<Tx> {
     /**
      * Calculates a signature that is valid for being inserted into the input at the given
      * position. This is simply
-     * a wrapper around calling {@link net.bither.bitherj.core.Tx#hashForSignature(int, byte[],
-     * net.bither.bitherj.crypto.TransactionSignature.SigHash, boolean)}
-     * followed by {@link net.bither.bitherj.crypto.ECKey#sign(byte[])} and then returning a new {@link net.bither.bitherj.crypto.TransactionSignature}.
+     * a wrapper around calling {@link Tx#hashForSignature(int, byte[],
+     * SigHash, boolean)}
+     * followed by {@link ECKey#sign(byte[])} and then returning a new {@link TransactionSignature}.
      *
      * @param inputIndex
      *         Which input to calculate the signature for, as an index.
@@ -1003,7 +1032,7 @@ public class Tx extends Message implements Comparable<Tx> {
      */
     public synchronized TransactionSignature calculateSignature(int inputIndex, ECKey key,
                                                                 Script connectedPubKeyScript,
-                                                                TransactionSignature.SigHash
+                                                                SigHash
                                                                         hashType,
                                                                 boolean anyoneCanPay) {
         byte[] hash = hashForSignature(inputIndex, connectedPubKeyScript.getProgram(), hashType,
@@ -1031,7 +1060,7 @@ public class Tx extends Message implements Comparable<Tx> {
      *         should be false.
      */
     public synchronized byte[] hashForSignature(int inputIndex, byte[] connectedScript,
-                                                TransactionSignature.SigHash type,
+                                                SigHash type,
                                                 boolean anyoneCanPay) {
         byte sigHashType = (byte) TransactionSignature.calcSigHashValue(type, anyoneCanPay);
         return hashForSignature(inputIndex, connectedScript, sigHashType);
@@ -1057,7 +1086,7 @@ public class Tx extends Message implements Comparable<Tx> {
      *         should be false.
      */
     public synchronized byte[] hashForSignature(int inputIndex, Script connectedScript,
-                                                TransactionSignature.SigHash type,
+                                                SigHash type,
                                                 boolean anyoneCanPay) {
         int sigHash = TransactionSignature.calcSigHashValue(type, anyoneCanPay);
         return hashForSignature(inputIndex, connectedScript.getProgram(), (byte) sigHash);
@@ -1122,7 +1151,7 @@ public class Tx extends Message implements Comparable<Tx> {
             input.setInSignature(connectedScript);
 
             List<Out> outputs = this.getOuts();
-            if ((sigHashType & 0x1f) == (TransactionSignature.SigHash.NONE.ordinal() + 1)) {
+            if ((sigHashType & 0x1f) == (SigHash.NONE.ordinal() + 1)) {
                 // SIGHASH_NONE means no outputs are signed at all - the signature is effectively
                 // for a "blank cheque".
                 this.outs = new ArrayList<Out>(0);
@@ -1134,7 +1163,7 @@ public class Tx extends Message implements Comparable<Tx> {
                     if (i != inputIndex) {
                         this.getIns().get(i).setInSequence(0);
                     }
-            } else if ((sigHashType & 0x1f) == (TransactionSignature.SigHash.SINGLE.ordinal() +
+            } else if ((sigHashType & 0x1f) == (SigHash.SINGLE.ordinal() +
                     1)) {
                 // SIGHASH_SINGLE means only sign the output at the same index as the input (ie,
                 // my output).
@@ -1179,10 +1208,11 @@ public class Tx extends Message implements Comparable<Tx> {
                 // parties.
                 for (int i = 0;
                      i < this.getIns().size();
-                     i++)
+                     i++) {
                     if (i != inputIndex) {
                         this.getIns().get(i).setInSequence(0);
                     }
+                }
             }
 
             List<In> inputs = this.getIns();
@@ -1199,7 +1229,7 @@ public class Tx extends Message implements Comparable<Tx> {
                                                                                 ? 256 : length + 4);
             bitcoinSerialize(bos);
             // We also have to write a hash type (sigHashType is actually an unsigned char)
-            Utils.uint32ToByteStreamLE(0x000000ff & sigHashType, bos);
+            uint32ToByteStreamLE(0x000000ff & sigHashType, bos);
             // Note that this is NOT reversed to ensure it will be signed correctly. If it were
             // to be printed out
             // however then we would expect that it is IS reversed.
@@ -1221,9 +1251,424 @@ public class Tx extends Message implements Comparable<Tx> {
         }
     }
 
+    public synchronized byte[] hashForSignatureForBCD(int inputIndex, byte[] connectedScript,
+                                                      SigHash type, boolean anyoneCanPay) {
+        // The SIGHASH flags are used in the design of contracts, please see this page for a
+        // further understanding of
+        // the purposes of the code in this method:
+        //
+        //   https://en.bitcoin.it/wiki/Contracts
+        int sigHashType = TransactionSignature.calcSigHashValue(type, anyoneCanPay);
+        try {
+            // Store all the input scripts and clear them in preparation for signing. If we're
+            // signing a fresh
+            // transaction that step isn't very helpful, but it doesn't add much cost relative to
+            // the actual
+            // EC math so we'll do it anyway.
+            //
+            // Also store the input sequence numbers in case we are clearing them with SigHash
+            // .NONE/SINGLE
+            byte[][] inputScripts         = new byte[this.getIns().size()][];
+            long[]   inputSequenceNumbers = new long[this.getIns().size()];
+            for (int i = 0;
+                 i < this.getIns().size();
+                 i++) {
+                inputScripts[i] = this.getIns().get(i).getInSignature();
+                inputSequenceNumbers[i] = this.getIns().get(i).getInSequence();
+                this.getIns().get(i).setInSignature(new byte[0]);
+            }
+
+            // This step has no purpose beyond being synchronized with the reference clients bugs
+            // . OP_CODESEPARATOR
+            // is a legacy holdover from a previous, broken design of executing scripts that
+            // shipped in Bitcoin 0.1.
+            // It was seriously flawed and would have let anyone take anyone elses money. Later
+            // versions switched to
+            // the design we use today where scripts are executed independently but share a stack
+            // . This left the
+            // OP_CODESEPARATOR instruction having no purpose as it was only meant to be used
+            // internally, not actually
+            // ever put into scripts. Deleting OP_CODESEPARATOR is a step that should never be
+            // required but if we don't
+            // do it, we could split off the main chain.
+            connectedScript = Script.removeAllInstancesOfOp(connectedScript,
+                                                            ScriptOpCodes.OP_CODESEPARATOR);
+
+            // Set the input to the script of its output. Satoshi does this but the step has no
+            // obvious purpose as
+            // the signature covers the hash of the prevout transaction which obviously includes
+            // the output script
+            // already. Perhaps it felt safer to him in some way, or is another leftover from how
+            // the code was written.
+            In input = this.getIns().get(inputIndex);
+            input.setInSignature(connectedScript);
+
+            List<Out> outputs = this.getOuts();
+            if ((sigHashType & 0x1f) == (SigHash.NONE.ordinal() + 1)) {
+                // SIGHASH_NONE means no outputs are signed at all - the signature is effectively
+                // for a "blank cheque".
+                this.outs = new ArrayList<Out>(0);
+                // The signature isn't broken by new versions of the transaction issued by other
+                // parties.
+                for (int i = 0;
+                     i < this.getIns().size();
+                     i++)
+                    if (i != inputIndex) {
+                        this.getIns().get(i).setInSequence(0);
+                    }
+            } else if ((sigHashType & 0x1f) == (SigHash.SINGLE.ordinal() +
+                    1)) {
+                // SIGHASH_SINGLE means only sign the output at the same index as the input (ie,
+                // my output).
+                if (inputIndex >= this.getOuts().size()) {
+                    // The input index is beyond the number of outputs,
+                    // it's a buggy signature made by a broken
+                    // Bitcoin implementation. The reference client also contains a bug in
+                    // handling this case:
+                    // any transaction output that is signed in this case will result in both the
+                    // signed output
+                    // and any future outputs to this public key being steal-able by anyone who has
+                    // the resulting signature and the public key (both of which are part of the
+                    // signed tx input).
+                    // Put the transaction back to how we found it.
+                    //
+                    // TODO: Only allow this to happen if we are checking a signature,
+                    // not signing a transactions
+                    for (int i = 0;
+                         i < this.getIns().size();
+                         i++) {
+                        this.getIns().get(i).setInSignature(inputScripts[i]);
+                        this.getIns().get(i).setInSequence(inputSequenceNumbers[i]);
+                    }
+                    this.outs = outputs;
+                    // Satoshis bug is that SignatureHash was supposed to return a hash and on
+                    // this codepath it
+                    // actually returns the constant "1" to indicate an error,
+                    // which is never checked for. Oops.
+                    return Utils.hexStringToByteArray
+                            ("0100000000000000000000000000000000000000000000000000000000000000");
+                }
+                // In SIGHASH_SINGLE the outputs after the matching input index are deleted,
+                // and the outputs before
+                // that position are "nulled out". Unintuitively,
+                // the value in a "null" transaction is set to -1.
+                this.outs = new ArrayList<Out>(this.getOuts().subList(0, inputIndex + 1));
+                for (int i = 0;
+                     i < inputIndex;
+                     i++) {
+                    this.getOuts().set(i, new Out(this, -1, new byte[]{}));
+                }
+                // The signature isn't broken by new versions of the transaction issued by other
+                // parties.
+                for (int i = 0;
+                     i < this.getIns().size();
+                     i++) {
+                    if (i != inputIndex) {
+                        this.getIns().get(i).setInSequence(0);
+                    }
+                }
+            }
+
+            List<In> inputs = this.getIns();
+            if ((sigHashType & TransactionSignature.SIGHASH_ANYONECANPAY_VALUE) ==
+                    TransactionSignature.SIGHASH_ANYONECANPAY_VALUE) {
+                // SIGHASH_ANYONECANPAY means the signature in the input is not broken by
+                // changes/additions/removals
+                // of other inputs. For example, this is useful for building assurance contracts.
+                this.ins = new ArrayList<In>();
+                this.getIns().add(input);
+            }
+
+            ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(length == UNKNOWN_LENGTH
+                                                                                ? 256 + 64 : length + 4 + 64);
+            bitcoinSerialize(bos, 4);
+            // We also have to write a hash type (sigHashType is actually an unsigned char)
+            uint32ToByteStreamLE(0x000000ff & sigHashType, bos);
+            // Note that this is NOT reversed to ensure it will be signed correctly. If it were
+            // to be printed out
+            // however then we would expect that it is IS reversed.
+            byte[] hash = Utils.doubleDigest(bos.toByteArray());
+            bos.close();
+
+            // Put the transaction back to how we found it.
+            this.ins = inputs;
+            for (int i = 0;
+                 i < inputs.size();
+                 i++) {
+                inputs.get(i).setInSignature(inputScripts[i]);
+                inputs.get(i).setInSequence(inputSequenceNumbers[i]);
+            }
+            this.outs = outputs;
+            System.out.println("SignatureWitnes:" + Utils.bytesToHexString(bos.toByteArray()));
+            return hash;
+        } catch (IOException e) {
+            throw new RuntimeException(e);  // Cannot happen.
+        }
+    }
+
+
+    public synchronized byte[] hashForSignatureForSBTC(int inputIndex, byte[] connectedScript,
+                                                       SigHash type, boolean anyoneCanPay) {
+        // The SIGHASH flags are used in the design of contracts, please see this page for a
+        // further understanding of
+        // the purposes of the code in this method:
+        //
+        //   https://en.bitcoin.it/wiki/Contracts
+        int sigHashType = TransactionSignature.calcSigHashValue(type, anyoneCanPay);
+        try {
+            // Store all the input scripts and clear them in preparation for signing. If we're
+            // signing a fresh
+            // transaction that step isn't very helpful, but it doesn't add much cost relative to
+            // the actual
+            // EC math so we'll do it anyway.
+            //
+            // Also store the input sequence numbers in case we are clearing them with SigHash
+            // .NONE/SINGLE
+            byte[][] inputScripts         = new byte[this.getIns().size()][];
+            long[]   inputSequenceNumbers = new long[this.getIns().size()];
+            for (int i = 0;
+                 i < this.getIns().size();
+                 i++) {
+                inputScripts[i] = this.getIns().get(i).getInSignature();
+                inputSequenceNumbers[i] = this.getIns().get(i).getInSequence();
+                this.getIns().get(i).setInSignature(new byte[0]);
+            }
+
+            // This step has no purpose beyond being synchronized with the reference clients bugs
+            // . OP_CODESEPARATOR
+            // is a legacy holdover from a previous, broken design of executing scripts that
+            // shipped in Bitcoin 0.1.
+            // It was seriously flawed and would have let anyone take anyone elses money. Later
+            // versions switched to
+            // the design we use today where scripts are executed independently but share a stack
+            // . This left the
+            // OP_CODESEPARATOR instruction having no purpose as it was only meant to be used
+            // internally, not actually
+            // ever put into scripts. Deleting OP_CODESEPARATOR is a step that should never be
+            // required but if we don't
+            // do it, we could split off the main chain.
+            connectedScript = Script.removeAllInstancesOfOp(connectedScript,
+                                                            ScriptOpCodes.OP_CODESEPARATOR);
+
+            // Set the input to the script of its output. Satoshi does this but the step has no
+            // obvious purpose as
+            // the signature covers the hash of the prevout transaction which obviously includes
+            // the output script
+            // already. Perhaps it felt safer to him in some way, or is another leftover from how
+            // the code was written.
+            In input = this.getIns().get(inputIndex);
+            input.setInSignature(connectedScript);
+
+            List<Out> outputs = this.getOuts();
+            if ((sigHashType & 0x1f) == (SigHash.NONE.ordinal() + 1)) {
+                // SIGHASH_NONE means no outputs are signed at all - the signature is effectively
+                // for a "blank cheque".
+                this.outs = new ArrayList<Out>(0);
+                // The signature isn't broken by new versions of the transaction issued by other
+                // parties.
+                for (int i = 0;
+                     i < this.getIns().size();
+                     i++) {
+                    if (i != inputIndex) {
+                        this.getIns().get(i).setInSequence(0);
+                    }
+                }
+            } else if ((sigHashType & 0x1f) == (SigHash.SINGLE.ordinal() +
+                    1)) {
+                // SIGHASH_SINGLE means only sign the output at the same index as the input (ie,
+                // my output).
+                if (inputIndex >= this.getOuts().size()) {
+                    // The input index is beyond the number of outputs,
+                    // it's a buggy signature made by a broken
+                    // Bitcoin implementation. The reference client also contains a bug in
+                    // handling this case:
+                    // any transaction output that is signed in this case will result in both the
+                    // signed output
+                    // and any future outputs to this public key being steal-able by anyone who has
+                    // the resulting signature and the public key (both of which are part of the
+                    // signed tx input).
+                    // Put the transaction back to how we found it.
+                    //
+                    // TODO: Only allow this to happen if we are checking a signature,
+                    // not signing a transactions
+                    for (int i = 0;
+                         i < this.getIns().size();
+                         i++) {
+                        this.getIns().get(i).setInSignature(inputScripts[i]);
+                        this.getIns().get(i).setInSequence(inputSequenceNumbers[i]);
+                    }
+                    this.outs = outputs;
+                    // Satoshis bug is that SignatureHash was supposed to return a hash and on
+                    // this codepath it
+                    // actually returns the constant "1" to indicate an error,
+                    // which is never checked for. Oops.
+                    return Utils.hexStringToByteArray
+                            ("0100000000000000000000000000000000000000000000000000000000000000");
+                }
+                // In SIGHASH_SINGLE the outputs after the matching input index are deleted,
+                // and the outputs before
+                // that position are "nulled out". Unintuitively,
+                // the value in a "null" transaction is set to -1.
+                this.outs = new ArrayList<Out>(this.getOuts().subList(0, inputIndex + 1));
+                for (int i = 0;
+                     i < inputIndex;
+                     i++) {
+                    this.getOuts().set(i, new Out(this, -1, new byte[]{}));
+                }
+                // The signature isn't broken by new versions of the transaction issued by other
+                // parties.
+                for (int i = 0;
+                     i < this.getIns().size();
+                     i++) {
+                    if (i != inputIndex) {
+                        this.getIns().get(i).setInSequence(0);
+                    }
+                }
+            }
+
+            List<In> inputs = this.getIns();
+            if ((sigHashType & TransactionSignature.SIGHASH_ANYONECANPAY_VALUE) ==
+                    TransactionSignature.SIGHASH_ANYONECANPAY_VALUE) {
+                // SIGHASH_ANYONECANPAY means the signature in the input is not broken by
+                // changes/additions/removals
+                // of other inputs. For example, this is useful for building assurance contracts.
+                this.ins = new ArrayList<In>();
+                this.getIns().add(input);
+            }
+
+            ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(length == UNKNOWN_LENGTH
+                                                                                ? 256 : length + 4);
+            bitcoinSerialize(bos);
+            // We also have to write a hash type (sigHashType is actually an unsigned char)
+            uint32ToByteStreamLE(0x000000ff & sigHashType, bos);
+            bos.write(0xff & SplitCoin.SBTC.getUrlCode().length());
+            bos.write(SplitCoin.SBTC.getUrlCode().getBytes());
+            // Note that this is NOT reversed to ensure it will be signed correctly. If it were
+            // to be printed out
+            // however then we would expect that it is IS reversed.
+            byte[] hash = Utils.doubleDigest(bos.toByteArray());
+            bos.close();
+
+            // Put the transaction back to how we found it.
+            this.ins = inputs;
+            for (int i = 0;
+                 i < inputs.size();
+                 i++) {
+                inputs.get(i).setInSignature(inputScripts[i]);
+                inputs.get(i).setInSequence(inputSequenceNumbers[i]);
+            }
+            this.outs = outputs;
+            return hash;
+        } catch (IOException e) {
+            throw new RuntimeException(e);  // Cannot happen.
+        }
+    }
+
+    public synchronized byte[] hashForSignatureWitness(int inputIndex, Script scriptCode,
+                                                       BigInteger prevValue, SigHash type, boolean
+                                                               anyoneCanPay, SplitCoin splitCoin) {
+        byte[] connectedScript = scriptCode.getProgram();
+        return hashForSignatureWitness(inputIndex, connectedScript, prevValue, type, anyoneCanPay, splitCoin);
+    }
+
+    public synchronized byte[] hashForSignatureWitness(int inputIndex, byte[] connectedScript,
+                                                       BigInteger prevValue,
+                                                       SigHash type, boolean
+                                                               anyoneCanPay, SplitCoin splitCoin) {
+        int sigHashType = TransactionSignature.calcSigHashValue(type, anyoneCanPay);
+        ByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(length == UNKNOWN_LENGTH ?
+                                                                            256 : length + 4);
+        try {
+            byte[] hashPrevouts = new byte[32];
+            byte[] hashSequence = new byte[32];
+            byte[] hashOutputs  = new byte[32];
+            anyoneCanPay = (sigHashType & TransactionSignature.SIGHASH_ANYONECANPAY_VALUE) ==
+                    TransactionSignature.SIGHASH_ANYONECANPAY_VALUE;
+
+            if (!anyoneCanPay) {
+                ByteArrayOutputStream bosHashPrevouts = new UnsafeByteArrayOutputStream(256);
+                for (int i = 0;
+                     i < this.ins.size();
+                     ++i) {
+                    bosHashPrevouts.write(this.ins.get(i).getOutpoint().getTxHash());
+                    uint32ToByteStreamLE(this.ins.get(i).getOutpoint().getOutSn(), bosHashPrevouts);
+                }
+                hashPrevouts = Sha256Hash.createDouble(bosHashPrevouts.toByteArray()).getBytes();
+            }
+
+            if (!anyoneCanPay && type != SigHash.SINGLE && type !=
+                    SigHash.NONE) {
+                ByteArrayOutputStream bosSequence = new UnsafeByteArrayOutputStream(256);
+                for (int i = 0;
+                     i < this.ins.size();
+                     ++i) {
+                    uint32ToByteStreamLE(this.ins.get(i).getInSequence(), bosSequence);
+                }
+                hashSequence = Sha256Hash.createDouble(bosSequence.toByteArray()).getBytes();
+            }
+
+            if (type != SigHash.SINGLE && type != SigHash.NONE) {
+                ByteArrayOutputStream bosHashOutputs = new UnsafeByteArrayOutputStream(256);
+                for (int i = 0;
+                     i < this.outs.size();
+                     ++i) {
+                    Utils.uint64ToByteStreamLE(BigInteger.valueOf(this.outs.get(i).getOutValue()),
+                                               bosHashOutputs);
+                    bosHashOutputs.write(new VarInt(this.outs.get(i).getOutScript().length)
+                                                 .encode());
+                    bosHashOutputs.write(this.outs.get(i).getOutScript());
+                }
+                hashOutputs = Sha256Hash.createDouble(bosHashOutputs.toByteArray()).getBytes();
+            } else if (type == SigHash.SINGLE && inputIndex < outs.size()) {
+                ByteArrayOutputStream bosHashOutputs = new UnsafeByteArrayOutputStream(256);
+                Utils.uint64ToByteStreamLE(BigInteger.valueOf(this.outs.get(inputIndex).getOutValue()),
+                                           bosHashOutputs);
+                bosHashOutputs.write(new VarInt(this.outs.get(inputIndex).getOutScript().length)
+                                             .encode());
+                bosHashOutputs.write(this.outs.get(inputIndex).getOutScript());
+                hashOutputs = Sha256Hash.createDouble(bosHashOutputs.toByteArray()).getBytes();
+            }
+            if (splitCoin == SplitCoin.BCD) {
+                uint32ToByteStreamLE(12, bos);
+                if (getBlockHash() != null && getBlockHash().length > 0) {
+                    bos.write(getBlockHash());
+                }
+            } else {
+                uint32ToByteStreamLE(1, bos);
+            }
+
+            bos.write(hashPrevouts);
+            bos.write(hashSequence);
+            bos.write(ins.get(inputIndex).getOutpoint().getTxHash());
+            uint32ToByteStreamLE(ins.get(inputIndex).getOutpoint().getOutSn(), bos);
+            bos.write(new VarInt(connectedScript.length).encode());
+            bos.write(connectedScript);
+            Utils.uint64ToByteStreamLE(prevValue, bos);
+            uint32ToByteStreamLE(ins.get(inputIndex).getInSequence(), bos);
+            bos.write(hashOutputs);
+            uint32ToByteStreamLE(0, bos);
+            if (splitCoin.sigHashTypeAsBtgSame()) {
+                uint32ToByteStreamLE(sigHashType, bos);
+            } else {
+                uint32ToByteStreamLE(0x000000ff & sigHashType, bos);
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);  // Cannot happen.
+        }
+        return Sha256Hash.createDouble(bos.toByteArray()).getBytes();
+    }
+
     @Override
     protected void bitcoinSerializeToStream(OutputStream stream) throws IOException {
-        Utils.uint32ToByteStreamLE(txVer, stream);
+        if (coin != Coin.BCD) {
+            uint32ToByteStreamLE(txVer, stream);
+        } else {
+            uint32ToByteStreamLE(12, stream);
+            if (getBlockHash() != null && getBlockHash().length > 0) {
+                stream.write(getBlockHash());
+            }
+        }
         stream.write(new VarInt(ins.size()).encode());
         for (In in : ins) {
             in.bitcoinSerialize(stream);
@@ -1254,10 +1699,12 @@ public class Tx extends Message implements Comparable<Tx> {
      */
     public int getSigOpCount() throws ScriptException {
         int sigOps = 0;
-        for (In input : ins)
+        for (In input : ins) {
             sigOps += Script.getSigOpCount(input.getInSignature());
-        for (Out output : outs)
+        }
+        for (Out output : outs) {
             sigOps += Script.getSigOpCount(output.getOutScript());
+        }
         return sigOps;
     }
 
@@ -1266,7 +1713,7 @@ public class Tx extends Message implements Comparable<Tx> {
      * Does <b>not</b> perform all checks on a transaction such as whether the inputs are already
      * spent.
      *
-     * @throws net.bither.bitherj.exception.VerificationException
+     * @throws VerificationException
      */
     public void verify() throws VerificationException {
         if (ins.size() == 0 || outs.size() == 0) {
@@ -1293,11 +1740,12 @@ public class Tx extends Message implements Comparable<Tx> {
                 throw new VerificationException("Coinbase script size out of range");
             }
         } else {
-            for (In input : ins)
+            for (In input : ins) {
                 if (input.isCoinBase()) {
                     throw new VerificationException("Coinbase input as input in non-coinbase " +
                                                             "transaction");
                 }
+            }
         }
     }
 
@@ -1306,17 +1754,18 @@ public class Tx extends Message implements Comparable<Tx> {
      * lock time</p>
      * <p/>
      * <p>To check if this transaction is final at a given height and time,
-     * see {@link net.bither.bitherj.core.Tx#isFinal(int, long)}
+     * see {@link Tx#isFinal(int, long)}
      * </p>
      */
     public boolean isTimeLocked() {
         if (getTxLockTime() == 0) {
             return false;
         }
-        for (In input : getIns())
+        for (In input : getIns()) {
             if (input.hasSequence()) {
                 return true;
             }
+        }
         return false;
     }
 
@@ -1377,7 +1826,7 @@ public class Tx extends Message implements Comparable<Tx> {
 //            Tx tx = AbstractDb.txProvider.getTxDetailByTxHash(in.getPrevTxHash());
 //            int n = in.getPrevOutSn();
 //            for (Out out : tx.getOuts()) {
-//                if (n == out.getOutSn() && Utils.compareString(address.getAddress2(),
+//                if (n == out.getOutSn() && Utils.compareString(address.getAddress(),
 //                        out.getOutAddress())) {
 //                    amount += tx.outs.get(n).getOutValue();
 //                }
@@ -1389,7 +1838,7 @@ public class Tx extends Message implements Comparable<Tx> {
 //    public long amountSentTo(Address address) {
 //        long amount = 0;
 //        for (Out out : this.outs) {
-//            if (Utils.compareString(address.getAddress2(), out.getOutAddress())) {
+//            if (Utils.compareString(address.getAddress(), out.getOutAddress())) {
 //                amount += out.getOutValue();
 //            }
 //        }
@@ -1461,11 +1910,42 @@ public class Tx extends Message implements Comparable<Tx> {
     }
 
     public List<byte[]> getUnsignedInHashes() {
-        List<byte[]> result = new ArrayList<byte[]>();
-        for (In in : this.getIns()) {
-            byte sigHashType = (byte) TransactionSignature.calcSigHashValue(TransactionSignature
-                                                                                    .SigHash.ALL, false);
-            result.add(this.hashForSignature(in.getInSn(), in.getPrevOutScript(), sigHashType));
+        List<byte[]> result  = new ArrayList<byte[]>();
+        SigHash      sigHash = coin.getSigHash();
+        switch (coin) {
+            case BTC:
+                for (In in : this.getIns()) {
+                    byte sigHashType = (byte) TransactionSignature.calcSigHashValue(sigHash, false);
+                    result.add(this.hashForSignature(in.getInSn(), in.getPrevOutScript(), sigHashType));
+                }
+                break;
+            case SBTC:
+                for (int i = 0; i < this.getIns().size(); i++) {
+                    In in = getIns().get(i);
+                    result.add(this.hashForSignatureForSBTC(i, in.getPrevOutScript(),
+                                                            sigHash, false));
+                }
+                break;
+            case BCD:
+                for (int i = 0; i < this.getIns().size(); i++) {
+                    In in = getIns().get(i);
+                    result.add(this.hashForSignatureForBCD(in.getInSn(), in.getPrevOutScript(),
+                                                           sigHash, false));
+                }
+                break;
+            case BTP:
+            case BTN:
+            case BTF:
+            case BTW:
+            case BCC:
+            case BTG:
+                for (int i = 0; i < this.getIns().size(); i++) {
+                    In  in  = getIns().get(i);
+                    Out out = AbstractDb.txProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
+                    result.add(this.hashForSignatureWitness(i, in.getPrevOutScript(), BigInteger.valueOf(out.getOutValue()),
+                                                            sigHash, false, coin.getSplitCoin()));
+                }
+                break;
         }
         return result;
     }
@@ -1473,18 +1953,16 @@ public class Tx extends Message implements Comparable<Tx> {
     public List<byte[]> getUnsignedInHashesForHDM(byte[] pubs) {
         List<byte[]> result = new ArrayList<byte[]>();
         for (In in : this.getIns()) {
-            byte sigHashType = (byte) TransactionSignature.calcSigHashValue(TransactionSignature
-                                                                                    .SigHash.ALL, false);
+            byte sigHashType = (byte) TransactionSignature.calcSigHashValue(SigHash.ALL, false);
             result.add(this.hashForSignature(in.getInSn(), pubs, sigHashType));
         }
         return result;
     }
 
     public List<byte[]> getUnsignedInHashesForDesktpHDM(byte[] pubs, int index) {
-        List<byte[]> result = new ArrayList<byte[]>();
-        In           in     = this.getIns().get(index);
-        byte sigHashType = (byte) TransactionSignature.calcSigHashValue(TransactionSignature
-                                                                                .SigHash.ALL, false);
+        List<byte[]> result      = new ArrayList<byte[]>();
+        In           in          = this.getIns().get(index);
+        byte         sigHashType = (byte) TransactionSignature.calcSigHashValue(SigHash.ALL, false);
         result.add(this.hashForSignature(in.getInSn(), pubs, sigHashType));
         return result;
     }
@@ -1533,10 +2011,9 @@ public class Tx extends Message implements Comparable<Tx> {
                     in = this.getIns().get(0);
                     Script scriptSig = new Script(in.getInSignature());
 
-                    byte sigHashType = (byte) TransactionSignature.calcSigHashValue(TransactionSignature
-                                                                                            .SigHash.ALL, false);
-                    byte[]       hash = hashForSignature(in.getInSn(), params, sigHashType);
-                    List<byte[]> sigs = scriptSig.getSigs();
+                    byte         sigHashType = (byte) TransactionSignature.calcSigHashValue(SigHash.ALL, false);
+                    byte[]       hash        = hashForSignature(in.getInSn(), params, sigHashType);
+                    List<byte[]> sigs        = scriptSig.getSigs();
                     for (byte[] sig : sigs) {
                         byte[] pub = getSignPubs(hash, ECKey.ECDSASignature.decodeFromDER(sig), pubKeys);
                         if (pub != null) {
@@ -1615,5 +2092,34 @@ public class Tx extends Message implements Comparable<Tx> {
             }
         }
         return false;
+    }
+
+    public List<byte[]> getSplitCoinForkUnsignedInHashes(SplitCoin splitCoin) {
+        List<byte[]> result = new ArrayList<byte[]>();
+        for (int i = 0; i < this.getIns().size(); i++) {
+            In in = getIns().get(i);
+            if (splitCoin == SplitCoin.SBTC) {
+                result.add(this.hashForSignatureForSBTC(i, in.getPrevOutScript(), splitCoin.getSigHash(), false));
+            } else if (splitCoin == SplitCoin.BCD) {
+                result.add(this.hashForSignatureForBCD(i, in.getPrevOutScript(), splitCoin.getSigHash(), false));
+            } else {
+                Out out = AbstractDb.txProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
+                result.add(this.hashForSignatureWitness(i,
+                                                        in.getPrevOutScript(), BigInteger.valueOf(out.getOutValue()),
+                                                        splitCoin.getSigHash(), false, splitCoin));
+            }
+
+        }
+        return result;
+    }
+
+    public List<byte[]> getUnsignedHashesForBcc(long[] prevOutValue) {
+        List<byte[]> result = new ArrayList<byte[]>();
+        for (int i = 0; i < this.getIns().size(); i++) {
+            In     in      = this.getIns().get(i);
+            byte[] sigHash = hashForSignatureWitness(i, in.getPrevOutScript(), BigInteger.valueOf(prevOutValue[i]), SigHash.BCCFORK, false, SplitCoin.BCC);
+            result.add(sigHash);
+        }
+        return result;
     }
 }

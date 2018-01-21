@@ -1,19 +1,3 @@
-/*
-* Copyright 2014 http://Bither.net
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
 package com.dasset.wallet.core.contant;
 
 import com.dasset.wallet.core.utils.Utils;
@@ -52,16 +36,26 @@ public class BitherjSettings {
     public static final String ID_MAINNET = "org.bitcoin.production";
 
 
-    public static final BigInteger proofOfWorkLimit       = Utils.decodeCompactBits(0x1d00ffffL);
-    public static final int        port                   = 8333;
-    public static final long       packetMagic            = 0xf9beb4d9L;
-    public static final int        addressHeader          = 0;
-    public static final int        p2shHeader             = 5;
-    public static final int        dumpedPrivateKeyHeader = 128;
-    public static final int        TARGET_TIMESPAN        = 14 * 24 * 60 * 60;  // 2 weeks per difficulty cycle, on average.
-    public static final int        TARGET_SPACING         = 10 * 60;  // 10 minutes per block.
-    public static final int        INTERVAL               = TARGET_TIMESPAN / TARGET_SPACING;
+    public static final BigInteger proofOfWorkLimit = Utils.decodeCompactBits(0x1d00ffffL);
+    public static final int        port             = 8333;
+    public static final long       packetMagic      = 0xf9beb4d9L;
 
+    public static final int addressHeader    = 0;
+    public static final int btgAddressHeader = 38;
+    public static final int btwAddressHeader = 73;
+    public static final int btfAddressHeader = 36;
+    public static final int btpAddressHeader = 56;
+
+    public static final int p2shHeader    = 5;
+    public static final int btgP2shHeader = 23;
+    public static final int btwP2shHeader = 31;
+    public static final int btfP2shHeader = 40;
+    public static final int btpP2shHeader = 58;
+
+    public static final int dumpedPrivateKeyHeader = 128;
+    public static final int TARGET_TIMESPAN        = 14 * 24 * 60 * 60;  // 2 weeks per difficulty cycle, on average.
+    public static final int TARGET_SPACING         = 10 * 60;  // 10 minutes per block.
+    public static final int INTERVAL               = TARGET_TIMESPAN / TARGET_SPACING;
 
     public static final long TX_UNCONFIRMED = Long.MAX_VALUE;
 
@@ -114,7 +108,7 @@ public class BitherjSettings {
     public static final boolean ensureMinRequiredFee = true;
 
     public enum TransactionFeeMode {
-        Normal(10000), Low(1000), High(20000);
+        Normal(10000), High(20000), Higher(50000), TenX(100000), TwentyX(200000);
 
         private int satoshi;
 
@@ -127,61 +121,41 @@ public class BitherjSettings {
         }
     }
 
-    public enum MarketType {
-        BITSTAMP, BTCE, BTCCHINA, OKCOIN, HUOBI, CHBTC, BTCTRADE, BITFINEX,
-        COINBASE, MARKET796;
-
-
-    }
-
     public static MarketType getMarketType(int value) {
         switch (value) {
             case 2:
-                return MarketType.BTCE;
-            case 3:
-                return MarketType.HUOBI;
-            case 4:
-                return MarketType.OKCOIN;
-            case 5:
-                return MarketType.BTCCHINA;
-            case 6:
-                return MarketType.CHBTC;
-            case 7:
                 return MarketType.BITFINEX;
-            case 8:
-                return MarketType.MARKET796;
-            case 9:
+            case 3:
                 return MarketType.COINBASE;
-            case 10:
-                return MarketType.BTCTRADE;
         }
         return MarketType.BITSTAMP;
     }
 
     public static int getMarketValue(MarketType marketType) {
         switch (marketType) {
-            case BTCE:
-                return 2;
-            case HUOBI:
-                return 3;
-            case OKCOIN:
-                return 4;
-            case BTCCHINA:
-                return 5;
-            case CHBTC:
-                return 6;
             case BITFINEX:
-                return 7;
-            case MARKET796:
-                return 8;
+                return 2;
             case COINBASE:
-                return 9;
-            case BTCTRADE:
-                return 10;
-
-
+                return 3;
         }
         return 1;
+    }
+
+    public static boolean validAddressPrefixPubkey(int pubkey) {
+        if (pubkey == addressHeader || pubkey == btgAddressHeader || pubkey == btwAddressHeader ||
+                pubkey == btfAddressHeader || pubkey == btpAddressHeader) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean validAddressPrefixScript(int script) {
+        if (script == p2shHeader || script == btgP2shHeader || script == btwP2shHeader ||
+                script == btfP2shHeader || script == btpP2shHeader) {
+            return true;
+        }
+
+        return false;
     }
 
     public enum KlineTimeType {

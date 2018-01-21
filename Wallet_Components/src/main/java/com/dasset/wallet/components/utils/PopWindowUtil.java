@@ -9,7 +9,7 @@ import com.dasset.wallet.components.constant.Constant;
 
 public class PopWindowUtil {
 
-    private PopupWindow popupWindow;
+    private        PopupWindow   popupWindow;
     private static PopWindowUtil popWindowUtil;
 
     private PopWindowUtil() {
@@ -30,7 +30,9 @@ public class PopWindowUtil {
     }
 
     public void showPopWindow(View anchorView, View contentView, int width, int height, boolean focusable, int gravity) {
-        popupWindow.dismiss();
+        if (popupWindow != null) {
+            popupWindow.dismiss();
+        }
         popupWindow = new PopupWindow(contentView, width, height, focusable);
         popupWindow.setBackgroundDrawable(new ColorDrawable());
         switch (gravity) {
@@ -54,10 +56,10 @@ public class PopWindowUtil {
         anchorView.getLocationOnScreen(anchorLocation);
         int anchorHeight = anchorView.getHeight();
         int screenHeight = anchorView.getResources().getDisplayMetrics().heightPixels;
-        int screenWidth = anchorView.getResources().getDisplayMetrics().widthPixels;
+        int screenWidth  = anchorView.getResources().getDisplayMetrics().widthPixels;
         contentView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         int windowHeight = contentView.getMeasuredHeight();
-        int windowWidth = contentView.getMeasuredWidth();
+        int windowWidth  = contentView.getMeasuredWidth();
         if ((screenHeight - anchorLocation[1] - anchorHeight < windowHeight)) {
             windowPosition[0] = screenWidth - windowWidth;
             windowPosition[1] = anchorLocation[1] - windowHeight;

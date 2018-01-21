@@ -1,5 +1,6 @@
 package com.dasset.wallet.core.wallet.hd;
 
+import com.dasset.wallet.core.contant.PathType;
 import com.dasset.wallet.core.crypto.EncryptedData;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.crypto.hd.HDKeyDerivation;
@@ -16,22 +17,10 @@ import java.util.List;
 
 public abstract class AbstractHD {
 
-    public enum PathType {
-        EXTERNAL_ROOT_PATH(0), INTERNAL_ROOT_PATH(1);
-        private int value;
-
-        PathType(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return this.value;
-        }
-    }
 
     public static class PathTypeIndex {
         public PathType pathType;
-        public int index;
+        public int      index;
     }
 
 
@@ -58,13 +47,13 @@ public abstract class AbstractHD {
 
 
     protected DeterministicKey getChainRootKey(DeterministicKey accountKey, PathType pathType) {
-        return accountKey.deriveSoftened(pathType.getValue());
+        return accountKey.deriveSoftened(pathType.getType());
     }
 
     protected DeterministicKey getAccount(DeterministicKey master) {
-        DeterministicKey purpose = master.deriveHardened(44);
+        DeterministicKey purpose  = master.deriveHardened(44);
         DeterministicKey coinType = purpose.deriveHardened(0);
-        DeterministicKey account = coinType.deriveHardened(0);
+        DeterministicKey account  = coinType.deriveHardened(0);
         purpose.wipe();
         coinType.wipe();
         return account;
@@ -115,7 +104,7 @@ public abstract class AbstractHD {
     public List<String> getSeedWords(CharSequence password) throws MnemonicException
             .MnemonicLengthException {
         decryptMnemonicSeed(password);
-        List<String> words = MnemonicCode.instance().toMnemonic(mnemonicSeed);
+        List<String> words = MnemonicCode.getInstance().toMnemonic(mnemonicSeed);
         wipeMnemonicSeed();
         return words;
     }
@@ -125,18 +114,18 @@ public abstract class AbstractHD {
     }
 
     protected String getFirstAddressFromSeed(CharSequence password) {
-        DeterministicKey key = getExternalKey(0, password);
-        String address = Utils.toAddress(key.getPubKeyHash());
+        DeterministicKey key     = getExternalKey(0, password);
+        String           address = Utils.toAddress(key.getPubKeyHash());
         key.wipe();
         return address;
     }
 
     public DeterministicKey getInternalKey(int index, CharSequence password) {
         try {
-            DeterministicKey master = masterKey(password);
-            DeterministicKey accountKey = getAccount(master);
+            DeterministicKey master            = masterKey(password);
+            DeterministicKey accountKey        = getAccount(master);
             DeterministicKey externalChainRoot = getChainRootKey(accountKey, PathType.INTERNAL_ROOT_PATH);
-            DeterministicKey key = externalChainRoot.deriveSoftened(index);
+            DeterministicKey key               = externalChainRoot.deriveSoftened(index);
             master.wipe();
             accountKey.wipe();
             externalChainRoot.wipe();
@@ -148,10 +137,10 @@ public abstract class AbstractHD {
 
     public DeterministicKey getExternalKey(int index, CharSequence password) {
         try {
-            DeterministicKey master = masterKey(password);
-            DeterministicKey accountKey = getAccount(master);
+            DeterministicKey master            = masterKey(password);
+            DeterministicKey accountKey        = getAccount(master);
             DeterministicKey externalChainRoot = getChainRootKey(accountKey, PathType.EXTERNAL_ROOT_PATH);
-            DeterministicKey key = externalChainRoot.deriveSoftened(index);
+            DeterministicKey key               = externalChainRoot.deriveSoftened(index);
             master.wipe();
             accountKey.wipe();
             externalChainRoot.wipe();
@@ -163,7 +152,7 @@ public abstract class AbstractHD {
 
     protected byte[] getMasterPubKeyExtended(CharSequence password) {
         try {
-            DeterministicKey master = masterKey(password);
+            DeterministicKey master     = masterKey(password);
             DeterministicKey accountKey = getAccount(master);
             return accountKey.getPubKeyExtended();
         } catch (Exception e) {
@@ -189,10 +178,8 @@ public abstract class AbstractHD {
         return hdSeedId;
     }
 
-    public static final byte[] seedFromMnemonic(byte[] mnemonicSeed) throws MnemonicException
-            .MnemonicLengthException {
-        MnemonicCode mnemonic = MnemonicCode.instance();
-        return mnemonic.toSeed(mnemonic.toMnemonic(mnemonicSeed), "");
+    public static final byte[] seedFromMnemonic(byte[] mnemonicSeed) throws MnemonicException.MnemonicLengthException {
+        return MnemonicCode.getInstance().toSeed(MnemonicCode.getInstance().toMnemonic(mnemonicSeed), "");
     }
 
 

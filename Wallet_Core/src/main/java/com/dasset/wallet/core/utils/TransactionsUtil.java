@@ -1,19 +1,3 @@
-/*
- * Copyright 2014 http://Bither.net
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dasset.wallet.core.utils;
 
 import com.dasset.wallet.core.Address;
@@ -22,19 +6,20 @@ import com.dasset.wallet.core.Block;
 import com.dasset.wallet.core.BlockChain;
 import com.dasset.wallet.core.DesktopHDMAddress;
 import com.dasset.wallet.core.DesktopHDMKeychain;
-import com.dasset.wallet.core.wallet.hd.HDAccount;
-import com.dasset.wallet.core.wallet.hd.HDMAddress;
+import com.dasset.wallet.core.In;
 import com.dasset.wallet.core.Tx;
 import com.dasset.wallet.core.UnSignTransaction;
 import com.dasset.wallet.core.api.BitherMytransactionsApi;
+import com.dasset.wallet.core.api.BlockChainMytransactionsApi;
 import com.dasset.wallet.core.contant.AbstractApp;
 import com.dasset.wallet.core.contant.BitherjSettings;
+import com.dasset.wallet.core.contant.PathType;
+import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
-import com.dasset.wallet.core.wallet.hd.AbstractHD;
-import com.dasset.wallet.core.In;
-import com.dasset.wallet.core.api.BlockChainMytransactionsApi;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.wallet.hd.HDAccount;
+import com.dasset.wallet.core.wallet.hd.HDAddress;
+import com.dasset.wallet.core.wallet.hd.HDMAddress;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -243,7 +228,7 @@ public class TransactionsUtil {
 
     public static boolean signTransaction(Tx tx, String qrCodeContent)
             throws ScriptException {
-        String[]     stringArray = QRCodeUtil.splitString(qrCodeContent);
+        String[]     stringArray = QRCodeUtil.split(qrCodeContent);
         List<byte[]> hashList    = new ArrayList<byte[]>();
         for (String str : stringArray) {
             if (!Utils.isEmpty(str)) {
@@ -256,11 +241,11 @@ public class TransactionsUtil {
 
 
     public static void getMyTxFromBither() throws Exception {
-        if (AbstractApp.iSetting.getAppMode() != BitherjSettings.AppMode.HOT) {
+        if (AbstractApp.bitherjSetting.getAppMode() != BitherjSettings.AppMode.HOT) {
             return;
         }
         // TODO: web type
-        int flag = AbstractApp.iSetting.getApiConfig().value();
+        int flag = AbstractApp.bitherjSetting.getApiConfig().value();
         getTxForAddress(flag);
         if (AddressManager.getInstance().getHDAccountHot() != null) {
             getTxForHDAccount(AddressManager.getInstance().getHDAccountHot().getHdSeedId(), flag);
@@ -278,8 +263,8 @@ public class TransactionsUtil {
     }
 
     private static void getTxForHDAccountMoitored(int hdSeedId, final int webType) throws Exception {
-        for (AbstractHD.PathType pathType : AbstractHD.PathType.values()) {
-            HDAccount.HDAccountAddress hdAccountAddress;
+        for (PathType pathType : PathType.values()) {
+            HDAddress hdAddress;
 //            boolean hasTx = true;
             int unusedAddressCnt      = 0; //HDAccount.MaxUnusedNewAddressCount
             int maxUnusedAddressCount = HDAccount.MaxUnusedNewAddressCount;
@@ -287,17 +272,17 @@ public class TransactionsUtil {
             while (unusedAddressCnt <= maxUnusedAddressCount) {
                 Block storedBlock      = BlockChain.getInstance().getLastBlock();
                 int   storeBlockHeight = storedBlock.getBlockNo();
-                hdAccountAddress = AbstractDb.hdAccountAddressProvider.addressForPath(hdSeedId,
-                                                                                      pathType, addressIndex);
-                if (hdAccountAddress == null) {
+                hdAddress = AbstractDb.hdAccountAddressProvider.addressForPath(hdSeedId,
+                                                                               pathType, addressIndex);
+                if (hdAddress == null) {
 //                    hasTx = false;
                     unusedAddressCnt += 1;
                     log.warn("hd monitor address is null path {} ,index {}", pathType, addressIndex);
                     continue;
                 }
-                if (hdAccountAddress.isSyncedComplete()) {
+                if (hdAddress.hasSyncedCompleted()) {
                     log.info("hd monitor address is synced path {} ,index {}, {}", pathType,
-                             addressIndex, hdAccountAddress.getAddress());
+                             addressIndex, hdAddress.getAddress());
                     addressIndex++;
                     continue;
                 }
@@ -309,12 +294,12 @@ public class TransactionsUtil {
 
                 List<Tx> transactions;
 
-                log.info("hd monitor address will sync path {} ,index {}, {}", pathType, addressIndex, hdAccountAddress.getAddress());
+                log.info("hd monitor address will sync path {} ,index {}, {}", pathType, addressIndex, hdAddress.getAddress());
                 while (needGetTxs) {
                     // TODO: get data from bither.net else from blockchain.info
                     if (webType == 0) {
                         BitherMytransactionsApi bitherMytransactionsApi = new BitherMytransactionsApi(
-                                hdAccountAddress.getAddress(), page);
+                                hdAddress.getAddress(), page);
                         bitherMytransactionsApi.handleHttpGet();
                         String     txResult   = bitherMytransactionsApi.getResult();
                         JSONObject jsonObject = new JSONObject(txResult);
@@ -336,7 +321,7 @@ public class TransactionsUtil {
                         page++;
 
                     } else {
-                        BlockChainMytransactionsApi blockChainMytransactionsApi = new BlockChainMytransactionsApi(hdAccountAddress.getAddress());
+                        BlockChainMytransactionsApi blockChainMytransactionsApi = new BlockChainMytransactionsApi(hdAddress.getAddress());
                         blockChainMytransactionsApi.handleHttpGet();
                         String     txResult   = blockChainMytransactionsApi.getResult();
                         JSONObject jsonObject = new JSONObject(txResult);
@@ -361,7 +346,7 @@ public class TransactionsUtil {
                 /*
                 while (needGetTxs) {
                     BitherMytransactionsApi bitherMytransactionsApi = new BitherMytransactionsApi(
-                            hdAccountAddress.getAddress2(), page, flag);
+                            hdAccountAddress.getAddress(), page, flag);
                     bitherMytransactionsApi.handleHttpGet();
                     String txResult = bitherMytransactionsApi.getResult();
                     JSONObject jsonObject = new JSONObject(txResult);
@@ -383,12 +368,12 @@ public class TransactionsUtil {
                     BlockChain.getInstance().rollbackBlock(apiBlockCount);
                 }
 
-                log.info("hd monitor address did sync {} tx, path {} ,index {}, {}", txSum, pathType, addressIndex, hdAccountAddress.getAddress());
-                hdAccountAddress.setSyncedComplete(true);
-                AddressManager.getInstance().getHDAccountMonitored().updateSyncComplete(hdAccountAddress);
+                log.info("hd monitor address did sync {} tx, path {} ,index {}, {}", txSum, pathType, addressIndex, hdAddress.getAddress());
+                hdAddress.setSyncedCompleted(true);
+                AddressManager.getInstance().getHDAccountMonitored().updateSyncComplete(hdAddress);
 
                 if (txSum > 0) {
-                    if (pathType == AbstractHD.PathType.EXTERNAL_ROOT_PATH) {
+                    if (pathType == PathType.EXTERNAL_ROOT_PATH) {
                         AddressManager.getInstance().getHDAccountMonitored().updateIssuedExternalIndex(addressIndex);
                     } else {
                         AddressManager.getInstance().getHDAccountMonitored().updateIssuedInternalIndex(addressIndex);
@@ -407,8 +392,8 @@ public class TransactionsUtil {
     }
 
     private static void getTxForHDAccount(int hdSeedId, final int webType) throws Exception {
-        for (AbstractHD.PathType pathType : AbstractHD.PathType.values()) {
-            HDAccount.HDAccountAddress hdAccountAddress;
+        for (PathType pathType : PathType.values()) {
+            HDAddress hdAccountAddress;
 //            boolean hasTx = true;
             int unusedAddressCnt      = 0; //HDAccount.MaxUnusedNewAddressCount
             int maxUnusedAddressCount = HDAccount.MaxUnusedNewAddressCount;
@@ -424,7 +409,7 @@ public class TransactionsUtil {
                     log.warn("hd address is null path {} ,index {}", pathType, addressIndex);
                     continue;
                 }
-                if (hdAccountAddress.isSyncedComplete()) {
+                if (hdAccountAddress.hasSyncedCompleted()) {
                     log.info("hd address is synced path {} ,index {}, {}", pathType,
                              addressIndex, hdAccountAddress.getAddress());
                     addressIndex++;
@@ -488,7 +473,7 @@ public class TransactionsUtil {
                 /*
                 while (needGetTxs) {
                     BitherMytransactionsApi bitherMytransactionsApi = new BitherMytransactionsApi(
-                            hdAccountAddress.getAddress2(), page, flag);
+                            hdAccountAddress.getAddress(), page, flag);
                     bitherMytransactionsApi.handleHttpGet();
                     String txResult = bitherMytransactionsApi.getResult();
                     JSONObject jsonObject = new JSONObject(txResult);
@@ -511,11 +496,11 @@ public class TransactionsUtil {
                 }
 
                 log.info("hd address did sync {} tx, path {} ,index {}, {}", txSum, pathType, addressIndex, hdAccountAddress.getAddress());
-                hdAccountAddress.setSyncedComplete(true);
+                hdAccountAddress.setSyncedCompleted(true);
                 AddressManager.getInstance().getHDAccountHot().updateSyncComplete(hdAccountAddress);
 
                 if (txSum > 0) {
-                    if (pathType == AbstractHD.PathType.EXTERNAL_ROOT_PATH) {
+                    if (pathType == PathType.EXTERNAL_ROOT_PATH) {
                         AddressManager.getInstance().getHDAccountHot().updateIssuedExternalIndex(addressIndex);
                     } else {
                         AddressManager.getInstance().getHDAccountHot().updateIssuedInternalIndex(addressIndex);
@@ -534,7 +519,7 @@ public class TransactionsUtil {
     }
 
     private static void getTxForDesktopHDM(DesktopHDMKeychain desktopHDMKeychain, final int webType) throws Exception {
-        for (AbstractHD.PathType pathType : AbstractHD.PathType.values()) {
+        for (PathType pathType : PathType.values()) {
             DesktopHDMAddress desktopHDMAddress;
             boolean           hasTx        = true;
             int               addressIndex = 0;
@@ -608,7 +593,7 @@ public class TransactionsUtil {
                 /*
                 while (needGetTxs) {
                     BitherMytransactionsApi bitherMytransactionsApi = new BitherMytransactionsApi(
-                            desktopHDMAddress.getAddress2(), page, flag);
+                            desktopHDMAddress.getAddress(), page, flag);
                     bitherMytransactionsApi.handleHttpGet();
                     String txResult = bitherMytransactionsApi.getResult();
                     JSONObject jsonObject = new JSONObject(txResult);
@@ -634,7 +619,7 @@ public class TransactionsUtil {
                 desktopHDMKeychain.updateSyncComplete(desktopHDMAddress);
 
                 if (txSum > 0) {
-                    if (pathType == AbstractHD.PathType.EXTERNAL_ROOT_PATH) {
+                    if (pathType == PathType.EXTERNAL_ROOT_PATH) {
                         desktopHDMKeychain.updateIssuedExternalIndex(addressIndex);
                     } else {
                         desktopHDMKeychain.updateIssuedInternalIndex(addressIndex);

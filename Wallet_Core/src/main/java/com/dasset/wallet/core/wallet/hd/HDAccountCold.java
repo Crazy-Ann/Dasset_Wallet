@@ -18,6 +18,9 @@
 
 package com.dasset.wallet.core.wallet.hd;
 
+import com.dasset.wallet.core.contant.Constant;
+import com.dasset.wallet.core.contant.PathType;
+import com.dasset.wallet.core.contant.SigHash;
 import com.dasset.wallet.core.crypto.EncryptedData;
 import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
@@ -65,7 +68,7 @@ public class HDAccountCold extends AbstractHD {
         String address = k.toAddress();
         k.clearPrivateKey();
         DeterministicKey accountKey = getAccount(master);
-        DeterministicKey externalKey = getChainRootKey(accountKey, AbstractHD.PathType
+        DeterministicKey externalKey = getChainRootKey(accountKey, PathType
                 .EXTERNAL_ROOT_PATH);
         DeterministicKey internalKey = getChainRootKey(accountKey, PathType
                 .INTERNAL_ROOT_PATH);
@@ -138,7 +141,7 @@ public class HDAccountCold extends AbstractHD {
                 key = internal.deriveSoftened(path.index);
             }
             TransactionSignature sig = new TransactionSignature(key.sign(hash),
-                                                                TransactionSignature.SigHash.ALL, false);
+                                                                SigHash.ALL, false);
             sigs.add(ScriptBuilder.createInputScript(sig, key).getProgram());
             key.wipe();
         }
@@ -185,7 +188,7 @@ public class HDAccountCold extends AbstractHD {
     }
 
     public String getQRCodeFullEncryptPrivKey() {
-        return QRCodeUtil.HD_QR_CODE_FLAG + getFullEncryptPrivKey();
+        return Constant.HD_QR_CODE_FLAG + getFullEncryptPrivKey();
     }
 
     private static byte[] randomByteFromSecureRandom(SecureRandom random, int length) {
@@ -209,7 +212,7 @@ public class HDAccountCold extends AbstractHD {
         byte[] extended = accountPubExtended(password);
         String result = "";
         if (isFromXRandom) {
-            result += QRCodeUtil.XRANDOM_FLAG;
+            result += Constant.XRANDOM_FLAG;
         }
         result += Utils.bytesToHexString(extended).toUpperCase();
         return result;

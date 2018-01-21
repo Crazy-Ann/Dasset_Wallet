@@ -25,7 +25,7 @@ import com.dasset.wallet.net.response.GetVersionResponse;
 public class WalletApi {
 
     private static WalletApi walletApi;
-    private int retryCount;
+    private        int       retryCount;
 
     private WalletApi() {
         // cannot be instantiated
@@ -55,32 +55,39 @@ public class WalletApi {
         }
     }
 
-    private void handleResponseFailed(BaseView view, int promptCode, JSONObject object) {
-        if (object.containsKey(BaseResponseParameterKey.ERROR_CODE)) {
-            switch (object.getString(BaseResponseParameterKey.ERROR_CODE)) {
-                case ResponseCode.ErrorCode.VERSION_ERROR:
-                    if (object.containsKey(BaseResponseParameterKey.ERROR_MESSAGE)) {
-                        view.showPromptDialog(object.getString(BaseResponseParameterKey.ERROR_MESSAGE), false, false, promptCode);
-                    } else if (object.containsKey(BaseResponseParameterKey.RETURN_MESSAGE)) {
-                        view.showPromptDialog(object.getString(BaseResponseParameterKey.RETURN_MESSAGE), true, false, promptCode);
-                    } else {
-                        view.showPromptDialog("未知错误", true, false, promptCode);
-                    }
-                    break;
-                default:
-                    if (object.containsKey(BaseResponseParameterKey.RETURN_MESSAGE)) {
-                        view.showPromptDialog(object.getString(BaseResponseParameterKey.RETURN_MESSAGE), true, false, promptCode);
-                    } else {
-                        view.showPromptDialog("未知错误", true, false, promptCode);
-                    }
-                    break;
+    private void handleResponseFailed(BaseView view, int promptCode, int code, String message, JSONObject object) {
+        LogUtil.getInstance().print("code:" + code);
+        if (object != null) {
+            LogUtil.getInstance().print("获取版本信息失败:" + object.toString());
+            if (object.containsKey(BaseResponseParameterKey.ERROR_CODE)) {
+                switch (object.getString(BaseResponseParameterKey.ERROR_CODE)) {
+                    case ResponseCode.ErrorCode.VERSION_ERROR:
+                        if (object.containsKey(BaseResponseParameterKey.ERROR_MESSAGE)) {
+                            view.showPromptDialog(object.getString(BaseResponseParameterKey.ERROR_MESSAGE), false, false, promptCode);
+                        } else if (object.containsKey(BaseResponseParameterKey.RETURN_MESSAGE)) {
+                            view.showPromptDialog(object.getString(BaseResponseParameterKey.RETURN_MESSAGE), true, false, promptCode);
+                        } else {
+                            view.showPromptDialog("未知错误", true, false, promptCode);
+                        }
+                        break;
+                    default:
+                        if (object.containsKey(BaseResponseParameterKey.RETURN_MESSAGE)) {
+                            view.showPromptDialog(object.getString(BaseResponseParameterKey.RETURN_MESSAGE), true, false, promptCode);
+                        } else {
+                            view.showPromptDialog("未知错误", true, false, promptCode);
+                        }
+                        break;
+                }
+            } else {
+                if (object.containsKey(BaseResponseParameterKey.RETURN_MESSAGE)) {
+                    view.showPromptDialog(object.getString(BaseResponseParameterKey.RETURN_MESSAGE), false, false, promptCode);
+                } else {
+                    view.showPromptDialog("未知错误", true, false, promptCode);
+                }
             }
         } else {
-            if (object.containsKey(BaseResponseParameterKey.RETURN_MESSAGE)) {
-                view.showPromptDialog(object.getString(BaseResponseParameterKey.RETURN_MESSAGE), false, false, promptCode);
-            } else {
-                view.showPromptDialog("未知错误", true, false, promptCode);
-            }
+            LogUtil.getInstance().print("获取版本信息失败:" + message);
+            view.showPromptDialog(message, true, false, promptCode);
         }
     }
 
@@ -120,27 +127,16 @@ public class WalletApi {
                     }
 
                     @Override
-                    public void onResponseFailed(JSONObject object) {
-                        super.onResponseFailed(object);
-                        LogUtil.getInstance().print("资产帐户建立失败:" + object.toString());
-                        handleResponseFailed(view, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR, object);
-                        apiResponse.failed(version);
-                    }
-
-                    @Override
-                    public void onResponseFailed(String code, String message) {
-                        super.onResponseFailed(code, message);
-                    }
-
-                    @Override
-                    public void onResponseFailed(String code, String message, JSONObject object) {
+                    public void onResponseFailed(int code, String message, JSONObject object) {
                         super.onResponseFailed(code, message, object);
+                        handleResponseFailed(view, Constant.RequestCode.DIALOG_PROMPT_CREATE_ACCOUNT_ERROR, code, message, object);
+                        apiResponse.failed(version);
                     }
 
                     @Override
                     public void onEnd() {
                         super.onEnd();
-                        LogUtil.getInstance().print("资产帐户建立结束");
+                        LogUtil.getInstance().print("获取版本信息结束");
                         view.hideLoadingPromptDialog();
                     }
 

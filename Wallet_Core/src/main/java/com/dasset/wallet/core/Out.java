@@ -1,24 +1,9 @@
-/*
-* Copyright 2014 http://Bither.net
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
 package com.dasset.wallet.core;
 
+
 import com.dasset.wallet.core.contant.BitherjSettings;
+import com.dasset.wallet.core.contant.Coin;
 import com.dasset.wallet.core.crypto.ECKey;
-import com.dasset.wallet.core.exception.AddressFormatException;
 import com.dasset.wallet.core.exception.ProtocolException;
 import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.message.Message;
@@ -47,12 +32,12 @@ public class Out extends Message {
     private static final Logger log = LoggerFactory.getLogger(Out.class);
 
     private byte[] txHash;
-    private int outSn;
+    private int    outSn;
     private byte[] outScript;
-    private long outValue;
+    private long   outValue;
     private OutStatus outStatus = OutStatus.unspent;
     private String outAddress;
-    private long coinDepth;
+    private long   coinDepth;
 
     private int hdAccountId = -1;
 
@@ -74,7 +59,7 @@ public class Out extends Message {
         this.txHash = this.tx.getTxHash();
     }
 
-    public Out(Tx parent, long value, String to) throws AddressFormatException {
+    public Out(Tx parent, long value, String to) {
         this(parent, value, ScriptBuilder.createOutputScript(to).getProgram());
     }
 
@@ -160,6 +145,20 @@ public class Out extends Message {
             try {
                 Script pubKeyScript = new Script(this.getOutScript());
                 outAddress = pubKeyScript.getToAddress();
+            } catch (ScriptException e) {
+//                if (this.getOutScript() != null) {
+//                    log.warn("out script : " + Utils.bytesToHexString(this.getOutScript()));
+//                }
+            }
+        }
+        return outAddress;
+    }
+
+    public String getOutAddress(Coin coin) {
+        if (outAddress == null) {
+            try {
+                Script pubKeyScript = new Script(this.getOutScript());
+                outAddress = pubKeyScript.getToAddress(coin);
             } catch (ScriptException e) {
 //                if (this.getOutScript() != null) {
 //                    log.warn("out script : " + Utils.bytesToHexString(this.getOutScript()));
@@ -279,7 +278,7 @@ public class Out extends Message {
 //
 //    // A reference to the transaction which holds this output.
 //    Tx parentTransaction;
-    private transient int scriptLen;
+    private transient int                   scriptLen;
 
     //
     public Script getScriptPubKey() throws ScriptException {
@@ -298,6 +297,7 @@ public class Out extends Message {
         return script;
     }
 
+    @Override
     protected void parse() throws ProtocolException {
         outValue = readInt64();
 
@@ -326,14 +326,15 @@ public class Out extends Message {
      * somewhat arbitrary and
      * may change in future.</p>
      * <p/>
-     * <p>You probably should use {@link net.bither.bitherj.core.Out#getMinNonDustValue()} which
+     * <p>You probably should use {@link Out#getMinNonDustValue()} which
      * uses
      * a safe fee-per-kb by default.</p>
      *
-     * @param feePerKbRequired The fee required per kilobyte. Note that this is the same as the
-     *                         reference client's -minrelaytxfee * 3
-     *                         If you want a safe default, use {@link net.bither.bitherj.core
-     *                         .Tx#REFERENCE_DEFAULT_MIN_TX_FEE}*3
+     * @param feePerKbRequired
+     *         The fee required per kilobyte. Note that this is the same as the
+     *         reference client's -minrelaytxfee * 3
+     *         If you want a safe default, use {@link net.bither.bitherj.core
+     *         .Tx#REFERENCE_DEFAULT_MIN_TX_FEE}*3
      */
     public BigInteger getMinNonDustValue(BigInteger feePerKbRequired) {
         // A typical output is 33 bytes (pubkey hash + opcodes) and requires an input of 148
@@ -357,7 +358,7 @@ public class Out extends Message {
      * transaction will be relayable
      * and mined by default miners. For normal pay to address outputs, this is 5460 satoshis, the
      * same as
-     * {@link net.bither.bitherj.core.Tx#MIN_NONDUST_OUTPUT}.
+     * {@link Tx#MIN_NONDUST_OUTPUT}.
      */
     public BigInteger getMinNonDustValue() {
         return getMinNonDustValue(BigInteger.valueOf(Tx.REFERENCE_DEFAULT_MIN_TX_FEE * 3));

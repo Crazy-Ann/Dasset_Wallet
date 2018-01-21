@@ -6,6 +6,7 @@ import android.content.Context;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.utils.SecurityUtil;
 import com.dasset.wallet.components.utils.SharedPreferenceUtil;
+import com.dasset.wallet.core.contant.Constant;
 
 import org.spongycastle.util.encoders.Hex;
 

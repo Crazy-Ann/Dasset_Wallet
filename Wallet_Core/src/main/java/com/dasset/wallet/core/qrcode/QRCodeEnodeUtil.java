@@ -1,23 +1,8 @@
-/*
- * Copyright 2014 http://Bither.net
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dasset.wallet.core.qrcode;
 
-import com.dasset.wallet.core.AddressManager;
 import com.dasset.wallet.core.Address;
+import com.dasset.wallet.core.AddressManager;
+import com.dasset.wallet.core.contant.Constant;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.utils.Utils;
 
@@ -40,14 +25,14 @@ public class QRCodeEnodeUtil {
         List<Address> addresses = AddressManager.getInstance().getPrivKeyAddresses();
         for (int i = 0; i < addresses.size(); i++) {
             Address address = addresses.get(i);
-            String pubStr = "";
+            String  pubStr  = "";
             if (address.isFromXRandom()) {
-                pubStr = QRCodeUtil.XRANDOM_FLAG;
+                pubStr = Constant.XRANDOM_FLAG;
             }
             pubStr = pubStr + Utils.bytesToHexString(address.getPubKey());
             content += pubStr;
             if (i < addresses.size() - 1) {
-                content += QRCodeUtil.QR_CODE_SPLIT;
+                content += Constant.QR_CODE_SPLIT;
             }
         }
         content.toUpperCase(Locale.US);
@@ -55,14 +40,14 @@ public class QRCodeEnodeUtil {
     }
 
     public static boolean checkPubkeysQRCodeContent(String content) {
-        String[] strs = QRCodeUtil.splitString(content);
+        String[] strs = QRCodeUtil.split(content);
         for (String str : strs) {
             boolean checkCompressed = str.length() == 66 || ((str.length() == 67)
-                    && (str.indexOf(QRCodeUtil.XRANDOM_FLAG) == 0));
+                    && (str.indexOf(Constant.XRANDOM_FLAG) == 0));
             boolean checkUnCompressed = str.length() == 130 || ((str.length() == 131)
-                    && (str.indexOf(QRCodeUtil.XRANDOM_FLAG) == 0));
-            if(str.indexOf(QRCodeUtil.XRANDOM_FLAG) == 0){
-                str = str.substring(QRCodeUtil.XRANDOM_FLAG.length());
+                    && (str.indexOf(Constant.XRANDOM_FLAG) == 0));
+            if (str.indexOf(Constant.XRANDOM_FLAG) == 0) {
+                str = str.substring(Constant.XRANDOM_FLAG.length());
             }
             org.spongycastle.math.ec.ECPoint ecPoint = ECKey.checkPoint(Utils.hexStringToByteArray(str));
 
@@ -77,11 +62,11 @@ public class QRCodeEnodeUtil {
     }
 
     public static List<Address> formatPublicString(String content) {
-        String[] strs = QRCodeUtil.splitString(content);
+        String[]           strs    = QRCodeUtil.split(content);
         ArrayList<Address> wallets = new ArrayList<Address>();
         for (String str : strs) {
             boolean isXRandom = false;
-            if (str.indexOf(QRCodeUtil.XRANDOM_FLAG) == 0) {
+            if (str.indexOf(Constant.XRANDOM_FLAG) == 0) {
                 isXRandom = true;
                 str = str.substring(1);
             }
@@ -89,8 +74,8 @@ public class QRCodeEnodeUtil {
 
             org.spongycastle.math.ec.ECPoint ecPoint = ECKey.checkPoint(pub);
             if (ecPoint != null && ecPoint.isValid()) {
-                String addString = Utils.toAddress(Utils.sha256hash160(pub));
-                Address address = new Address(addString, pub, null, false, isXRandom);
+                String  addString = Utils.toAddress(Utils.sha256hash160(pub));
+                Address address   = new Address(addString, pub, null, false, isXRandom);
                 wallets.add(address);
             }
         }
@@ -99,9 +84,9 @@ public class QRCodeEnodeUtil {
     }
 
     public static String oldEncodeQrCodeString(String text) {
-        Pattern pattern = Pattern.compile("[A-Z]");
-        Matcher matcher = pattern.matcher(text);
-        StringBuffer sb = new StringBuffer();
+        Pattern      pattern = Pattern.compile("[A-Z]");
+        Matcher      matcher = pattern.matcher(text);
+        StringBuffer sb      = new StringBuffer();
         while (matcher.find()) {
             String letter = matcher.group(0);
             matcher.appendReplacement(sb, QR_CODE_LETTER + letter);

@@ -1,29 +1,13 @@
-/*
- * Copyright 2014 http://Bither.net
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.dasset.wallet.core.db;
 
-import com.dasset.wallet.core.Tx;
 import com.dasset.wallet.core.In;
 import com.dasset.wallet.core.Out;
+import com.dasset.wallet.core.Tx;
 
 import java.util.List;
 
 public interface ITxProvider {
-
     List<Tx> getTxAndDetailByAddress(String address);
 
     List<Tx> getTxAndDetailByAddress(String address, int page);
@@ -42,6 +26,7 @@ public interface ITxProvider {
 
     void remove(byte[] txHash);
 
+
     boolean isAddressContainsTx(String address, Tx txItem);
 
     boolean isTxDoubleSpendWithConfirmedTx(Tx tx);
@@ -55,7 +40,12 @@ public interface ITxProvider {
 
     List<Tx> getUnspendTxWithAddress(String address);
 
+    List<Tx> getUnspendTxWithAddress(String address, List<Out> unSpentOuts);
 //    List<Out> getUnspendOutWithAddress(String address);
+
+    List<Out> getUnspentOutputByBlockNo(long BlockNo, String address);
+
+    Out getTxPreOut(byte[] txHash, int OutSn);
 
     // for calculate balance
     long getConfirmedBalanceWithAddress(String address);

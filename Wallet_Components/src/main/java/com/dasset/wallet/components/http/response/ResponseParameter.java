@@ -5,13 +5,13 @@ import okhttp3.Response;
 
 public class ResponseParameter {
 
-    private boolean isNoResponse;
-    private boolean isTimeout;
-    private int responseCode;
-    private String responseMessage;
-    private String responseResult;
-    private boolean isSuccess;
-    private Headers headers;
+    private boolean  isNoResponse;
+    private boolean  isTimeout;
+    private int      responseCode;
+    private String   responseMessage;
+    private String   responseResult;
+    private boolean  isSuccess;
+    private Headers  headers;
     private Response response;
 
     public boolean isNoResponse() {

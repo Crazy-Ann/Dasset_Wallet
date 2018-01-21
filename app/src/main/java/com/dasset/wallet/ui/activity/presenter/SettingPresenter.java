@@ -26,8 +26,8 @@ import java.io.IOException;
 public class SettingPresenter extends BasePresenterImplement implements SettingContract.Presenter {
 
     private SettingContract.View view;
-    private Version version;
-    private String path;
+    private Version              version;
+    private String               path;
 
     public SettingPresenter(Context context, SettingContract.View view) {
         this.context = context;
@@ -68,7 +68,7 @@ public class SettingPresenter extends BasePresenterImplement implements SettingC
 
             @Override
             public void failed(BaseEntity entity) {
-                view.showPromptDialog(R.string.dialog_prompt_get_version_error, true, false, Constant.RequestCode.DIALOG_PROMPT_GET_VERSION_ERROR);
+                
             }
         });
     }

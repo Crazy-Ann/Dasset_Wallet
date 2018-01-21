@@ -1,25 +1,9 @@
-/*
- * Copyright 2014 http://Bither.net
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dasset.wallet.core.crypto.bip38;
 
 
 import com.dasset.wallet.core.crypto.DumpedPrivateKey;
-import com.dasset.wallet.core.crypto.SecureCharSequence;
 import com.dasset.wallet.core.exception.AddressFormatException;
+import com.dasset.wallet.core.password.SecureCharSequence;
 import com.dasset.wallet.core.utils.Sha256Hash;
 import com.dasset.wallet.core.utils.Utils;
 import com.lambdaworks.crypto.SCrypt;
@@ -37,10 +21,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Bip38 {
 
-    public static final int SCRYPT_N = 16384;
+    public static final int SCRYPT_N      = 16384;
     public static final int SCRYPT_LOG2_N = 14;
-    public static final int SCRYPT_R = 8;
-    public static final int SCRYPT_P = 8;
+    public static final int SCRYPT_R      = 8;
+    public static final int SCRYPT_P      = 8;
     public static final int SCRYPT_LENGTH = 64;
 
     public static final BigInteger n = new BigInteger(1, Utils.hexStringToByteArray("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"));
@@ -55,9 +39,9 @@ public class Bip38 {
      */
     public static String encryptNoEcMultiply(CharSequence passphrase, String base58EncodedPrivateKey) throws InterruptedException, AddressFormatException {
         DumpedPrivateKey dumpedPrivateKey = new DumpedPrivateKey(base58EncodedPrivateKey);
-        ECKey ecKey = dumpedPrivateKey.getKey();
+        ECKey            ecKey            = dumpedPrivateKey.getKey();
         dumpedPrivateKey.clearPrivateKey();
-        byte[] salt = Bip38.calculateScryptSalt(ecKey.toAddress());
+        byte[] salt                 = Bip38.calculateScryptSalt(ecKey.toAddress());
         byte[] stretchedKeyMaterial = bip38Stretch1(passphrase, salt, SCRYPT_LENGTH);
         return encryptNoEcMultiply(stretchedKeyMaterial, ecKey, salt);
     }
@@ -89,8 +73,8 @@ public class Bip38 {
 
     private static byte[] convertToByteArray(CharSequence charSequence) {
         checkNotNull(charSequence);
-        ByteBuffer bb = Charset.forName("UTF-8").encode(CharBuffer.wrap(charSequence));
-        byte[] result = new byte[bb.remaining()];
+        ByteBuffer bb     = Charset.forName("UTF-8").encode(CharBuffer.wrap(charSequence));
+        byte[]     result = new byte[bb.remaining()];
         bb.get(result);
         bb.clear();
         byte[] clearTest = new byte[bb.remaining()];
@@ -104,14 +88,14 @@ public class Bip38 {
     public static String encryptNoEcMultiply(byte[] stretcedKeyMaterial, ECKey key, byte[] salt) {
 
         // Encoded result
-        int checksumLength = 4;
-        byte[] encoded = new byte[39 + checksumLength];
-        int index = 0;
+        int    checksumLength = 4;
+        byte[] encoded        = new byte[39 + checksumLength];
+        int    index          = 0;
         encoded[index++] = (byte) 0x01;
         encoded[index++] = (byte) 0x42;
 
         // Flags byte
-        byte non_EC_multiplied = (byte) 0xC0;
+        byte non_EC_multiplied   = (byte) 0xC0;
         byte compressedPublicKey = key.isCompressed() ? (byte) 0x20 : (byte) 0;
         encoded[index++] = (byte) (non_EC_multiplied | compressedPublicKey);
 
@@ -154,7 +138,7 @@ public class Bip38 {
 
         // Checksum
         Sha256Hash checkSum = Bip38Util.doubleSha256(encoded, 0, 39);
-        byte[] start = checkSum.firstFourBytes();
+        byte[]     start    = checkSum.firstFourBytes();
         System.arraycopy(start, 0, encoded, 39, checksumLength);
 
         // Base58 encode
@@ -170,8 +154,8 @@ public class Bip38 {
         public boolean ecMultiply;
         public boolean compressed;
         public boolean lotSequence;
-        public byte[] salt;
-        public byte[] data;
+        public byte[]  salt;
+        public byte[]  data;
 
         public Bip38PrivateKey(boolean ecMultiply, boolean compressed, boolean lotSequence, byte[] salt, byte[] data) {
             this.ecMultiply = ecMultiply;
@@ -350,8 +334,8 @@ public class Bip38 {
         factorB = Bip38Util.doubleSha256(seedB);
 
         BigInteger privateKey = new BigInteger(1, passFactor).multiply(factorB.toPositiveBigInteger()).mod(n);
-        byte[] keyBytes = new byte[32];
-        byte[] bytes = privateKey.toByteArray();
+        byte[]     keyBytes   = new byte[32];
+        byte[]     bytes      = privateKey.toByteArray();
         if (bytes.length <= keyBytes.length) {
             System.arraycopy(bytes, 0, keyBytes, keyBytes.length - bytes.length, bytes.length);
         } else {

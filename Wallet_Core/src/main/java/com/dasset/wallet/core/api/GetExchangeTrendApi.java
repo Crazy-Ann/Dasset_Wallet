@@ -19,11 +19,12 @@ package com.dasset.wallet.core.api;
 import com.dasset.wallet.core.api.http.HttpGetResponse;
 import com.dasset.wallet.core.contant.BitherjSettings;
 import com.dasset.wallet.core.api.http.BitherUrl;
+import com.dasset.wallet.core.contant.MarketType;
 import com.dasset.wallet.core.utils.Utils;
 
 public class GetExchangeTrendApi extends HttpGetResponse<String> {
 
-    public GetExchangeTrendApi(BitherjSettings.MarketType marketType) {
+    public GetExchangeTrendApi(MarketType marketType) {
         String url = Utils.format(BitherUrl.BITHER_TREND_URL,
                                   BitherjSettings.getMarketValue(marketType));
         setUrl(url);

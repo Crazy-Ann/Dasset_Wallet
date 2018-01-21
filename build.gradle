@@ -34,16 +34,16 @@ ext {
     minSdkVersion = 19
     targetSdkVersion = 27
     compileSdkVersion = 27
-    buildToolsVersion = "27.0.1"
+    buildToolsVersion = "27.0.3"
     testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunne"
     sourceCompatibilityVersion = JavaVersion.VERSION_1_8
     targetCompatibilityVersion = JavaVersion.VERSION_1_8
 }
 ext.deps = [
-        appcompat_v4               : 'com.android.support:support-v4:27.0.0',
-        appcompat_v7               : 'com.android.support:appcompat-v7:27.0.0',
+        appcompat_v4               : 'com.android.support:support-v4:27.0.1',
+        appcompat_v7               : 'com.android.support:appcompat-v7:27.0.1',
         constraint_layout          : 'com.android.support.constraint:constraint-layout:1.0.2',
-        design                     : 'com.android.support:design:27.0.0',
+        design                     : 'com.android.support:design:27.0.1',
         junit                      : 'junit:junit:4.12',
         runner                     : 'com.android.support.test:runner:1.0.1',
         espresso_core              : 'com.android.support.test.espresso:espresso-core:3.0.1',

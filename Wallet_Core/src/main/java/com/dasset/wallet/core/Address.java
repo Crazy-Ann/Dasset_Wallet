@@ -1,26 +1,13 @@
-/*
-* Copyright 2014 http://Bither.net
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
 package com.dasset.wallet.core;
 
 import com.dasset.wallet.core.contant.AbstractApp;
+import com.dasset.wallet.core.contant.Coin;
+import com.dasset.wallet.core.contant.SigHash;
+import com.dasset.wallet.core.contant.SplitCoin;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.db.AbstractDb;
-import com.dasset.wallet.core.exception.AddressFormatException;
+import com.dasset.wallet.core.exception.PasswordException;
 import com.dasset.wallet.core.exception.TxBuilderException;
 import com.dasset.wallet.core.script.ScriptBuilder;
 import com.dasset.wallet.core.utils.PrivateKeyUtil;
@@ -46,8 +33,8 @@ public class Address implements Comparable<Address> {
 
     private static final Logger log = LoggerFactory.getLogger(Address.class);
 
-    public static final String KEY_SPLIT_STRING = ":";
-    public static final String PUBLIC_KEY_FILE_NAME_SUFFIX = ".pub";
+    public static final String KEY_SPLIT_STRING            = ":";
+    public static final String PUBLIC_KEY_FILE_NAME_SUFFIX = ".publicKey";
 
     protected String encryptPrivKey;
 
@@ -67,12 +54,15 @@ public class Address implements Comparable<Address> {
         super();
     }
 
-    public Address(String address, byte[] pubKey, String encryptString, boolean isSyncComplete, boolean isFromXRandom) {
-        this(address, pubKey, AddressManager.getInstance().getSortTime(!Utils.isEmpty(encryptString)), isSyncComplete, isFromXRandom, false, encryptString);
+    public Address(String address, byte[] pubKey, String encryptString, boolean isSyncComplete
+            , boolean isFromXRandom) {
+        this(address, pubKey, AddressManager.getInstance().getSortTime(!Utils.isEmpty
+                (encryptString)), isSyncComplete, isFromXRandom, false, encryptString);
 
     }
 
-    public Address(String address, byte[] pubKey, long sortTime, boolean isSyncComplete, boolean isFromXRandom, boolean isTrashed, String encryptPrivKey) {
+    public Address(String address, byte[] pubKey, long sortTime, boolean isSyncComplete,
+                   boolean isFromXRandom, boolean isTrashed, String encryptPrivKey) {
         this.encryptPrivKey = encryptPrivKey;
         this.address = address;
         this.pubKey = pubKey;
@@ -89,8 +79,8 @@ public class Address implements Comparable<Address> {
     }
 
     public List<Tx> getRecentlyTxsWithConfirmationCntLessThan(int confirmationCnt, int limit) {
-        List<Tx> txList = new ArrayList<Tx>();
-        int blockNo = BlockChain.getInstance().getLastBlock().getBlockNo() - confirmationCnt + 1;
+        List<Tx> txList  = new ArrayList<Tx>();
+        int      blockNo = BlockChain.getInstance().getLastBlock().getBlockNo() - confirmationCnt + 1;
         for (Tx tx : AbstractDb.txProvider.getRecentlyTxsByAddress(this.address, blockNo, limit)) {
             txList.add(tx);
         }
@@ -144,13 +134,13 @@ public class Address implements Comparable<Address> {
         List<Tx> txs = AbstractDb.txProvider.getUnconfirmedTxWithAddress(this.address);
         Collections.sort(txs);
 
-        Set<byte[]> invalidTx = new HashSet<byte[]>();
-        Set<OutPoint> spentOut = new HashSet<OutPoint>();
+        Set<byte[]>   invalidTx  = new HashSet<byte[]>();
+        Set<OutPoint> spentOut   = new HashSet<OutPoint>();
         Set<OutPoint> unspendOut = new HashSet<OutPoint>();
 
         for (int i = txs.size() - 1; i >= 0; i--) {
             Set<OutPoint> spent = new HashSet<OutPoint>();
-            Tx tx = txs.get(i);
+            Tx            tx    = txs.get(i);
 
             Set<byte[]> inHashes = new HashSet<byte[]>();
             for (In in : tx.getIns()) {
@@ -283,24 +273,54 @@ public class Address implements Comparable<Address> {
     }
 
 
-    public Tx buildTx(List<Long> amounts, List<String> addresses) throws TxBuilderException, AddressFormatException {
+    public Tx buildTx(List<Long> amounts, List<String> addresses) throws TxBuilderException {
         return buildTx(getAddress(), amounts, addresses);
     }
 
-    public Tx buildTx(String changeAddress, List<Long> amounts, List<String> addresses) throws TxBuilderException, AddressFormatException {
-        return TxBuilder.getInstance().buildTx(this, changeAddress, amounts, addresses);
+    public Tx buildTx(String changeAddress, List<Long> amounts, List<String> addresses) throws TxBuilderException {
+        return TxBuilder.getInstance().buildTx(this, changeAddress, amounts, addresses, Coin.BTC);
     }
 
-    public Tx buildTx(long amount, String address) throws TxBuilderException, AddressFormatException {
+    public Tx buildTx(String changeAddress, List<Long> amounts, List<String> addresses, Coin coin) throws TxBuilderException {
+        return TxBuilder.getInstance().buildTx(this, changeAddress, amounts, addresses, coin);
+    }
+
+    public Tx buildTx(long amount, String address) throws TxBuilderException {
         return buildTx(amount, address, getAddress());
     }
 
-    public Tx buildTx(long amount, String address, String changeAddress) throws TxBuilderException, AddressFormatException {
+    public Tx buildTx(long amount, String address, String changeAddress) throws TxBuilderException {
         List<Long> amounts = new ArrayList<Long>();
         amounts.add(amount);
         List<String> addresses = new ArrayList<String>();
         addresses.add(address);
         return buildTx(changeAddress, amounts, addresses);
+    }
+
+    public Tx buildTx(long amount, String address, String changeAddress, Coin coin) throws TxBuilderException {
+        List<Long> amounts = new ArrayList<Long>();
+        amounts.add(amount);
+        List<String> addresses = new ArrayList<String>();
+        addresses.add(address);
+        return buildTx(changeAddress, amounts, addresses, coin);
+    }
+
+    public List<Tx> buildSplitCoinTx(long amount, String address, String changeAddress, SplitCoin splitCoin) throws TxBuilderException {
+        List<Long> amounts = new ArrayList<Long>();
+        amounts.add(amount);
+        List<String> addresses = new ArrayList<String>();
+        addresses.add(address);
+        List<Tx> txs = TxBuilder.getInstance().buildSplitCoinTx(this, changeAddress, amounts, addresses, splitCoin);
+        return txs;
+    }
+
+    public List<Tx> buildBccTx(long amount, String address, String changeAddress, List<Out> outs) throws TxBuilderException {
+        List<Long> amounts = new ArrayList<Long>();
+        amounts.add(amount);
+        List<String> addresses = new ArrayList<String>();
+        addresses.add(address);
+        List<Tx> txs = TxBuilder.getInstance().buildBccTx(this, changeAddress, amounts, addresses, outs);
+        return txs;
     }
 
     public List<Tx> getRecentlyTxs(int confirmationCnt, int limit) {
@@ -317,35 +337,41 @@ public class Address implements Comparable<Address> {
         for (String h : unsignedInHashes) {
             hashes.add(Utils.hexStringToByteArray(h));
         }
-        List<byte[]> resultHashes = signHashes(hashes, passphrase);
-        ArrayList<String> resultStrs = new ArrayList<String>();
+        List<byte[]>      resultHashes = signHashes(hashes, passphrase, SigHash.ALL);
+        ArrayList<String> resultStrs   = new ArrayList<String>();
         for (byte[] h : resultHashes) {
             resultStrs.add(Utils.bytesToHexString(h));
         }
         return resultStrs;
     }
 
-    public List<byte[]> signHashes(List<byte[]> unsignedInHashes, CharSequence passphrase) {
+    public List<byte[]> signHashes(List<byte[]> unsignedInHashes, CharSequence passphrase, SigHash sigHash) throws
+            PasswordException {
         ECKey key = PrivateKeyUtil.getECKeyFromSingleString(this.getFullEncryptPrivKey(), passphrase);
         if (key == null) {
-            throw new RuntimeException("do not decryptAESEBC eckey");
+            throw new PasswordException("do not decrypt eckey");
         }
         KeyParameter assKey = key.getKeyCrypter().deriveKey(passphrase);
         List<byte[]> result = new ArrayList<byte[]>();
         for (byte[] unsignedInHash : unsignedInHashes) {
             TransactionSignature signature = new TransactionSignature(key.sign(unsignedInHash,
-                                                                               assKey), TransactionSignature.SigHash.ALL, false);
+                                                                               assKey), sigHash, false);
             result.add(ScriptBuilder.createInputScript(signature, key).getProgram());
         }
         key.clearPrivateKey();
         return result;
     }
 
+    public List<byte[]> signHashes(List<byte[]> unsignedInHashes, CharSequence passphrase) throws
+            PasswordException {
+        return signHashes(unsignedInHashes, passphrase, SigHash.ALL);
+    }
+
     public String signMessage(String msg, CharSequence passphrase) {
 
         ECKey key = PrivateKeyUtil.getECKeyFromSingleString(this.getFullEncryptPrivKey(), passphrase);
         if (key == null) {
-            throw new RuntimeException("do not decryptAESEBC eckey");
+            throw new PasswordException("do not decrypt eckey");
         }
         KeyParameter assKey = key.getKeyCrypter().deriveKey(passphrase);
 
@@ -358,8 +384,21 @@ public class Address implements Comparable<Address> {
 
     }
 
-    public void signTx(Tx tx, CharSequence passphrase) {
-        tx.signWithSignatures(this.signHashes(tx.getUnsignedInHashes(), passphrase));
+    public void signTx(Tx tx, CharSequence passphrase, Coin coin) {
+        if (coin == Coin.BTC) {
+            tx.signWithSignatures(this.signHashes(tx.getUnsignedInHashes(), passphrase, SigHash.ALL));
+        } else {
+            tx.signWithSignatures(this.signHashes(tx.getSplitCoinForkUnsignedInHashes(coin.getSplitCoin()), passphrase, coin.getSigHash()));
+        }
+    }
+
+    public void signTx(Tx tx, CharSequence passphrase, boolean isBtc, List<Out> outs) {
+        long[] preOutValue = new long[outs.size()];
+        for (int idx = 0; idx < outs.size(); idx++) {
+            preOutValue[idx] = outs.get(idx).getOutValue();
+        }
+        List<byte[]> unsignedHashes = tx.getUnsignedHashesForBcc(preOutValue);
+        tx.signWithSignatures(this.signHashes(unsignedHashes, passphrase, SigHash.BCCFORK));
     }
 
     public void completeInSignature(List<In> ins) {

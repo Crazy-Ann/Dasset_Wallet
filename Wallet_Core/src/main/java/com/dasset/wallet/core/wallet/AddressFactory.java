@@ -1,6 +1,7 @@
 package com.dasset.wallet.core.wallet;
 
 import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.core.contant.Constant;
 
 import org.spongycastle.crypto.digests.RIPEMD160Digest;
 import org.spongycastle.jcajce.provider.digest.Keccak;

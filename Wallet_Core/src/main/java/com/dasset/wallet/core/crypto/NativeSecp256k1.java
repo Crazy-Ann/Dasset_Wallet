@@ -74,7 +74,7 @@ public class NativeSecp256k1 {
     /**
      * @param byteBuff signature format is byte[32] data,
      *                 native-endian int signatureLength, native-endian int pubkeyLength,
-     *                 byte[signatureLength] signature, byte[pubkeyLength] pub
+     *                 byte[signatureLength] signature, byte[pubkeyLength] publicKey
      *
      * @returns 1 for valid signature, anything else for invalid
      */

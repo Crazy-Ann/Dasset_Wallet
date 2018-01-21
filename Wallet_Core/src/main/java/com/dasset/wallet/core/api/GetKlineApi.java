@@ -19,12 +19,13 @@ package com.dasset.wallet.core.api;
 import com.dasset.wallet.core.api.http.BitherUrl;
 import com.dasset.wallet.core.api.http.HttpGetResponse;
 import com.dasset.wallet.core.contant.BitherjSettings;
+import com.dasset.wallet.core.contant.MarketType;
 import com.dasset.wallet.core.utils.Utils;
 
 public class GetKlineApi extends HttpGetResponse<String> {
 
 
-    public GetKlineApi(BitherjSettings.MarketType marketType, BitherjSettings.KlineTimeType klineTimeType) {
+    public GetKlineApi(MarketType marketType, BitherjSettings.KlineTimeType klineTimeType) {
 
         String url = Utils.format(BitherUrl.BITHER_KLINE_URL,
                                   BitherjSettings.getMarketValue(marketType), klineTimeType.getValue());

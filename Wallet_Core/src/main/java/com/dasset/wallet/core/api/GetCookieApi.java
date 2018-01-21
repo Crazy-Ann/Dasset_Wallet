@@ -19,6 +19,7 @@ package com.dasset.wallet.core.api;
 import com.dasset.wallet.core.api.http.BitherUrl;
 import com.dasset.wallet.core.api.http.HttpPostResponse;
 import com.dasset.wallet.core.api.http.HttpSetting;
+import com.dasset.wallet.core.contant.HttpType;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -35,7 +36,7 @@ public class GetCookieApi extends HttpPostResponse<String> {
 
     public GetCookieApi() {
         setUrl(BitherUrl.BITHER_GET_COOKIE_URL);
-        setHttpType(HttpSetting.HttpType.GetBitherCookie);
+        setHttpType(HttpType.GetBitherCookie);
     }
 
     @Override

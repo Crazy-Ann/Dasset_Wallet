@@ -1,27 +1,12 @@
-/**
- * Copyright 2013 Jim Burton.
- * <p/>
- * Licensed under the MIT license (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p/>
- * http://opensource.org/licenses/mit-license.php
- * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.dasset.wallet.core.crypto;
 
-import com.lambdaworks.crypto.SCrypt;
+import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.core.exception.KeyCrypterException;
 import com.dasset.wallet.core.utils.Utils;
+import com.lambdaworks.crypto.SCrypt;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.BufferedBlockCipher;
+import org.spongycastle.crypto.InvalidCipherTextException;
 import org.spongycastle.crypto.engines.AESFastEngine;
 import org.spongycastle.crypto.modes.CBCBlockCipher;
 import org.spongycastle.crypto.paddings.PaddedBufferedBlockCipher;
@@ -29,17 +14,16 @@ import org.spongycastle.crypto.params.KeyParameter;
 import org.spongycastle.crypto.params.ParametersWithIV;
 
 import java.io.Serializable;
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class KeyCrypterScrypt implements KeyCrypter, Serializable {
-    private static final Logger log               = LoggerFactory.getLogger(KeyCrypterScrypt.class);
-    private static final long   serialVersionUID  = 949662512049152670L;
-    private static final int    BITCOINJ_SCRYPT_N = 16384;
-    private static final int    BITCOINJ_SCRYPT_R = 8;
-    private static final int    BITCOINJ_SCRYPT_P = 1;
 
+    private static final int BITCOINJ_SCRYPT_N = 16384;
+    private static final int BITCOINJ_SCRYPT_R = 8;
+    private static final int BITCOINJ_SCRYPT_P = 1;
     private static final SecureRandom secureRandom;
 
     /**
@@ -60,11 +44,10 @@ public class KeyCrypterScrypt implements KeyCrypter, Serializable {
 
 
     // Scrypt parameters.
-
-
-    private byte[] mSalt;
+    private byte[] salt;
 
     static {
+        System.loadLibrary("scrypt");
         secureRandom = new SecureRandom();
     }
 
@@ -72,44 +55,38 @@ public class KeyCrypterScrypt implements KeyCrypter, Serializable {
      * Encryption/ Decryption using default parameters and a random salt
      */
     public KeyCrypterScrypt() {
-        mSalt = new byte[SALT_LENGTH];
-        secureRandom.nextBytes(mSalt);
-
+        this.salt = new byte[SALT_LENGTH];
+        secureRandom.nextBytes(salt);
     }
 
-
     public KeyCrypterScrypt(byte[] salt) {
-        mSalt = checkNotNull(salt);
-
-        if (salt == null
-                || salt.length == 0) {
-            log.warn("You are using a ScryptParameters with no salt. Your encryption may be vulnerable to a dictionary attack.");
+        this.salt = checkNotNull(salt);
+        if (salt == null || salt.length == 0) {
+            LogUtil.getInstance().print("You are using a ScryptParameters with no salt. Your encryption may be vulnerable to a dictionary attack.");
         }
     }
 
 
     @Override
     public KeyParameter deriveKey(CharSequence password) throws KeyCrypterException {
-        byte[] passwordBytes = null;
+        byte[] bytes = null;
         try {
-            passwordBytes = convertToByteArray(password);
+            bytes = convertToByteArray(password);
             byte[] salt = new byte[0];
-            if (mSalt != null) {
-                salt = mSalt;
+            if (this.salt != null) {
+                salt = this.salt;
             } else {
                 // Warn the user that they are not using a salt.
                 // (Some early MultiBit wallets had a blank salt).
-                log.warn("You are using a ScryptParameters with no salt. Your encryption may be vulnerable to a dictionary attack.");
+                LogUtil.getInstance().print("You are using a ScryptParameters with no salt. Your encryption may be vulnerable to a dictionary attack.");
             }
-
-            byte[] keyBytes = SCrypt.scrypt(passwordBytes, salt, BITCOINJ_SCRYPT_N, BITCOINJ_SCRYPT_R, BITCOINJ_SCRYPT_P, KEY_LENGTH);
-            return new KeyParameter(keyBytes);
-        } catch (Exception e) {
+            return new KeyParameter(SCrypt.scrypt(bytes, salt, BITCOINJ_SCRYPT_N, BITCOINJ_SCRYPT_R, BITCOINJ_SCRYPT_P, KEY_LENGTH));
+        } catch (GeneralSecurityException e) {
             throw new KeyCrypterException("Could not generate key from password and salt.", e);
         } finally {
             // Zero the password bytes.
-            if (passwordBytes != null) {
-                java.util.Arrays.fill(passwordBytes, (byte) 0);
+            if (bytes != null) {
+                java.util.Arrays.fill(bytes, (byte) 0);
             }
         }
     }
@@ -118,27 +95,22 @@ public class KeyCrypterScrypt implements KeyCrypter, Serializable {
      * Password based encryption using AES - CBC 256 bits.
      */
     @Override
-    public EncryptedPrivateKey encrypt(byte[] plainBytes, KeyParameter aesKey) throws KeyCrypterException {
+    public EncryptedPrivateKey encrypt(byte[] plainBytes, KeyParameter keyParameter) throws KeyCrypterException {
         checkNotNull(plainBytes);
-        checkNotNull(aesKey);
-
+        checkNotNull(keyParameter);
         try {
             // Generate iv - each encryption call has a different iv.
             byte[] iv = new byte[BLOCK_LENGTH];
             secureRandom.nextBytes(iv);
-
-            ParametersWithIV keyWithIv = new ParametersWithIV(aesKey, iv);
-
+            ParametersWithIV parametersWithIV = new ParametersWithIV(keyParameter, iv);
             // Encrypt using AES.
-            BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESFastEngine()));
-            cipher.init(true, keyWithIv);
-            byte[] encryptedBytes = new byte[cipher.getOutputSize(plainBytes.length)];
-            int    length         = cipher.processBytes(plainBytes, 0, plainBytes.length, encryptedBytes, 0);
-
-            cipher.doFinal(encryptedBytes, length);
-
+            BufferedBlockCipher bufferedBlockCipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESFastEngine()));
+            bufferedBlockCipher.init(true, parametersWithIV);
+            byte[] encryptedBytes = new byte[bufferedBlockCipher.getOutputSize(plainBytes.length)];
+            int    length         = bufferedBlockCipher.processBytes(plainBytes, 0, plainBytes.length, encryptedBytes, 0);
+            bufferedBlockCipher.doFinal(encryptedBytes, length);
             return new EncryptedPrivateKey(iv, encryptedBytes);
-        } catch (Exception e) {
+        } catch (InvalidCipherTextException e) {
             throw new KeyCrypterException("Could not encrypt bytes.", e);
         }
     }
@@ -160,26 +132,20 @@ public class KeyCrypterScrypt implements KeyCrypter, Serializable {
     public byte[] decrypt(EncryptedPrivateKey privateKeyToDecode, KeyParameter aesKey) throws KeyCrypterException {
         checkNotNull(privateKeyToDecode);
         checkNotNull(aesKey);
-
         try {
-            ParametersWithIV keyWithIv = new ParametersWithIV(new KeyParameter(aesKey.getKey()), privateKeyToDecode.getInitialisationVector());
-
+            ParametersWithIV parametersWithIV = new ParametersWithIV(new KeyParameter(aesKey.getKey()), privateKeyToDecode.getInitialisationVector());
             // Decrypt the message.
-            BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESFastEngine()));
-            cipher.init(false, keyWithIv);
-
-            byte[] cipherBytes  = privateKeyToDecode.getEncryptedBytes();
-            int    minimumSize  = cipher.getOutputSize(cipherBytes.length);
-            byte[] outputBuffer = new byte[minimumSize];
-            int    length1      = cipher.processBytes(cipherBytes, 0, cipherBytes.length, outputBuffer, 0);
-            int    length2      = cipher.doFinal(outputBuffer, length1);
-            int    actualLength = length1 + length2;
-
+            BufferedBlockCipher bufferedBlockCipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESFastEngine()));
+            bufferedBlockCipher.init(false, parametersWithIV);
+            byte[] cipherBytes    = privateKeyToDecode.getEncryptedBytes();
+            int    minimumSize    = bufferedBlockCipher.getOutputSize(cipherBytes.length);
+            byte[] outputBuffer   = new byte[minimumSize];
+            int    length1        = bufferedBlockCipher.processBytes(cipherBytes, 0, cipherBytes.length, outputBuffer, 0);
+            int    length2        = bufferedBlockCipher.doFinal(outputBuffer, length1);
+            int    actualLength   = length1 + length2;
             byte[] decryptedBytes = new byte[actualLength];
             System.arraycopy(outputBuffer, 0, decryptedBytes, 0, actualLength);
-
             Utils.wipeBytes(outputBuffer);
-
             return decryptedBytes;
         } catch (Exception e) {
             throw new KeyCrypterException("Could not decryptAESEBC bytes", e);
@@ -193,18 +159,17 @@ public class KeyCrypterScrypt implements KeyCrypter, Serializable {
      */
     private static byte[] convertToByteArray(CharSequence charSequence) {
         checkNotNull(charSequence);
-
-        byte[] byteArray = new byte[charSequence.length() << 1];
+        byte[] bytes = new byte[charSequence.length() << 1];
         for (int i = 0; i < charSequence.length(); i++) {
             int bytePosition = i << 1;
-            byteArray[bytePosition] = (byte) ((charSequence.charAt(i) & 0xFF00) >> 8);
-            byteArray[bytePosition + 1] = (byte) (charSequence.charAt(i) & 0x00FF);
+            bytes[bytePosition] = (byte) ((charSequence.charAt(i) & 0xFF00) >> 8);
+            bytes[bytePosition + 1] = (byte) (charSequence.charAt(i) & 0x00FF);
         }
-        return byteArray;
+        return bytes;
     }
 
     public byte[] getSalt() {
-        return this.mSalt;
+        return this.salt;
     }
 
 
@@ -215,7 +180,7 @@ public class KeyCrypterScrypt implements KeyCrypter, Serializable {
 
     @Override
     public int hashCode() {
-        return com.google.common.base.Objects.hashCode(this.mSalt);
+        return com.google.common.base.Objects.hashCode(this.salt);
     }
 
     @Override
@@ -228,6 +193,6 @@ public class KeyCrypterScrypt implements KeyCrypter, Serializable {
         }
         final KeyCrypterScrypt other = (KeyCrypterScrypt) obj;
 
-        return com.google.common.base.Objects.equal(this.mSalt, other.getSalt());
+        return com.google.common.base.Objects.equal(this.salt, other.getSalt());
     }
 }

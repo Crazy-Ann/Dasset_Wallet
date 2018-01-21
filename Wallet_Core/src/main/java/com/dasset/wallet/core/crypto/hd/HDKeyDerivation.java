@@ -166,7 +166,7 @@ public final class HDKeyDerivation {
         assert parentPublicKey.length == 33 : parentPublicKey.length;
         ByteBuffer data = ByteBuffer.allocate(37);
         if (childNumber.isHardened()) {
-            data.put(parent.getPrivKeyBytes33());
+            data.put(parent.getPrivateKeyBytes33());
         } else {
             data.put(parentPublicKey);
         }

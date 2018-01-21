@@ -20,6 +20,7 @@ package com.dasset.wallet.core.db;
 
 import com.dasset.wallet.core.DesktopHDMAddress;
 import com.dasset.wallet.core.DesktopHDMKeychain;
+import com.dasset.wallet.core.contant.PathType;
 import com.dasset.wallet.core.wallet.hd.HDMAddress;
 import com.dasset.wallet.core.Tx;
 import com.dasset.wallet.core.wallet.hd.AbstractHD;
@@ -45,25 +46,25 @@ public interface IDesktopTxProvider {
 
     HashSet<String> getBelongAccountAddresses(List<String> addressList);
 
-    void updateIssuedIndex(AbstractHD.PathType pathType, int index);
+    void updateIssuedIndex(PathType pathType, int index);
 
-    int issuedIndex(AbstractHD.PathType pathType);
+    int issuedIndex(PathType pathType);
 
-    int allGeneratedAddressCount(AbstractHD.PathType pathType);
+    int allGeneratedAddressCount(PathType pathType);
 
-    void updateSyncdForIndex(AbstractHD.PathType pathType, int index);
+    void updateSyncdForIndex(PathType pathType, int index);
 
     void updateSyncdComplete(DesktopHDMAddress address);
 
     List<Tx> getHDAccountUnconfirmedTx();
 
-    List<HDMAddress.Pubs> getPubs(AbstractHD.PathType pathType);
+    List<HDMAddress.Pubs> getPubs(PathType pathType);
 
-    int getUnspendOutCountByHDAccountWithPath(int hdAccountId, AbstractHD.PathType pathType);
+    int getUnspendOutCountByHDAccountWithPath(int hdAccountId, PathType pathType);
 
-    List<Out> getUnspendOutByHDAccountWithPath(int hdAccountId, AbstractHD.PathType pathType);
+    List<Out> getUnspendOutByHDAccountWithPath(int hdAccountId, PathType pathType);
 
-    DesktopHDMAddress addressForPath(DesktopHDMKeychain keychain, AbstractHD.PathType type, int index);
+    DesktopHDMAddress addressForPath(DesktopHDMKeychain keychain, PathType type, int index);
 
     List<DesktopHDMAddress> getSigningAddressesForInputs(DesktopHDMKeychain keychain, List<In> inList);
 

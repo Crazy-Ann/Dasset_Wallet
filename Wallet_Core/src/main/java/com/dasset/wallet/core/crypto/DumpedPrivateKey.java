@@ -18,6 +18,7 @@ package com.dasset.wallet.core.crypto;
 
 import com.dasset.wallet.core.contant.BitherjSettings;
 import com.dasset.wallet.core.exception.AddressFormatException;
+import com.dasset.wallet.core.password.SecureCharSequence;
 import com.dasset.wallet.core.utils.Base58;
 import com.dasset.wallet.core.utils.Utils;
 import com.google.common.base.Objects;

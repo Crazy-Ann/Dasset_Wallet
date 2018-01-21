@@ -18,6 +18,8 @@
 
 package com.dasset.wallet.core;
 
+import com.dasset.wallet.core.contant.PathType;
+import com.dasset.wallet.core.contant.SigHash;
 import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.db.AbstractDb;
@@ -38,16 +40,16 @@ public class DesktopHDMAddress extends Address {
     private HDMAddress.Pubs pubs;
 
 
-    private AbstractHD.PathType pathType;
+    private PathType pathType;
 
 
     private boolean isIssued;
 
-    public DesktopHDMAddress(HDMAddress.Pubs pubs, AbstractHD.PathType pathType, DesktopHDMKeychain keychain, boolean isSyncComplete) {
+    public DesktopHDMAddress(HDMAddress.Pubs pubs, PathType pathType, DesktopHDMKeychain keychain, boolean isSyncComplete) {
         this(pubs, pubs.getAddress(), pathType, false, isSyncComplete, keychain);
     }
 
-    public DesktopHDMAddress(HDMAddress.Pubs pubs, String address, AbstractHD.PathType pathType, boolean isIssued, boolean isSyncComplete, DesktopHDMKeychain keychain) {
+    public DesktopHDMAddress(HDMAddress.Pubs pubs, String address, PathType pathType, boolean isIssued, boolean isSyncComplete, DesktopHDMKeychain keychain) {
         super(address, pubs.getMultiSigScript().getProgram(), pubs.index, isSyncComplete, true,
                 false, null);
         this.isIssued = isIssued;
@@ -56,11 +58,11 @@ public class DesktopHDMAddress extends Address {
         this.pathType = pathType;
     }
 
-    public AbstractHD.PathType getPathType() {
+    public PathType getPathType() {
         return pathType;
     }
 
-    public void setPathType(AbstractHD.PathType pathType) {
+    public void setPathType(PathType pathType) {
         this.pathType = pathType;
     }
 
@@ -123,7 +125,7 @@ public class DesktopHDMAddress extends Address {
              i < unsignedHashes.size();
              i++) {
             TransactionSignature transactionSignature = new TransactionSignature(key.sign
-                    (unsignedHashes.get(i)), TransactionSignature.SigHash.ALL, false);
+                    (unsignedHashes.get(i)), SigHash.ALL, false);
             sigs.add(transactionSignature);
         }
         key.wipe();

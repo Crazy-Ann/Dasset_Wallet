@@ -17,7 +17,7 @@
 package com.dasset.wallet.core.random;
 
 
-import com.dasset.wallet.core.wallet.Constant;
+import com.dasset.wallet.core.contant.Constant;
 
 import java.io.DataInputStream;
 import java.io.File;

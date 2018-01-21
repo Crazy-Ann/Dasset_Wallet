@@ -5,6 +5,9 @@ import com.dasset.wallet.base.constant.ResponseCode;
 import com.dasset.wallet.base.http.model.BaseEntity;
 import com.dasset.wallet.components.http.response.HttpResponse;
 
+import okhttp3.Headers;
+import okhttp3.Response;
+
 public abstract class JSONObjectResponse extends HttpResponse<JSONObject> {
 
     private BaseEntity baseEntity;
@@ -16,6 +19,21 @@ public abstract class JSONObjectResponse extends HttpResponse<JSONObject> {
     }
 
     @Override
+    public void onResponse(String response, Headers headers) {
+
+    }
+
+    @Override
+    public void onResponse(Response httpResponse, String response, Headers headers) {
+
+    }
+
+    @Override
+    public void onSuccess(Headers headers, JSONObject jsonObject) {
+
+    }
+
+    @Override
     public void onSuccess(JSONObject object) {
         baseEntity.parse(object);
         switch (baseEntity.getErrorCode()) {
@@ -23,18 +41,19 @@ public abstract class JSONObjectResponse extends HttpResponse<JSONObject> {
                 onResponseSuccess(object);
                 break;
             default:
-                onResponseFailed(object);
+                onResponseFailed(-1, null, object);
                 break;
         }
+    }
+
+    @Override
+    public void onFailed(int code, String message) {
+        onResponseFailed(code, message, null);
     }
 
     public abstract void onParseData(JSONObject object);
 
     public abstract void onResponseSuccess(JSONObject object);
 
-    public abstract void onResponseFailed(JSONObject object);
-
-    public abstract void onResponseFailed(String code, String message);
-
-    public abstract void onResponseFailed(String code, String message, JSONObject object);
+    public abstract void onResponseFailed(int code, String message, JSONObject object);
 }

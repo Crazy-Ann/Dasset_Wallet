@@ -24,31 +24,11 @@ public class GetVersionResponse extends JSONObjectResponse {
 
     @Override
     public void onProgress(int progress, long speed, boolean isDone) {
-        LogUtil.getInstance().print("GetVersionResponse's progress:" + progress + ",speed:" + speed + ",isDone:" + isDone);
+        LogUtil.getInstance().print(String.format("GetVersionResponse's progress:%s, speed:%s, isDone:%s", progress, speed, isDone));
     }
 
     @Override
     public void onEnd() {
-
-    }
-
-    @Override
-    public void onResponse(Response httpResponse, String response, Headers headers) {
-
-    }
-
-    @Override
-    public void onResponse(String response, Headers headers) {
-
-    }
-
-    @Override
-    public void onSuccess(Headers headers, JSONObject jsonObject) {
-
-    }
-
-    @Override
-    public void onFailed(int code, String message) {
 
     }
 
@@ -63,17 +43,7 @@ public class GetVersionResponse extends JSONObjectResponse {
     }
 
     @Override
-    public void onResponseFailed(JSONObject object) {
+    public void onResponseFailed(int code, String message, JSONObject object) {
         onParseData(object);
-    }
-
-    @Override
-    public void onResponseFailed(String code, String message) {
-
-    }
-
-    @Override
-    public void onResponseFailed(String code, String message, JSONObject object) {
-        
     }
 }

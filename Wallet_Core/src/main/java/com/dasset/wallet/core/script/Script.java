@@ -1,30 +1,18 @@
-/**
- * Copyright 2011 Google Inc.
- * Copyright 2012 Matt Corallo.
- * <p/>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dasset.wallet.core.script;
 
+import com.dasset.wallet.core.In;
+import com.dasset.wallet.core.Out;
 import com.dasset.wallet.core.Tx;
-import com.dasset.wallet.core.exception.ProtocolException;
-import com.dasset.wallet.core.exception.ScriptException;
-import com.dasset.wallet.core.utils.UnsafeByteArrayOutputStream;
-import com.google.common.collect.Lists;
+import com.dasset.wallet.core.contant.Coin;
+import com.dasset.wallet.core.contant.SigHash;
+import com.dasset.wallet.core.contant.SplitCoin;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.TransactionSignature;
+import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.exception.ScriptException;
+import com.dasset.wallet.core.utils.UnsafeByteArrayOutputStream;
 import com.dasset.wallet.core.utils.Utils;
+import com.google.common.collect.Lists;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -268,7 +256,6 @@ public class Script {
     public boolean isSendFromMultiSig() {
         boolean result = this.chunks.get(0).opcode == ScriptOpCodes.OP_0;
         for (int i = 1; i < this.chunks.size(); i++) {
-
             result &= this.chunks.get(i).data != null && this.chunks.get(i).data.length > 2;
         }
         if (result) {
@@ -399,13 +386,23 @@ public class Script {
     }
 
     /**
-     * Gets the destination address from this script, if it's in the required form (see getPublicKey).
+     * Gets the destination address from this script, if it's in the required form (see getPubKey).
      */
     public String getToAddress() throws ScriptException {
         if (isSentToAddress()) {
             return Utils.toAddress(getPubKeyHash());
         } else if (isSentToP2SH()) {
             return Utils.toP2SHAddress(this.getPubKeyHash());
+        } else {
+            throw new ScriptException("Cannot cast this script to a pay-to-address type");
+        }
+    }
+
+    public String getToAddress(Coin coin) throws ScriptException {
+        if (isSentToAddress()) {
+            return Utils.toAddress(getPubKeyHash(), coin);
+        } else if (isSentToP2SH()) {
+            return Utils.toP2SHAddress(this.getPubKeyHash(), coin);
         } else {
             throw new ScriptException("Cannot cast this script to a pay-to-address type");
         }
@@ -890,6 +887,8 @@ public class Script {
                         }
                         ifStack.pollLast();
                         continue;
+                    default:
+                        break;
                 }
 
                 if (!shouldExecute) {
@@ -1292,9 +1291,8 @@ public class Script {
                         }
                         break;
                     case ScriptOpCodes.OP_WITHIN:
-                        if (stack.size() < 3) {
+                        if (stack.size() < 3)
                             throw new ScriptException("Attempted ScriptOpCodes.OP_WITHIN on a stack with size < 3");
-                        }
                         BigInteger OPWITHINnum3 = castToBigInteger(stack.pollLast());
                         BigInteger OPWITHINnum2 = castToBigInteger(stack.pollLast());
                         BigInteger OPWITHINnum1 = castToBigInteger(stack.pollLast());
@@ -1375,21 +1373,18 @@ public class Script {
                 }
             }
 
-            if (stack.size() + altstack.size() > 1000 || stack.size() + altstack.size() < 0) {
+            if (stack.size() + altstack.size() > 1000 || stack.size() + altstack.size() < 0)
                 throw new ScriptException("Stack size exceeded range");
-            }
         }
 
-        if (!ifStack.isEmpty()) {
+        if (!ifStack.isEmpty())
             throw new ScriptException("ScriptOpCodes.OP_IF/ScriptOpCodes.OP_NOTIF without ScriptOpCodes.OP_ENDIF");
-        }
     }
 
     private static void executeCheckSig(Tx txContainingThis, int index, Script script, LinkedList<byte[]> stack,
                                         int lastCodeSepLocation, int opcode) throws ScriptException {
-        if (stack.size() < 2) {
+        if (stack.size() < 2)
             throw new ScriptException("Attempted ScriptOpCodes.OP_CHECKSIG(VERIFY) on a stack with size < 2");
-        }
         byte[] pubKey   = stack.pollLast();
         byte[] sigBytes = stack.pollLast();
 
@@ -1408,39 +1403,62 @@ public class Script {
         boolean sigValid = false;
         try {
             TransactionSignature sig  = TransactionSignature.decodeFromBitcoin(sigBytes, false);
-            byte[]               hash = txContainingThis.hashForSignature(index, connectedScript, (byte) sig.sighashFlags);
-            sigValid = ECKey.verify(hash, sig, pubKey);
+            Coin                 coin = txContainingThis.getCoin();
+            if (coin == Coin.BTC) {
+                byte[] hash = txContainingThis.hashForSignature(index, connectedScript, (byte) sig.sighashFlags);
+                sigValid = ECKey.verify(hash, sig, pubKey);
+            } else {
+                In in = txContainingThis.getIns().get(index);
+                if (txContainingThis.isDetectBcc()) {
+                    long[] preOutValue = new long[txContainingThis.getOuts().size()];
+                    for (int idx = 0; idx < txContainingThis.getOuts().size(); idx++) {
+                        preOutValue[idx] = txContainingThis.getOuts().get(idx).getOutValue();
+                    }
+                    byte[] hash = txContainingThis.hashForSignatureWitness(index, connectedScript,
+                                                                           BigInteger.valueOf(preOutValue[index]),
+                                                                           SigHash.BCCFORK, false, SplitCoin.BCC);
+                    sigValid = ECKey.verify(hash, sig, pubKey);
+                } else if (coin == Coin.SBTC) {
+                    byte[] hash = txContainingThis.hashForSignatureForSBTC(index,
+                                                                           connectedScript, coin.getSigHash(), false);
+                    sigValid = ECKey.verify(hash, sig, pubKey);
+                } else if (coin == Coin.BCD) {
+                    byte[] hash = txContainingThis.hashForSignatureForBCD(index,
+                                                                          connectedScript, coin.getSigHash(), false);
+                    sigValid = ECKey.verify(hash, sig, pubKey);
+                } else {
+                    Out out = AbstractDb.txProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
+                    byte[] hash = txContainingThis.hashForSignatureWitness(index,
+                                                                           connectedScript, BigInteger.valueOf(out.getOutValue()),
+                                                                           coin.getSigHash(), false, coin.getSplitCoin());
+                    sigValid = ECKey.verify(hash, sig, pubKey);
+                }
+            }
         } catch (Exception e1) {
             // There is (at least) one exception that could be hit here (EOFException, if the sig is too short)
             // Because I can't verify there aren't more, we use a very generic Exception catch
             log.warn(e1.toString());
         }
 
-        if (opcode == ScriptOpCodes.OP_CHECKSIG) {
+        if (opcode == ScriptOpCodes.OP_CHECKSIG)
             stack.add(sigValid ? new byte[]{1} : new byte[]{0});
-        } else if (opcode == ScriptOpCodes.OP_CHECKSIGVERIFY) {
-            if (!sigValid) {
+        else if (opcode == ScriptOpCodes.OP_CHECKSIGVERIFY)
+            if (!sigValid)
                 throw new ScriptException("Script failed ScriptOpCodes.OP_CHECKSIGVERIFY");
-            }
-        }
     }
 
     private static int executeMultiSig(Tx txContainingThis, int index, Script script, LinkedList<byte[]> stack,
                                        int opCount, int lastCodeSepLocation, int opcode) throws ScriptException {
-        if (stack.size() < 2) {
+        if (stack.size() < 2)
             throw new ScriptException("Attempted ScriptOpCodes.OP_CHECKMULTISIG(VERIFY) on a stack with size < 2");
-        }
         int pubKeyCount = castToBigInteger(stack.pollLast()).intValue();
-        if (pubKeyCount < 0 || pubKeyCount > 20) {
+        if (pubKeyCount < 0 || pubKeyCount > 20)
             throw new ScriptException("ScriptOpCodes.OP_CHECKMULTISIG(VERIFY) with pubkey count out of range");
-        }
         opCount += pubKeyCount;
-        if (opCount > 201) {
+        if (opCount > 201)
             throw new ScriptException("Total op count > 201 during ScriptOpCodes.OP_CHECKMULTISIG(VERIFY)");
-        }
-        if (stack.size() < pubKeyCount + 1) {
+        if (stack.size() < pubKeyCount + 1)
             throw new ScriptException("Attempted ScriptOpCodes.OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2");
-        }
 
         LinkedList<byte[]> pubkeys = new LinkedList<byte[]>();
         for (int i = 0; i < pubKeyCount; i++) {
@@ -1449,12 +1467,10 @@ public class Script {
         }
 
         int sigCount = castToBigInteger(stack.pollLast()).intValue();
-        if (sigCount < 0 || sigCount > pubKeyCount) {
+        if (sigCount < 0 || sigCount > pubKeyCount)
             throw new ScriptException("ScriptOpCodes.OP_CHECKMULTISIG(VERIFY) with sig count out of range");
-        }
-        if (stack.size() < sigCount + 1) {
+        if (stack.size() < sigCount + 1)
             throw new ScriptException("Attempted ScriptOpCodes.OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3");
-        }
 
         LinkedList<byte[]> sigs = new LinkedList<byte[]>();
         for (int i = 0; i < sigCount; i++) {
@@ -1482,9 +1498,27 @@ public class Script {
             // more expensive than hashing, its not a big deal.
             try {
                 TransactionSignature sig  = TransactionSignature.decodeFromBitcoin(sigs.getFirst(), false);
-                byte[]               hash = txContainingThis.hashForSignature(index, connectedScript, (byte) sig.sighashFlags);
-                if (ECKey.verify(hash, sig, pubKey)) {
-                    sigs.pollFirst();
+                Coin                 coin = txContainingThis.getCoin();
+                if (coin == Coin.BTC) {
+                    byte[] hash = txContainingThis.hashForSignature(index, connectedScript, (byte) sig.sighashFlags);
+                    if (ECKey.verify(hash, sig, pubKey))
+                        sigs.pollFirst();
+                } else if (coin == Coin.SBTC) {
+                    byte[] hash = txContainingThis.hashForSignatureForSBTC(index, connectedScript, coin.getSigHash(), false);
+                    if (ECKey.verify(hash, sig, pubKey))
+                        sigs.pollFirst();
+                } else if (coin == Coin.BCD) {
+                    byte[] hash = txContainingThis.hashForSignatureForBCD(index, connectedScript, coin.getSigHash(), false);
+                    if (ECKey.verify(hash, sig, pubKey))
+                        sigs.pollFirst();
+                } else {
+                    In  in  = txContainingThis.getIns().get(index);
+                    Out out = AbstractDb.txProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
+                    byte[] hash = txContainingThis.hashForSignatureWitness(index,
+                                                                           connectedScript, BigInteger.valueOf(out.getOutValue()),
+                                                                           coin.getSigHash(), false, coin.getSplitCoin());
+                    if (ECKey.verify(hash, sig, pubKey))
+                        sigs.pollFirst();
                 }
             } catch (Exception e) {
                 // There is (at least) one exception that could be hit here (EOFException, if the sig is too short)
@@ -1503,9 +1537,8 @@ public class Script {
         if (opcode == ScriptOpCodes.OP_CHECKMULTISIG) {
             stack.add(valid ? new byte[]{1} : new byte[]{0});
         } else if (opcode == ScriptOpCodes.OP_CHECKMULTISIGVERIFY) {
-            if (!valid) {
+            if (!valid)
                 throw new ScriptException("Script failed ScriptOpCodes.OP_CHECKMULTISIGVERIFY");
-            }
         }
         return opCount;
     }
@@ -1527,30 +1560,28 @@ public class Script {
                                 boolean enforceP2SH) throws ScriptException {
         // Clone the transaction because executing the script involves editing it, and if we die, we'll leave
         // the tx half broken (also it's not so thread safe to work on it directly.
-        try {
-            txContainingThis = new Tx(txContainingThis.bitcoinSerialize());
-        } catch (ProtocolException e) {
-            throw new RuntimeException(e);   // Should not happen unless we were given a totally broken transaction.
-        }
-        if (getProgram().length > 10000 || scriptPubKey.getProgram().length > 10000) {
+//        try {
+//            txContainingThis = new Tx(txContainingThis.bitcoinSerialize(),txContainingThis.isDetectBcc(), txContainingThis.getCoin());
+//        } catch (ProtocolException e) {
+//            throw new RuntimeException(e);   // Should not happen unless we were given a totally broken transaction.
+//        }
+        if (getProgram().length > 10000 || scriptPubKey.getProgram().length > 10000)
             throw new ScriptException("Script larger than 10,000 bytes");
-        }
 
         LinkedList<byte[]> stack     = new LinkedList<byte[]>();
         LinkedList<byte[]> p2shStack = null;
 
         executeScript(txContainingThis, scriptSigIndex, this, stack);
-        if (enforceP2SH) {
+        if (enforceP2SH)
             p2shStack = new LinkedList<byte[]>(stack);
-        }
         executeScript(txContainingThis, scriptSigIndex, scriptPubKey, stack);
 
-        if (stack.size() == 0) {
+        if (stack.size() == 0)
             throw new ScriptException("Stack empty at end of script execution.");
-        }
 
-        if (!castToBool(stack.pollLast())) {
-            throw new ScriptException("Script resulted in a non-true stack: " + stack);
+        if (!txContainingThis.isDetectBcc()) {
+            if (!castToBool(stack.pollLast()))
+                throw new ScriptException("Script resulted in a non-true stack: " + stack);
         }
 
         // P2SH is pay to script hash. It means that the scriptPubKey has a special form which is a valid
@@ -1567,43 +1598,34 @@ public class Script {
 
         // TODO: Check if we can take out enforceP2SH if there's a checkpoint at the enforcement block.
         if (enforceP2SH && scriptPubKey.isPayToScriptHash()) {
-            for (ScriptChunk chunk : chunks) {
-                if (chunk.isOpCode() && chunk.opcode > ScriptOpCodes.OP_16) {
+            for (ScriptChunk chunk : chunks)
+                if (chunk.isOpCode() && chunk.opcode > ScriptOpCodes.OP_16)
                     throw new ScriptException("Attempted to spend a P2SH scriptPubKey with a script that contained script ops");
-                }
-            }
 
             byte[] scriptPubKeyBytes = p2shStack.pollLast();
             Script scriptPubKeyP2SH  = new Script(scriptPubKeyBytes);
 
             executeScript(txContainingThis, scriptSigIndex, scriptPubKeyP2SH, p2shStack);
 
-            if (p2shStack.size() == 0) {
+            if (p2shStack.size() == 0)
                 throw new ScriptException("P2SH stack empty at end of script execution.");
-            }
 
-            if (!castToBool(p2shStack.pollLast())) {
+            if (!castToBool(p2shStack.pollLast()))
                 throw new ScriptException("P2SH script execution resulted in a non-true stack");
-            }
         }
     }
 
     // Utility that doesn't copy for internal use
     private byte[] getQuickProgram() {
-        if (program != null) {
+        if (program != null)
             return program;
-        }
         return getProgram();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         Script other = (Script) o;
         return Arrays.equals(getQuickProgram(), other.getQuickProgram());
     }

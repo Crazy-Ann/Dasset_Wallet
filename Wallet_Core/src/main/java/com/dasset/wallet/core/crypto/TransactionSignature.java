@@ -1,21 +1,6 @@
-/*
- * Copyright 2013 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dasset.wallet.core.crypto;
 
+import com.dasset.wallet.core.contant.SigHash;
 import com.dasset.wallet.core.exception.VerificationException;
 
 import java.io.ByteArrayOutputStream;
@@ -27,11 +12,6 @@ import java.math.BigInteger;
  * the additional SIGHASH mode byte that is used.
  */
 public class TransactionSignature extends ECKey.ECDSASignature {
-    public enum SigHash {
-        ALL,         // 1
-        NONE,        // 2
-        SINGLE,      // 3
-    }
 
     public static final byte SIGHASH_ANYONECANPAY_VALUE = (byte) 0x80;
 
@@ -76,6 +56,9 @@ public class TransactionSignature extends ECKey.ECDSASignature {
         int sighashFlags = mode.ordinal() + 1;
         if (anyoneCanPay) {
             sighashFlags |= SIGHASH_ANYONECANPAY_VALUE;
+        }
+        if (mode != SigHash.ALL && mode != SigHash.NONE && mode != SigHash.SINGLE) {
+            return mode.value;
         }
         return sighashFlags;
     }
@@ -153,8 +136,10 @@ public class TransactionSignature extends ECKey.ECDSASignature {
             return SigHash.NONE;
         } else if (mode == SigHash.SINGLE.ordinal() + 1) {
             return SigHash.SINGLE;
-        } else {
+        } else if (mode == SigHash.ALL.ordinal() + 1) {
             return SigHash.ALL;
+        } else {
+            return SigHash.BCCFORK;
         }
     }
 
@@ -176,7 +161,8 @@ public class TransactionSignature extends ECKey.ECDSASignature {
     /**
      * Returns a decoded signature.
      *
-     * @throws RuntimeException if the signature is invalid or unparseable in some way.
+     * @throws RuntimeException
+     *         if the signature is invalid or unparseable in some way.
      */
     public static TransactionSignature decodeFromBitcoin(byte[] bytes, boolean requireCanonical) throws VerificationException {
         // Bitcoin encoding is DER signature + sighash byte.
@@ -185,7 +171,7 @@ public class TransactionSignature extends ECKey.ECDSASignature {
         }
         ECKey.ECDSASignature sig;
         try {
-            sig = decodeFromDER(bytes);
+            sig = ECKey.ECDSASignature.decodeFromDER(bytes);
         } catch (IllegalArgumentException e) {
             throw new VerificationException("Could not decode DER", e);
         }

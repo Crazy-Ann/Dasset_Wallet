@@ -18,6 +18,7 @@
 
 package com.dasset.wallet.core;
 
+import com.dasset.wallet.core.contant.PathType;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.EncryptedData;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
@@ -43,7 +44,7 @@ public class EnterpriseHDMSeed extends AbstractHD {
         String        firstAddress          = null;
         EncryptedData encryptedMnemonicSeed = null;
         EncryptedData encryptedHDSeed       = null;
-        ECKey k                     = new ECKey(mnemonicSeed, null);
+        ECKey         k                     = new ECKey(mnemonicSeed, null);
         String        address               = k.toAddress();
         k.clearPrivateKey();
 

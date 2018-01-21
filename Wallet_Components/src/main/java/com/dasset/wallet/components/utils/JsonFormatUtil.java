@@ -11,8 +11,8 @@ public final class JsonFormatUtil {
         if (json == null || json.trim().length() == 0) {
             return "";
         }
-        int fixedLenth = 0;
-        ArrayList<String> tokenList = Lists.newArrayList();
+        int               fixedLenth = 0;
+        ArrayList<String> tokenList  = Lists.newArrayList();
         {
             String jsonTemp = json;
             while (jsonTemp.length() > 0) {
@@ -24,15 +24,15 @@ public final class JsonFormatUtil {
         }
 
         for (int i = 0; i < tokenList.size(); i++) {
-            String token = tokenList.get(i);
-            int length = token.getBytes().length;
+            String token  = tokenList.get(i);
+            int    length = token.getBytes().length;
             if (length > fixedLenth && i < tokenList.size() - 1 && tokenList.get(i + 1).equals(":")) {
                 fixedLenth = length;
             }
         }
 
-        StringBuilder buf = new StringBuilder();
-        int count = 0;
+        StringBuilder buf   = new StringBuilder();
+        int           count = 0;
         for (int i = 0; i < tokenList.size(); i++) {
 
             String token = tokenList.get(i);
@@ -97,8 +97,8 @@ public final class JsonFormatUtil {
     }
 
     private static String getToken(String json) {
-        StringBuilder buf = new StringBuilder();
-        boolean isInYinHao = false;
+        StringBuilder buf        = new StringBuilder();
+        boolean       isInYinHao = false;
         while (json.length() > 0) {
             String token = json.substring(0, 1);
             json = json.substring(1);

@@ -229,7 +229,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.EXTERNAL_PUB);
 //                if (idColumn != -1) {
 //                    String pubStr = c.getString(idColumn);
-//                    pub = Base58.decode(pubStr);
+//                    publicKey = Base58.decode(pubStr);
 //                }
 //            }
 //            c.close();
@@ -237,7 +237,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //            e.printStackTrace();
 //        }
 //
-//        return pub;
+//        return publicKey;
     }
 
     @Override
@@ -269,7 +269,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.INTERNAL_PUB);
 //                if (idColumn != -1) {
 //                    String pubStr = c.getString(idColumn);
-//                    pub = Base58.decode(pubStr);
+//                    publicKey = Base58.decode(pubStr);
 //                }
 //            }
 //            c.close();
@@ -278,7 +278,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //        }
 //
 //
-//        return pub;
+//        return publicKey;
     }
 
 

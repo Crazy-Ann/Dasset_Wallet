@@ -1,24 +1,8 @@
-/*
- * Copyright 2014 http://Bither.net
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dasset.wallet.core.message;
 
-import com.dasset.wallet.core.utils.UnsafeByteArrayOutputStream;
 import com.dasset.wallet.core.contant.BitherjSettings;
 import com.dasset.wallet.core.exception.ProtocolException;
+import com.dasset.wallet.core.utils.UnsafeByteArrayOutputStream;
 import com.dasset.wallet.core.utils.Utils;
 import com.dasset.wallet.core.utils.VarInt;
 
@@ -79,18 +63,13 @@ public abstract class Message {
     /**
      * //     * @param params NetworkParameters object.
      *
-     * @param msg
-     *         Bitcoin protocol formatted byte array containing message content.
-     * @param offset
-     *         The location of the first msg byte within the array.
-     * @param protocolVersion
-     *         Bitcoin protocol version.
-     *         If true and the backing byte array is invalidated due to modification of a field then
-     *         the cached bytes may be repopulated and retained if the message is serialized again in the future.
-     * @param length
-     *         The length of message if known.  Usually this is provided when deserializing of the wire
-     *         as the length will be provided as part of the header.  If unknown then set to Message.UNKNOWN_LENGTH
-     *
+     * @param msg             Bitcoin protocol formatted byte array containing message content.
+     * @param offset          The location of the first msg byte within the array.
+     * @param protocolVersion Bitcoin protocol version.
+     *                        If true and the backing byte array is invalidated due to modification of a field then
+     *                        the cached bytes may be repopulated and retained if the message is serialized again in the future.
+     * @param length          The length of message if known.  Usually this is provided when deserializing of the wire
+     *                        as the length will be provided as part of the header.  If unknown then set to Message.UNKNOWN_LENGTH
      * @throws ProtocolException
      */
     protected Message(byte[] msg, int offset, int protocolVersion, int length) throws ProtocolException {
@@ -107,8 +86,8 @@ public abstract class Message {
             this.length = length;
             parse();
             checkState(false, "Length field has not been set in constructor for %s after %s parse. " +
-                               "Refer to Message.parseLite() for detail of required Length field contract.",
-                       getClass().getSimpleName(), "full");
+                            "Refer to Message.parseLite() for detail of required Length field contract.",
+                    getClass().getSimpleName(), "full");
         }
 
 
@@ -159,8 +138,7 @@ public abstract class Message {
     /**
      * Should only used by BitcoinSerializer for caching checksum
      *
-     * @param checksum
-     *         the checksum to set
+     * @param checksum the checksum to set
      */
     public void setChecksum(byte[] checksum) {
         if (checksum.length != 4) {
@@ -177,7 +155,7 @@ public abstract class Message {
      */
     public byte[] bitcoinSerialize() {
         byte[] bytes = unsafeBitcoinSerialize();
-        byte[] copy  = new byte[bytes.length];
+        byte[] copy = new byte[bytes.length];
         System.arraycopy(bytes, 0, copy, 0, bytes.length);
         return copy;
     }
@@ -232,7 +210,6 @@ public abstract class Message {
      * Serialize this message to the provided OutputStream using the bitcoin wire format.
      *
      * @param stream
-     *
      * @throws IOException
      */
     final public void bitcoinSerialize(OutputStream stream) throws IOException {
@@ -244,7 +221,22 @@ public abstract class Message {
 
         bitcoinSerializeToStream(stream);
     }
+    /**
+     * Serialize this message to the provided OutputStream using the bitcoin wire format.
+     *
+     * @param stream
+     * @param idx (offset)
+     * @throws IOException
+     */
+    final public void bitcoinSerialize(OutputStream stream,int idx) throws IOException {
+        // 1st check for cached bytes.
+//        if (bytes != null && length != UNKNOWN_LENGTH) {
+//            stream.write(bytes, offset + idx, length - idx);
+//            return;
+//        }
 
+        bitcoinSerializeToStream(stream);
+    }
     /**
      * Serializes this message to the provided stream. If you just want the raw bytes use bitcoinSerialize().
      */

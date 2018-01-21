@@ -9,6 +9,7 @@ import com.dasset.wallet.components.BuildConfig;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.SecurityUtil;
+import com.dasset.wallet.core.contant.Constant;
 
 import org.spongycastle.util.encoders.Hex;
 
@@ -232,13 +233,13 @@ public final class KeyStore {
                             if (TextUtils.equals(accountName, keystoreAccount.getAccountName())) {
                                 throw new IOException("Failure of account create, the account name has already existed!");
                             } else {
-                                Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.wallet.Constant.AddressType.HYC)
+                                Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), Constant.AddressType.HYC)
                                         , deviceId
                                         , timestamp1
                                         , cipher
                                         , accountName
                                         , privateKey
-                                        , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.wallet.Constant.AddressType.HYC)
+                                        , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), Constant.AddressType.HYC)
                                         , password
                                         , timestamp2);
                                 File file = generateAccountFile(keystoreDirectory.getAbsolutePath(), account, false);
@@ -254,13 +255,13 @@ public final class KeyStore {
                         }
                     }
                 } else {
-                    Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.wallet.Constant.AddressType.HYC)
+                    Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), Constant.AddressType.HYC)
                             , deviceId
                             , timestamp1
                             , cipher
                             , accountName
                             , privateKey
-                            , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.wallet.Constant.AddressType.HYC)
+                            , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), Constant.AddressType.HYC)
                             , password
                             , timestamp2);
                     File file = generateAccountFile(keystoreDirectory.getAbsolutePath(), account, false);
@@ -289,13 +290,13 @@ public final class KeyStore {
                         if (TextUtils.equals(accountName, keystoreAccount.getAccountName())) {
                             throw new IOException("Failure of account create, the account name has already existed!");
                         } else {
-                            Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.wallet.Constant.AddressType.HYC)
+                            Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), Constant.AddressType.HYC)
                                     , deviceId
                                     , timestamp1
                                     , cipher
                                     , accountName
                                     , privateKey
-                                    , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.wallet.Constant.AddressType.HYC)
+                                    , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), Constant.AddressType.HYC)
                                     , password
                                     , timestamp2);
                             if (file != null && file.exists()) {
@@ -310,13 +311,13 @@ public final class KeyStore {
                     }
                 }
             } else {
-                Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.wallet.Constant.AddressType.HYC)
+                Account account = new Account(AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), Constant.AddressType.HYC)
                         , deviceId
                         , timestamp1
                         , cipher
                         , accountName
                         , privateKey
-                        , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), com.dasset.wallet.core.wallet.Constant.AddressType.HYC)
+                        , AddressFactory.generatorAddress(ECKeyPairFactory.generatePublicKey(new BigInteger(privateKey, 16), false), Constant.AddressType.HYC)
                         , password
                         , timestamp2);
                 if (file != null && file.exists()) {

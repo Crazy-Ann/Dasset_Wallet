@@ -63,16 +63,7 @@ public class CreateAccountResponse extends JSONObjectResponse {
     }
 
     @Override
-    public void onResponseFailed(JSONObject object) {
-        onParseData(object);
-    }
+    public void onResponseFailed(int code, String message, JSONObject object) {
 
-    @Override
-    public void onResponseFailed(String code, String message) {
-
-    }
-
-    @Override
-    public void onResponseFailed(String code, String message, JSONObject object) {
     }
 }

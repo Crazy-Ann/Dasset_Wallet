@@ -166,33 +166,33 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
         });
 
         for (Map.Entry<String, String> kv : addressesPrivKeyHashMap.entrySet()) {
-            kv.setValue(EncryptedData.changePwdKeepFlag(kv.getValue(), oldPassword, newPassword));
+            kv.setValue(EncryptedData.changePasswordKeepFlag(kv.getValue(), oldPassword, newPassword));
         }
         if (hdmEncryptPassword[0] != null) {
-            hdmEncryptPassword[0] = EncryptedData.changePwd(hdmEncryptPassword[0], oldPassword, newPassword);
+            hdmEncryptPassword[0] = EncryptedData.changePassword(hdmEncryptPassword[0], oldPassword, newPassword);
         }
         for (Map.Entry<Integer, String> kv : encryptMenmonicSeedHashMap.entrySet()) {
-            kv.setValue(EncryptedData.changePwd(kv.getValue(), oldPassword, newPassword));
+            kv.setValue(EncryptedData.changePassword(kv.getValue(), oldPassword, newPassword));
         }
         for (Map.Entry<Integer, String> kv : encryptHDSeedHashMap.entrySet()) {
-            kv.setValue(EncryptedData.changePwd(kv.getValue(), oldPassword, newPassword));
+            kv.setValue(EncryptedData.changePassword(kv.getValue(), oldPassword, newPassword));
         }
         for (Map.Entry<Integer, String> kv : hdEncryptSeedHashMap.entrySet()) {
-            kv.setValue(EncryptedData.changePwd(kv.getValue(), oldPassword, newPassword));
+            kv.setValue(EncryptedData.changePassword(kv.getValue(), oldPassword, newPassword));
         }
         for (Map.Entry<Integer, String> kv : hdEncryptMnemonicSeedHashMap.entrySet()) {
-            kv.setValue(EncryptedData.changePwd(kv.getValue(), oldPassword, newPassword));
+            kv.setValue(EncryptedData.changePassword(kv.getValue(), oldPassword, newPassword));
         }
 
         for (Map.Entry<Integer, String> kv : enterpriseHDEncryptSeedHashMap.entrySet()) {
-            kv.setValue(EncryptedData.changePwd(kv.getValue(), oldPassword, newPassword));
+            kv.setValue(EncryptedData.changePassword(kv.getValue(), oldPassword, newPassword));
         }
         for (Map.Entry<Integer, String> kv : enterpriseHDEncryptMnemonicSeedHashMap.entrySet()) {
-            kv.setValue(EncryptedData.changePwd(kv.getValue(), oldPassword, newPassword));
+            kv.setValue(EncryptedData.changePassword(kv.getValue(), oldPassword, newPassword));
         }
 
         for (Map.Entry<Integer, String> kv : singularModeBackupHashMap.entrySet()) {
-            kv.setValue(EncryptedData.changePwd(kv.getValue(), oldPassword, newPassword));
+            kv.setValue(EncryptedData.changePassword(kv.getValue(), oldPassword, newPassword));
         }
         if (passwordSeed[0] != null) {
             boolean result = passwordSeed[0].changePassword(oldPassword, newPassword);

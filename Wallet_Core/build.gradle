@@ -15,7 +15,7 @@ android {
             }
         }
         ndk {
-            abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+            abiFilters "armeabi"
         }
     }
     buildTypes {
@@ -70,7 +70,6 @@ dependencies {
     implementation deps.bitcoinj_core
     implementation deps.geth
     implementation 'org.web3j:core-android:2.2.1'
-    annotationProcessor deps.objectbox_processor
     implementation deps.slf4j
     implementation 'org.apache.httpcomponents:httpclient:4.5@jar'
     implementation 'org.apache.httpcomponents:httpmime:4.3.6@jar'

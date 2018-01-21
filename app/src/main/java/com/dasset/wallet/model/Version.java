@@ -13,14 +13,14 @@ import java.util.List;
 
 public class Version extends BaseEntity {
 
-    private String clientVersion;
-    private String versionName;
-    private String downloadUrl;
-    private String lowestClientVersion;
-    private String apk;
-    private String updateMessage;
-    private String serviceUrl;
-    private String pageSrcSign;
+    private String     clientVersion;
+    private String     versionName;
+    private String     downloadUrl;
+    private String     lowestClientVersion;
+    private String     apk;
+    private String     updateMessage;
+    private String     serviceUrl;
+    private String     pageSrcSign;
     private List<Page> pagesList;
 
     public String getClientVersion() {
@@ -59,6 +59,7 @@ public class Version extends BaseEntity {
         return pagesList;
     }
 
+    @Override
     public Version parse(JSONObject object) {
         if (object != null) {
             this.clientVersion = object.getString(ParameterKey.GetVersion.CLIENT_VERSION);

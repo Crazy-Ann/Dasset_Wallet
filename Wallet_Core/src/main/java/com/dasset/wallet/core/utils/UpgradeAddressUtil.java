@@ -1,25 +1,10 @@
-/*
- * Copyright 2014 http://Bither.net
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dasset.wallet.core.utils;
 
 import com.dasset.wallet.core.Address;
 import com.dasset.wallet.core.AddressManager;
 import com.dasset.wallet.core.contant.AbstractApp;
 import com.dasset.wallet.core.contant.BitherjSettings;
+import com.dasset.wallet.core.contant.Constant;
 import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
 
@@ -47,7 +32,7 @@ public class UpgradeAddressUtil {
                     long    sortTime       = Long.valueOf(strings[2]);
                     boolean isFromXRandom  = false;
                     if (strings.length == 4) {
-                        isFromXRandom = Utils.compareString(strings[3], QRCodeUtil.XRANDOM_FLAG);
+                        isFromXRandom = Utils.compareString(strings[3], Constant.XRANDOM_FLAG);
                     }
                     String privateKeyFullFileName = Utils.format(BitherjSettings
                                                                          .PRIVATE_KEY_FILE_NAME, Utils.getPrivateDir(), address);
@@ -82,7 +67,7 @@ public class UpgradeAddressUtil {
                     long    sortTime       = Long.valueOf(strings[2]);
                     boolean isFromXRandom  = false;
                     if (strings.length == 4) {
-                        isFromXRandom = Utils.compareString(strings[3], QRCodeUtil.XRANDOM_FLAG);
+                        isFromXRandom = Utils.compareString(strings[3], Constant.XRANDOM_FLAG);
                     }
                     Address add = new Address(address, Utils.hexStringToByteArray(publicKey), sortTime
                             , isSyncComplete == 1, isFromXRandom, false, null);
@@ -112,7 +97,7 @@ public class UpgradeAddressUtil {
                     long    sortTime       = Long.valueOf(strings[2]);
                     boolean isFromXRandom  = false;
                     if (strings.length == 4) {
-                        isFromXRandom = Utils.compareString(strings[3], QRCodeUtil.XRANDOM_FLAG);
+                        isFromXRandom = Utils.compareString(strings[3], Constant.XRANDOM_FLAG);
                     }
 
                     String privateKeyFullFileName = Utils.format(BitherjSettings
@@ -144,7 +129,7 @@ public class UpgradeAddressUtil {
             address.setSyncComplete(false);
             AddressManager.getInstance().addAddress(address);
         }
-        if (AbstractApp.iSetting.getAppMode() == BitherjSettings.AppMode.HOT) {
+        if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.HOT) {
             if (addressList.size() > 0) {
                 AbstractDb.txProvider.clearAllTx();
             }

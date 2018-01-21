@@ -19,12 +19,13 @@ package com.dasset.wallet.core.api;
 import com.dasset.wallet.core.api.http.BitherUrl;
 import com.dasset.wallet.core.api.http.HttpGetResponse;
 import com.dasset.wallet.core.contant.BitherjSettings;
+import com.dasset.wallet.core.contant.MarketType;
 import com.dasset.wallet.core.utils.Utils;
 
 public class GetExchangeDepthApi extends HttpGetResponse<String> {
 
 
-    public GetExchangeDepthApi(BitherjSettings.MarketType marketType) {
+    public GetExchangeDepthApi(MarketType marketType) {
 
         String url = Utils.format(BitherUrl.BITHER_DEPTH_URL,
                                   BitherjSettings.getMarketValue(marketType));

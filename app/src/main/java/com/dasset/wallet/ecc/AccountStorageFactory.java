@@ -11,7 +11,7 @@ import com.dasset.wallet.components.utils.IOUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.SecurityUtil;
 import com.dasset.wallet.core.wallet.Account;
-import com.dasset.wallet.core.wallet.Constant;
+import com.dasset.wallet.core.contant.Constant;
 import com.dasset.wallet.core.wallet.KeyStore;
 import com.dasset.wallet.core.wallet.PasswordManagerFactory;
 import com.dasset.wallet.model.AccountInfo;

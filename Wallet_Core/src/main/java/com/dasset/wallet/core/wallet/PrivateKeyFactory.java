@@ -1,5 +1,7 @@
 package com.dasset.wallet.core.wallet;
 
+import com.dasset.wallet.core.contant.Constant;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bitcoinj.core.Base58;

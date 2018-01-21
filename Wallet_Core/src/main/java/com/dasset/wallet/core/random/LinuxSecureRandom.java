@@ -3,7 +3,7 @@ package com.dasset.wallet.core.random;
 
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.core.random.provider.LinuxSecureRandomProvider;
-import com.dasset.wallet.core.wallet.Constant;
+import com.dasset.wallet.core.contant.Constant;
 
 import java.io.DataInputStream;
 import java.io.File;
