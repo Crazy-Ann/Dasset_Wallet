@@ -26,7 +26,6 @@ import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.crypto.hd.HDKeyDerivation;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicException;
-import com.dasset.wallet.core.qrcode.QRCodeUtil;
 import com.dasset.wallet.core.script.ScriptBuilder;
 import com.dasset.wallet.core.utils.PrivateKeyUtil;
 import com.dasset.wallet.core.utils.Utils;
@@ -224,7 +223,7 @@ public class HDAccountCold extends AbstractHD {
         DeterministicKey purpose = master.deriveHardened(44);
         DeterministicKey coinType = purpose.deriveHardened(0);
         DeterministicKey account = coinType.deriveHardened(0);
-        String xpub = account.serializePubB58();
+        String xpub = account.serializePublicKeyB58();
         master.wipe();
         purpose.wipe();
         coinType.wipe();

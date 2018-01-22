@@ -78,7 +78,7 @@ public class Utils {
     /**
      * The string that prefixes all text messages signed using Bitcoin keys.
      */
-    public static final String BITCOIN_SIGNED_MESSAGE_HEADER       = "Bitcoin Signed Message:\n";
+    public static final String BITCOIN_SIGNED_MESSAGE_HEADER = "Bitcoin Signed Message:\n";
     public static final byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES =
             BITCOIN_SIGNED_MESSAGE_HEADER.getBytes(Charsets.UTF_8);
 
@@ -108,10 +108,8 @@ public class Utils {
      * need: it appends a
      * leading zero to indicate that the number is positive and may need padding.
      *
-     * @param b
-     *         the integer to format into a byte array
-     * @param numBytes
-     *         the desired size of the resulting byte array
+     * @param b        the integer to format into a byte array
+     * @param numBytes the desired size of the resulting byte array
      *
      * @return numBytes byte long array.
      */
@@ -119,10 +117,10 @@ public class Utils {
         if (b == null) {
             return null;
         }
-        byte[] bytes   = new byte[numBytes];
+        byte[] bytes = new byte[numBytes];
         byte[] biBytes = b.toByteArray();
-        int    start   = (biBytes.length == numBytes + 1) ? 1 : 0;
-        int    length  = Math.min(biBytes.length, numBytes);
+        int start = (biBytes.length == numBytes + 1) ? 1 : 0;
+        int length = Math.min(biBytes.length, numBytes);
         System.arraycopy(biBytes, start, bytes, numBytes - length, length);
         return bytes;
     }
@@ -133,9 +131,8 @@ public class Utils {
      * This takes string in a format understood by {@link BigDecimal#BigDecimal(String)},
      * for example "0", "1", "0.10", "1.23E3", "1234.5E-5".
      *
-     * @throws ArithmeticException
-     *         if you try to specify fractional nanocoins,
-     *         or nanocoins out of range.
+     * @throws ArithmeticException if you try to specify fractional nanocoins,
+     *                             or nanocoins out of range.
      */
     public static void uint32ToByteArrayBE(long val, byte[] out, int offset) {
         out[offset] = (byte) (0xFF & (val >> 24));
@@ -210,7 +207,7 @@ public class Utils {
      * standard procedure in Bitcoin. The resulting hash is in big endian form.
      */
     public static byte[] doubleDigest(byte[] input, int offset, int length) {
-        synchronized (digest) {
+        synchronized (digest){
             digest.reset();
             digest.update(input, offset, length);
             byte[] first = digest.digest();
@@ -219,7 +216,7 @@ public class Utils {
     }
 
     public static byte[] singleDigest(byte[] input, int offset, int length) {
-        synchronized (digest) {
+        synchronized (digest){
             digest.reset();
             digest.update(input, offset, length);
             return digest.digest();
@@ -231,7 +228,7 @@ public class Utils {
      */
     public static byte[] doubleDigestTwoBuffers(byte[] input1, int offset1, int length1,
                                                 byte[] input2, int offset2, int length2) {
-        synchronized (digest) {
+        synchronized (digest){
             digest.reset();
             digest.update(input1, offset1, length1);
             digest.update(input2, offset2, length2);
@@ -258,7 +255,7 @@ public class Utils {
      */
     public static String bytesToHexString(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
-        int    v;
+        int v;
         for (int j = 0; j < bytes.length; j++) {
             v = bytes[j] & 0xFF;
             hexChars[j * 2] = hexArray[v >>> 4];
@@ -285,10 +282,8 @@ public class Utils {
     /**
      * Returns a copy of the given byte array with the bytes of each double-word (4 bytes) reversed.
      *
-     * @param bytes
-     *         length must be divisible by 4.
-     * @param trimLength
-     *         trim output to this length.  If positive, must be divisible by 4.
+     * @param bytes      length must be divisible by 4.
+     * @param trimLength trim output to this length.  If positive, must be divisible by 4.
      */
     public static byte[] reverseDwordBytes(byte[] bytes, int trimLength) {
         checkArgument(bytes.length % 4 == 0);
@@ -340,7 +335,7 @@ public class Utils {
      */
     public static byte[] sha256hash160(byte[] input) {
         try {
-            byte[]          sha256 = MessageDigest.getInstance("SHA-256").digest(input);
+            byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(input);
             RIPEMD160Digest digest = new RIPEMD160Digest();
             digest.update(sha256, 0, sha256.length);
             byte[] out = new byte[20];
@@ -362,9 +357,9 @@ public class Utils {
         if (negative) {
             value = value.negate();
         }
-        BigDecimal bd           = new BigDecimal(value, 8);
-        String     formatted    = bd.toPlainString();   // Don't use scientific notation.
-        int        decimalPoint = formatted.indexOf(".");
+        BigDecimal bd = new BigDecimal(value, 8);
+        String formatted = bd.toPlainString();   // Don't use scientific notation.
+        int decimalPoint = formatted.indexOf(".");
         // Drop unnecessary zeros from the end.
         int toDelete = 0;
         for (int i = formatted.length() - 1; i > decimalPoint + 2; i--) {
@@ -385,11 +380,9 @@ public class Utils {
      * of "0.0015" BTC
      * </p>
      *
-     * @param value
-     *         The value in nanocoins to convert to a string (denominated in BTC)
+     * @param value The value in nanocoins to convert to a string (denominated in BTC)
      *
-     * @throws IllegalArgumentException
-     *         If the input value is null
+     * @throws IllegalArgumentException If the input value is null
      */
     public static String bitcoinValueToPlainString(long value) {
         BigDecimal valueInBTC = new BigDecimal(BigInteger.valueOf(value)).divide(new BigDecimal(Utils.COIN));
@@ -401,8 +394,7 @@ public class Utils {
      * a 4 byte big endian length field, followed by the stated number of bytes representing
      * the number in big endian format (with a sign bit).
      *
-     * @param hasLength
-     *         can be set to false if the given array is missing the 4 byte length field
+     * @param hasLength can be set to false if the given array is missing the 4 byte length field
      */
     public static BigInteger decodeMPI(byte[] mpi, boolean hasLength) {
         byte[] buf;
@@ -429,8 +421,7 @@ public class Utils {
      * a 4 byte big endian length field, followed by the stated number of bytes representing
      * the number in big endian format (with a sign bit).
      *
-     * @param includeLength
-     *         indicates whether the 4 byte length field should be included
+     * @param includeLength indicates whether the 4 byte length field should be included
      */
     public static byte[] encodeMPI(BigInteger value, boolean includeLength) {
         if (value.equals(BigInteger.ZERO)) {
@@ -444,8 +435,8 @@ public class Utils {
         if (isNegative) {
             value = value.negate();
         }
-        byte[] array  = value.toByteArray();
-        int    length = array.length;
+        byte[] array = value.toByteArray();
+        int length = array.length;
         if ((array[0] & 0x80) == 0x80) {
             length++;
         }
@@ -475,7 +466,7 @@ public class Utils {
     // The representation of nBits uses another home-brew encoding, as a way to represent a large
     // hash value in only 32 bits.
     public static BigInteger decodeCompactBits(long compact) {
-        int    size  = ((int) (compact >> 24)) & 0xFF;
+        int size = ((int) (compact >> 24)) & 0xFF;
         byte[] bytes = new byte[4 + size];
         bytes[3] = (byte) size;
         if (size >= 1) {
@@ -590,7 +581,7 @@ public class Utils {
             bos.write(BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.length);
             bos.write(BITCOIN_SIGNED_MESSAGE_HEADER_BYTES);
             byte[] messageBytes = message.getBytes(Charsets.UTF_8);
-            VarInt size         = new VarInt(messageBytes.length);
+            VarInt size = new VarInt(messageBytes.length);
             bos.write(size.encode());
             bos.write(messageBytes);
             return bos.toByteArray();
@@ -678,7 +669,7 @@ public class Utils {
     }
 
     public static byte[] hexStringToByteArray(String s) {
-        int    len  = s.length();
+        int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0;
              i < len;
@@ -689,48 +680,41 @@ public class Utils {
         return data;
     }
 
-    public static String toAddress(byte[] pubKeyHash) {
-        checkArgument(pubKeyHash.length == 20, "Addresses are 160-bit hashes, " +
-                "so you must provide 20 bytes");
-
+    public static String toAddress(byte[] publicKeyHash) {
+        checkArgument(publicKeyHash.length == 20, "Addresses are 160-bit hashes, " + "so you must provide 20 bytes");
         int version = BitherjSettings.addressHeader;
         checkArgument(version < 256 && version >= 0);
-
-        byte[] addressBytes = new byte[1 + pubKeyHash.length + 4];
+        byte[] addressBytes = new byte[1 + publicKeyHash.length + 4];
         addressBytes[0] = (byte) version;
-        System.arraycopy(pubKeyHash, 0, addressBytes, 1, pubKeyHash.length);
-        byte[] check = Utils.doubleDigest(addressBytes, 0, pubKeyHash.length + 1);
-        System.arraycopy(check, 0, addressBytes, pubKeyHash.length + 1, 4);
+        System.arraycopy(publicKeyHash, 0, addressBytes, 1, publicKeyHash.length);
+        byte[] check = Utils.doubleDigest(addressBytes, 0, publicKeyHash.length + 1);
+        System.arraycopy(check, 0, addressBytes, publicKeyHash.length + 1, 4);
         return Base58.encode(addressBytes);
     }
 
-    public static String toP2SHAddress(byte[] pubKeyHash) {
-        checkArgument(pubKeyHash.length == 20, "Addresses are 160-bit hashes, " +
-                "so you must provide 20 bytes");
-
+    public static String toP2SHAddress(byte[] publicKeyHash) {
+        checkArgument(publicKeyHash.length == 20, "Addresses are 160-bit hashes, " + "so you must provide 20 bytes");
         int version = BitherjSettings.p2shHeader;
         checkArgument(version < 256 && version >= 0);
-
-        byte[] addressBytes = new byte[1 + pubKeyHash.length + 4];
+        byte[] addressBytes = new byte[1 + publicKeyHash.length + 4];
         addressBytes[0] = (byte) version;
-        System.arraycopy(pubKeyHash, 0, addressBytes, 1, pubKeyHash.length);
-        byte[] check = Utils.doubleDigest(addressBytes, 0, pubKeyHash.length + 1);
-        System.arraycopy(check, 0, addressBytes, pubKeyHash.length + 1, 4);
+        System.arraycopy(publicKeyHash, 0, addressBytes, 1, publicKeyHash.length);
+        byte[] check = Utils.doubleDigest(addressBytes, 0, publicKeyHash.length + 1);
+        System.arraycopy(check, 0, addressBytes, publicKeyHash.length + 1, 4);
         return Base58.encode(addressBytes);
     }
 
-    public static String toAddress(byte[] pubKeyHash, Coin coin) {
-        checkArgument(pubKeyHash.length == 20, "Addresses are 160-bit hashes, " +
-                "so you must provide 20 bytes");
+    public static String toAddress(byte[] publicKeyHash, Coin coin) {
+        checkArgument(publicKeyHash.length == 20, "Addresses are 160-bit hashes, " + "so you must provide 20 bytes");
 
         int version = coin.getAddressHeader();
         checkArgument(version < 256 && version >= 0);
 
-        byte[] addressBytes = new byte[1 + pubKeyHash.length + 4];
+        byte[] addressBytes = new byte[1 + publicKeyHash.length + 4];
         addressBytes[0] = (byte) version;
-        System.arraycopy(pubKeyHash, 0, addressBytes, 1, pubKeyHash.length);
-        byte[] check = Utils.doubleDigest(addressBytes, 0, pubKeyHash.length + 1);
-        System.arraycopy(check, 0, addressBytes, pubKeyHash.length + 1, 4);
+        System.arraycopy(publicKeyHash, 0, addressBytes, 1, publicKeyHash.length);
+        byte[] check = Utils.doubleDigest(addressBytes, 0, publicKeyHash.length + 1);
+        System.arraycopy(check, 0, addressBytes, publicKeyHash.length + 1, 4);
         return Base58.encode(addressBytes);
     }
 
@@ -777,18 +761,18 @@ public class Utils {
     }
 
     public static byte[] getAddressHash(String address) throws AddressFormatException {
-        byte[] tmp   = Base58.decodeChecked(address);
+        byte[] tmp = Base58.decodeChecked(address);
         byte[] bytes = new byte[tmp.length - 1];
         System.arraycopy(tmp, 1, bytes, 0, tmp.length - 1);
         return bytes;
     }
 
     //add by jjz (bither)
-    private static final String WALLET_ROM_CACHE  = "wallet";
+    private static final String WALLET_ROM_CACHE = "wallet";
     private static final String WALLET_WATCH_ONLY = "watch";
-    private static final String WALLET_HOT        = "hot";
-    private static final String WALLET_COLD       = "cold";
-    private static final String WALLET_TRASH      = "trash";
+    private static final String WALLET_HOT = "hot";
+    private static final String WALLET_COLD = "cold";
+    private static final String WALLET_TRASH = "trash";
 
     //add by jjz (bither)
     public static File getWalletRomCache() {
@@ -807,7 +791,7 @@ public class Utils {
 
     //add by jjz (bither)
     public static File getPrivateDir() {
-        File   file    = getWalletRomCache();
+        File file = getWalletRomCache();
         String dirName = WALLET_HOT;
         if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.COLD) {
             dirName = WALLET_COLD;
@@ -820,7 +804,7 @@ public class Utils {
     }
 
     public static File getTrashDir() {
-        File   file    = getWalletRomCache();
+        File file = getWalletRomCache();
         String dirName = WALLET_TRASH;
         file = new File(file, dirName);
         if (!file.exists()) {
@@ -858,8 +842,8 @@ public class Utils {
         }
         ByteArrayOutputStream arrayOutputStream = null;
         try {
-            FileInputStream is    = new FileInputStream(file);
-            byte[]          bytes = new byte[1024];
+            FileInputStream is = new FileInputStream(file);
+            byte[] bytes = new byte[1024];
 
             arrayOutputStream = new ByteArrayOutputStream();
             int count;
@@ -941,9 +925,9 @@ public class Utils {
     }
 
     public static boolean validPassword(CharSequence password) {
-        String  pattern = "[0-9a-zA-Z`~!@#$%^&*()_\\-+=|{}':;',\\[\\].\\\\\"<>/?]+";
-        Pattern p       = Pattern.compile(pattern);
-        Matcher m       = p.matcher(password);
+        String pattern = "[0-9a-zA-Z`~!@#$%^&*()_\\-+=|{}':;',\\[\\].\\\\\"<>/?]+";
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(password);
         //TODO jjz allow symbols for password
         return m.matches();
     }
@@ -1105,9 +1089,9 @@ public class Utils {
     }
 
     public static List<byte[]> decodeServiceResult(String result) {
-        byte[]       servicePubs = Base64.decode(result, Base64.DEFAULT);
-        int          index       = 0;
-        List<byte[]> pubsList    = new ArrayList<byte[]>();
+        byte[] servicePubs = Base64.decode(result, Base64.DEFAULT);
+        int index = 0;
+        List<byte[]> pubsList = new ArrayList<byte[]>();
         while (index < servicePubs.length - 1) {
             byte charLen = servicePubs[index];
             index++;
@@ -1122,7 +1106,7 @@ public class Utils {
         for (byte[] bytes : bytesList) {
             len = len + 1 + bytes.length;
         }
-        int    index  = 0;
+        int index = 0;
         byte[] result = new byte[len];
         for (byte[] bytes : bytesList) {
             result[index] = (byte) bytes.length;

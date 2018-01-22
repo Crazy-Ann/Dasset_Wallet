@@ -215,9 +215,9 @@ public class DesktopHDMKeychain extends AbstractHD {
             for (int i = 0;
                  i < count;
                  i++) {
-                byte[]          subExternalPub1 = externalKey1.deriveSoftened(i).getPubKey();
-                byte[]          subExternalPub2 = externalKey2.deriveSoftened(i).getPubKey();
-                byte[]          subExternalPub3 = externalKey3.deriveSoftened(i).getPubKey();
+                byte[]          subExternalPub1 = externalKey1.deriveSoftened(i).getPublicKey();
+                byte[]          subExternalPub2 = externalKey2.deriveSoftened(i).getPublicKey();
+                byte[]          subExternalPub3 = externalKey3.deriveSoftened(i).getPublicKey();
                 HDMAddress.Pubs pubs            = new HDMAddress.Pubs();
                 pubs.hot = subExternalPub1;
                 pubs.cold = subExternalPub2;
@@ -240,9 +240,9 @@ public class DesktopHDMKeychain extends AbstractHD {
             for (int i = 0;
                  i < count;
                  i++) {
-                byte[]          subInternalPub1 = internalKey1.deriveSoftened(i).getPubKey();
-                byte[]          subInternalPub2 = internalKey2.deriveSoftened(i).getPubKey();
-                byte[]          subInternalPub3 = internalKey3.deriveSoftened(i).getPubKey();
+                byte[]          subInternalPub1 = internalKey1.deriveSoftened(i).getPublicKey();
+                byte[]          subInternalPub2 = internalKey2.deriveSoftened(i).getPublicKey();
+                byte[]          subInternalPub3 = internalKey3.deriveSoftened(i).getPublicKey();
                 HDMAddress.Pubs pubs            = new HDMAddress.Pubs();
                 pubs.hot = subInternalPub1;
                 pubs.cold = subInternalPub2;
@@ -271,9 +271,9 @@ public class DesktopHDMKeychain extends AbstractHD {
         for (int i = firstIndex;
              i < count + firstIndex;
              i++) {
-            byte[]          subInternalPub1 = internalKey1.deriveSoftened(i).getPubKey();
-            byte[]          subInternalPub2 = internalKey2.deriveSoftened(i).getPubKey();
-            byte[]          subInternalPub3 = internalKey3.deriveSoftened(i).getPubKey();
+            byte[]          subInternalPub1 = internalKey1.deriveSoftened(i).getPublicKey();
+            byte[]          subInternalPub2 = internalKey2.deriveSoftened(i).getPublicKey();
+            byte[]          subInternalPub3 = internalKey3.deriveSoftened(i).getPublicKey();
             HDMAddress.Pubs pubs            = new HDMAddress.Pubs();
             pubs.hot = subInternalPub1;
             pubs.cold = subInternalPub2;
@@ -300,9 +300,9 @@ public class DesktopHDMKeychain extends AbstractHD {
         for (int i = firstIndex;
              i < count + firstIndex;
              i++) {
-            byte[]          subExternalPub1 = externalKey1.deriveSoftened(i).getPubKey();
-            byte[]          subExternalPub2 = externalKey2.deriveSoftened(i).getPubKey();
-            byte[]          subExternalPub3 = externalKey3.deriveSoftened(i).getPubKey();
+            byte[]          subExternalPub1 = externalKey1.deriveSoftened(i).getPublicKey();
+            byte[]          subExternalPub2 = externalKey2.deriveSoftened(i).getPublicKey();
+            byte[]          subExternalPub3 = externalKey3.deriveSoftened(i).getPublicKey();
             HDMAddress.Pubs pubs            = new HDMAddress.Pubs();
             pubs.hot = subExternalPub1;
             pubs.cold = subExternalPub2;
@@ -465,7 +465,7 @@ public class DesktopHDMKeychain extends AbstractHD {
             DeterministicKey key;
             if (pathTypeIndex.pathType == PathType.EXTERNAL_ROOT_PATH) {
                 key = getExternalKey(pathTypeIndex.index, password);
-                System.out.println("publicKey:" + Base58.encode(key.getPubKey()));
+                System.out.println("publicKey:" + Base58.encode(key.getPublicKey()));
             } else {
                 key = getInternalKey(pathTypeIndex.index, password);
             }
@@ -655,7 +655,7 @@ public class DesktopHDMKeychain extends AbstractHD {
         DeterministicKey external = account.deriveSoftened(0);
         external.clearPrivateKey();
         DeterministicKey deterministicKey = external.deriveSoftened(0);
-        boolean          result           = Utils.compareString(address, Utils.toAddress(deterministicKey.getPubKeyHash()));
+        boolean          result           = Utils.compareString(address, Utils.toAddress(deterministicKey.getPublicKeyHash()));
         deterministicKey.wipe();
 
         return result;

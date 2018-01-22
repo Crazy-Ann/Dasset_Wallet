@@ -6,13 +6,12 @@ import com.dasset.wallet.core.qrcode.QRCodeUtil;
 import com.dasset.wallet.core.qrcode.SaltForQRCode;
 import com.dasset.wallet.core.utils.Utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 public class EncryptedData {
 
-    private byte[]        encryptedData;
-    private byte[]        initialisationVector;
+    private byte[] encryptedData;
+    private byte[] initialisationVector;
     private SaltForQRCode saltForQRCode;
 
 
@@ -35,10 +34,12 @@ public class EncryptedData {
     }
 
     public EncryptedData(byte[] dataToEncrypt, CharSequence password, boolean isCompress, boolean isFromXRandom) {
-        KeyCrypterScrypt    keyCrypterScrypt    = new KeyCrypterScrypt();
+        KeyCrypterScrypt keyCrypterScrypt = new KeyCrypterScrypt();
         EncryptedPrivateKey encryptedPrivateKey = keyCrypterScrypt.encrypt(dataToEncrypt, keyCrypterScrypt.deriveKey(password));
         this.encryptedData = encryptedPrivateKey.getEncryptedBytes();
+        LogUtil.getInstance().print("-------9-------encryptedData(使用password加密后数据):" + Hex.toHexString(encryptedData));
         this.initialisationVector = encryptedPrivateKey.getInitialisationVector();
+        LogUtil.getInstance().print("-------10-------initialisationVector(初始向量):" + Hex.toHexString(initialisationVector));
         this.saltForQRCode = new SaltForQRCode(keyCrypterScrypt.getSalt(), isCompress, isFromXRandom);
     }
 

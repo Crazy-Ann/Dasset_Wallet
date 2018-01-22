@@ -108,14 +108,14 @@ public class ScriptBuilder {
      * Creates a scriptPubKey that encodes payment to the given raw public key.
      */
     public static Script createOutputScript(ECKey key) {
-        return new ScriptBuilder().data(key.getPubKey()).op(ScriptOpCodes.OP_CHECKSIG).build();
+        return new ScriptBuilder().data(key.getPublicKey()).op(ScriptOpCodes.OP_CHECKSIG).build();
     }
 
     /**
      * Creates a scriptSig that can redeem a pay-to-address output.
      */
     public static Script createInputScript(TransactionSignature signature, ECKey pubKey) {
-        byte[] pubkeyBytes = pubKey.getPubKey();
+        byte[] pubkeyBytes = pubKey.getPublicKey();
         return new ScriptBuilder().data(signature.encodeToBitcoin()).data(pubkeyBytes).build();
     }
 

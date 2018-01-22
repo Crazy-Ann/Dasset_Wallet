@@ -8,6 +8,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         testInstrumentationRunner rootProject.ext.testInstrumentationRunner
+        ndk {
+            abiFilters "armeabi"
+        }
     }
 
     buildTypes {
@@ -28,6 +31,21 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java']
+            resources.srcDirs = ['src/main/resources']
+            aidl.srcDirs = ['src/main/aidl']
+            renderscript.srcDirs = ['src/maom']
+            res.srcDirs = ['src/main/res']
+            assets.srcDirs = ['src/main/assets']
+        }
+        instrumentTest.setRoot('androidTest')
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
     }
     lintOptions {
 //        textReport true

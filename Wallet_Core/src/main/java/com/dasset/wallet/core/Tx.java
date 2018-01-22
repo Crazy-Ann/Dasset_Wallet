@@ -802,7 +802,7 @@ public class Tx extends Message implements Comparable<Tx> {
             boolean anyoneCanPay          = false;
             byte[]  connectedPubKeyScript = input.getPrevOutScript();//input.getOutpoint()
             // .getConnectedPubKeyScript();
-            if (key.hasPrivKey() || key.isEncrypted()) {
+            if (key.hasPrivateKey() || key.isEncrypted()) {
                 signatures[i] = calculateSignature(i, key, assKey, connectedPubKeyScript,
                                                    hashType, anyoneCanPay);
             } else {
@@ -922,7 +922,7 @@ public class Tx extends Message implements Comparable<Tx> {
             boolean anyoneCanPay          = false;
             byte[]  connectedPubKeyScript = input.getPrevOutScript();//input.getOutpoint()
             // .getConnectedPubKeyScript();
-            if (key.hasPrivKey() || key.isEncrypted()) {
+            if (key.hasPrivateKey() || key.isEncrypted()) {
                 signatures[i] = calculateSignature(i, key, assKey, connectedPubKeyScript,
                                                    hashType, anyoneCanPay);
             } else {
@@ -2044,12 +2044,12 @@ public class Tx extends Message implements Comparable<Tx> {
             ECKey   ecKeyCompress   = new ECKey(null, point.getEncoded(true));
             ECKey   ecKeyUnCompress = new ECKey(null, point.getEncoded(false));
             for (int j = 0; j < pubs.size(); j++) {
-                if (Arrays.equals(ecKeyCompress.getPubKey(), pubs.get(j))) {
-                    return ecKeyCompress.getPubKey();
+                if (Arrays.equals(ecKeyCompress.getPublicKey(), pubs.get(j))) {
+                    return ecKeyCompress.getPublicKey();
 
                 }
-                if (Arrays.equals(ecKeyUnCompress.getPubKey(), pubs.get(j))) {
-                    return ecKeyUnCompress.getPubKey();
+                if (Arrays.equals(ecKeyUnCompress.getPublicKey(), pubs.get(j))) {
+                    return ecKeyUnCompress.getPublicKey();
 
                 }
             }

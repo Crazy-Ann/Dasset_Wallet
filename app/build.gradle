@@ -10,6 +10,9 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner rootProject.ext.testInstrumentationRunner
+        ndk {
+            abiFilters "armeabi"
+        }
     }
     buildTypes {
         debug {

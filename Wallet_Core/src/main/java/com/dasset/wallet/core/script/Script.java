@@ -386,7 +386,7 @@ public class Script {
     }
 
     /**
-     * Gets the destination address from this script, if it's in the required form (see getPubKey).
+     * Gets the destination address from this script, if it's in the required form (see getPublicKey).
      */
     public String getToAddress() throws ScriptException {
         if (isSentToAddress()) {
@@ -446,7 +446,7 @@ public class Script {
             ByteArrayOutputStream bits = new ByteArrayOutputStream();
             bits.write(encodeToOpN(threshold));
             for (ECKey key : pubkeys) {
-                writeBytes(bits, key.getPubKey());
+                writeBytes(bits, key.getPublicKey());
             }
             bits.write(encodeToOpN(pubkeys.size()));
             bits.write(ScriptOpCodes.OP_CHECKMULTISIG);
@@ -587,7 +587,7 @@ public class Script {
         } else if (isSentToAddress()) {
             // scriptSig: <sig> <pubkey>
             int uncompressedPubKeySize = 65;
-            return SIG_SIZE + (pubKey != null ? pubKey.getPubKey().length : uncompressedPubKeySize);
+            return SIG_SIZE + (pubKey != null ? pubKey.getPublicKey().length : uncompressedPubKeySize);
         } else {
             throw new IllegalStateException("Unsupported script type");
         }

@@ -110,7 +110,7 @@ public class PrivateKeyUtil {
             dumpedPrivateKey.clearPrivateKey();
         } else {
             BigInteger bigInteger = new BigInteger(1, decrypted);
-            byte[]     pub        = ECKey.publicKeyFromPrivate(bigInteger, isCompressed);
+            byte[]     pub        = ECKey.publicKeyFromPrivateKey(bigInteger, isCompressed);
 
             ecKey = new ECKey(epk, pub, crypter);
             ecKey.setFromXRandom(isFromXRandom);
@@ -300,7 +300,7 @@ public class PrivateKeyUtil {
             if (key == null) {
                 return null;
             } else {
-                Address address = new Address(key.toAddress(), key.getPubKey(), encryptedString,
+                Address address = new Address(key.toAddress(), key.getPublicKey(), encryptedString,
                                               false, key.isFromXRandom());
                 key.clearPrivateKey();
                 list.add(address);

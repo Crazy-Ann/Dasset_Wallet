@@ -130,7 +130,7 @@ public class HDMKeychain extends AbstractHD {
             if (pubs.size() > 0) {
                 try {
                     DeterministicKey root       = externalChainRoot(password);
-                    byte[]           pubDerived = root.deriveSoftened(0).getPubKey();
+                    byte[]           pubDerived = root.deriveSoftened(0).getPublicKey();
                     byte[]           pubFetched = pubs.get(0).hot;
                     root.wipe();
                     if (!Arrays.equals(pubDerived, pubFetched)) {
@@ -198,7 +198,7 @@ public class HDMKeychain extends AbstractHD {
             if (id != null) {
                 String hdmIdAddress = id.getAddress();
                 if (!Utils.compareString(hdmIdAddress, Utils.toAddress(externalRootCold
-                                                                               .deriveSoftened(0).getPubKeyHash()))) {
+                                                                               .deriveSoftened(0).getPublicKeyHash()))) {
                     throw new HDMColdPubNotSameException();
                 }
             }
@@ -209,13 +209,13 @@ public class HDMKeychain extends AbstractHD {
              i++) {
             HDMAddress.Pubs p = new HDMAddress.Pubs();
             try {
-                p.hot = externalRootHot.deriveSoftened(i).getPubKey();
+                p.hot = externalRootHot.deriveSoftened(i).getPublicKey();
             } catch (Exception e) {
                 e.printStackTrace();
                 p.hot = HDMAddress.Pubs.EmptyBytes;
             }
             try {
-                p.cold = externalRootCold.deriveSoftened(i).getPubKey();
+                p.cold = externalRootCold.deriveSoftened(i).getPublicKey();
             } catch (Exception e) {
                 e.printStackTrace();
                 p.cold = HDMAddress.Pubs.EmptyBytes;
@@ -458,7 +458,7 @@ public class HDMKeychain extends AbstractHD {
             account.wipe();
             external.wipe();
             Utils.wipeBytes(seed);
-            result = Arrays.equals(first.getPubKey(), pub);
+            result = Arrays.equals(first.getPublicKey(), pub);
             first.wipe();
         } catch (MnemonicException.MnemonicLengthException e) {
             e.printStackTrace();
@@ -552,7 +552,7 @@ public class HDMKeychain extends AbstractHD {
         external.clearPrivateKey();
 
         DeterministicKey key    = external.deriveSoftened(0);
-        boolean          result = Utils.compareString(address, Utils.toAddress(key.getPubKeyHash()));
+        boolean          result = Utils.compareString(address, Utils.toAddress(key.getPublicKeyHash()));
         key.wipe();
 
         return result;
@@ -573,7 +573,7 @@ public class HDMKeychain extends AbstractHD {
                 List<HDMAddress.Pubs> pubs = fetchDelegate.getRemoteExistsPublicKeys(password);
                 if (pubs.size() > 0) {
                     byte[] pubFetched = pubs.get(0).cold;
-                    byte[] pubDerived = coldRoot.deriveSoftened(pubs.get(0).index).getPubKey();
+                    byte[] pubDerived = coldRoot.deriveSoftened(pubs.get(0).index).getPublicKey();
                     coldRoot.wipe();
                     if (!Arrays.equals(pubDerived, pubFetched)) {
                         throw new HDMBitherIdNotMatchException();

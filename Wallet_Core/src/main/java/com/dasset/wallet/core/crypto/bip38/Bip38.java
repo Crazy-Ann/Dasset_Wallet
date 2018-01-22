@@ -281,7 +281,7 @@ public class Bip38 {
         ECKey key = new ECKey(new BigInteger(1, passFactor), null, true);
 
         // Determine Pass Point
-        byte[] passPoint = key.getPubKey();
+        byte[] passPoint = key.getPublicKey();
         key.clearPrivateKey();
 
         // Get 8 byte encrypted part 1, only first half of encrypted part 1

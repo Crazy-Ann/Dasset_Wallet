@@ -266,8 +266,8 @@ public class TransactionsUtil {
         for (PathType pathType : PathType.values()) {
             HDAddress hdAddress;
 //            boolean hasTx = true;
-            int unusedAddressCnt      = 0; //HDAccount.MaxUnusedNewAddressCount
-            int maxUnusedAddressCount = HDAccount.MaxUnusedNewAddressCount;
+            int unusedAddressCnt      = 0; //HDAccount.MAX_UNUSED_NEW_ADDRESS_COUNT
+            int maxUnusedAddressCount = HDAccount.MAX_UNUSED_NEW_ADDRESS_COUNT;
             int addressIndex          = 0;
             while (unusedAddressCnt <= maxUnusedAddressCount) {
                 Block storedBlock      = BlockChain.getInstance().getLastBlock();
@@ -395,8 +395,8 @@ public class TransactionsUtil {
         for (PathType pathType : PathType.values()) {
             HDAddress hdAccountAddress;
 //            boolean hasTx = true;
-            int unusedAddressCnt      = 0; //HDAccount.MaxUnusedNewAddressCount
-            int maxUnusedAddressCount = HDAccount.MaxUnusedNewAddressCount;
+            int unusedAddressCnt      = 0; //HDAccount.MAX_UNUSED_NEW_ADDRESS_COUNT
+            int maxUnusedAddressCount = HDAccount.MAX_UNUSED_NEW_ADDRESS_COUNT;
             int addressIndex          = 0;
             while (unusedAddressCnt <= maxUnusedAddressCount) {
                 Block storedBlock      = BlockChain.getInstance().getLastBlock();

@@ -115,7 +115,7 @@ public abstract class AbstractHD {
 
     protected String getFirstAddressFromSeed(CharSequence password) {
         DeterministicKey key     = getExternalKey(0, password);
-        String           address = Utils.toAddress(key.getPubKeyHash());
+        String           address = Utils.toAddress(key.getPublicKeyHash());
         key.wipe();
         return address;
     }

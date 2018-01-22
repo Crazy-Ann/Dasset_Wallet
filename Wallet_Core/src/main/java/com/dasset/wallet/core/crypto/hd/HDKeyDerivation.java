@@ -16,12 +16,15 @@
 
 package com.dasset.wallet.core.crypto.hd;
 
-import com.google.common.collect.ImmutableList;
+import com.dasset.wallet.components.utils.LogUtil;
+import com.dasset.wallet.core.contant.PublicDeriveMode;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.utils.Utils;
+import com.google.common.collect.ImmutableList;
 
 import org.spongycastle.crypto.macs.HMac;
 import org.spongycastle.math.ec.ECPoint;
+import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -54,38 +57,39 @@ public final class HDKeyDerivation {
      * broken by attackers (this is not theoretical, people have had money stolen that way). This method checks
      * that the given seed is at least 64 bits long.
      *
-     * @throws HDDerivationException
-     *         if generated master key is invalid (private key 0 or >= n).
-     * @throws IllegalArgumentException
-     *         if the seed is less than 8 bytes and could be brute forced.
+     * @throws HDDerivationException    if generated master key is invalid (private key 0 or >= n).
+     * @throws IllegalArgumentException if the seed is less than 8 bytes and could be brute forced.
      */
     public static DeterministicKey createMasterPrivateKey(byte[] seed) throws HDDerivationException {
         checkArgument(seed.length > 8, "Seed is too short and could be brute forced");
         // Calculate I = HMAC-SHA512(key="Bitcoin seed", msg=S)
         byte[] i = HDUtils.hmacSha512(MASTER_HMAC_SHA512, seed);
+        LogUtil.getInstance().print("-------12-------i(hmacSha512助记码根种子hash 128bits):" + Hex.toHexString(i));
         // Split I into two 32-byte sequences, Il and Ir.
         // Use Il as master secret key, and Ir as master chain code.
         checkState(i.length == 64, i.length);
         byte[] il = Arrays.copyOfRange(i, 0, 32);
         byte[] ir = Arrays.copyOfRange(i, 32, 64);
+        LogUtil.getInstance().print("-------13-------il(master private key bytes):" + Hex.toHexString(il));
+        LogUtil.getInstance().print("-------14-------ir(master chain code bytes):" + Hex.toHexString(ir));
         Arrays.fill(i, (byte) 0);
-        DeterministicKey masterPrivKey = createMasterPrivKeyFromBytes(il, ir);
+        DeterministicKey masterPrivateKey = createMasterPrivateKeyFromBytes(il, ir);
         Arrays.fill(il, (byte) 0);
         Arrays.fill(ir, (byte) 0);
         // Child deterministic keys will chain up to their parents to find the keys.
-        masterPrivKey.setCreationTimeSeconds(Utils.currentTimeSeconds());
-        return masterPrivKey;
+        masterPrivateKey.setCreationTimeSeconds(Utils.currentTimeSeconds());
+        return masterPrivateKey;
     }
 
     /**
-     * @throws HDDerivationException
-     *         if privKeyBytes is invalid (0 or >= n).
+     * @throws HDDerivationException if privKeyBytes is invalid (0 or >= n).
      */
-    public static DeterministicKey createMasterPrivKeyFromBytes(byte[] privKeyBytes, byte[] chainCode) throws HDDerivationException {
-        BigInteger priv = new BigInteger(1, privKeyBytes);
-        assertNonZero(priv, "Generated master key is invalid.");
-        assertLessThanN(priv, "Generated master key is invalid.");
-        return new DeterministicKey(ImmutableList.<ChildNumber>of(), chainCode, priv, null);
+    public static DeterministicKey createMasterPrivateKeyFromBytes(byte[] privateKeyBytes, byte[] chainCode) throws HDDerivationException {
+        BigInteger privateKey = new BigInteger(1, privateKeyBytes);
+        LogUtil.getInstance().print("-------15-------privateKey(master):" + Hex.toHexString(privateKey.toByteArray()));
+        assertNonZero(privateKey, "Generated master key is invalid.");
+        assertLessThanN(privateKey, "Generated master key is invalid.");
+        return new DeterministicKey(ImmutableList.<ChildNumber>of(), chainCode, privateKey, null);
     }
 
     public static DeterministicKey createMasterPubKeyFromBytes(byte[] pubKeyBytes, byte[] chainCode) {
@@ -120,9 +124,9 @@ public final class HDKeyDerivation {
      * hardened derivation or not. If derivation fails, tries a next child.
      */
     public static DeterministicKey deriveThisOrNextChildKey(DeterministicKey parent, int childNumber) {
-        int         nAttempts  = 0;
-        ChildNumber child      = new ChildNumber(childNumber);
-        boolean     isHardened = child.isHardened();
+        int nAttempts = 0;
+        ChildNumber child = new ChildNumber(childNumber);
+        boolean isHardened = child.isHardened();
         while (nAttempts < MAX_CHILD_DERIVATION_ATTEMPTS) {
             try {
                 child = new ChildNumber(child.num() + nAttempts, isHardened);
@@ -136,78 +140,65 @@ public final class HDKeyDerivation {
     }
 
     /**
-     * @throws HDDerivationException
-     *         if private derivation is attempted for a public-only parent key, or
-     *         if the resulting derived key is invalid (eg. private key == 0).
+     * @throws HDDerivationException if private derivation is attempted for a public-only parent key, or
+     *                               if the resulting derived key is invalid (eg. private key == 0).
      */
     public static DeterministicKey deriveChildKey(DeterministicKey parent, ChildNumber childNumber) throws HDDerivationException {
-        if (parent.isPubKeyOnly()) {
-            RawKeyBytes rawKey = deriveChildKeyBytesFromPublic(parent, childNumber, PublicDeriveMode.NORMAL);
-            return new DeterministicKey(
-                    HDUtils.append(parent.getPath(), childNumber),
-                    rawKey.chainCode,
-                    rawKey.keyBytes,
-                    null,
-                    parent);
+        LogUtil.getInstance().print("-------20-------isPublicKeyOnly:" + String.valueOf(parent.isPublicKeyOnly()));
+        if (parent.isPublicKeyOnly()) {
+            RawKeyBytes rawKeyBytes = deriveChildKeyBytesFromPublic(parent, childNumber, PublicDeriveMode.NORMAL);
+            return new DeterministicKey(HDUtils.append(parent.getPath(), childNumber), rawKeyBytes.chainCode, rawKeyBytes.keyBytes, null, parent);
         } else {
-            RawKeyBytes rawKey = deriveChildKeyBytesFromPrivate(parent, childNumber);
-            return new DeterministicKey(
-                    HDUtils.append(parent.getPath(), childNumber),
-                    rawKey.chainCode,
-                    new BigInteger(1, rawKey.keyBytes),
-                    parent);
+            RawKeyBytes rawKeyBytes = deriveChildKeyBytesFromPrivate(parent, childNumber);
+            return new DeterministicKey(HDUtils.append(parent.getPath(), childNumber), rawKeyBytes.chainCode, new BigInteger(1, rawKeyBytes.keyBytes), parent);
         }
     }
 
-    public static RawKeyBytes deriveChildKeyBytesFromPrivate(DeterministicKey parent,
-                                                             ChildNumber childNumber) throws HDDerivationException {
-        checkArgument(parent.hasPrivKey(), "Parent key must have private key bytes for this method.");
-        byte[] parentPublicKey = ECKey.compressPoint(parent.getPubKeyPoint()).getEncoded();
+    public static RawKeyBytes deriveChildKeyBytesFromPrivate(DeterministicKey parent, ChildNumber childNumber) throws HDDerivationException {
+        checkArgument(parent.hasPrivateKey(), "Parent key must have private key bytes for this method.");
+        byte[] parentPublicKey = ECKey.compressPoint(parent.getPublicKeyPoint()).getEncoded();
         assert parentPublicKey.length == 33 : parentPublicKey.length;
-        ByteBuffer data = ByteBuffer.allocate(37);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(37);
         if (childNumber.isHardened()) {
-            data.put(parent.getPrivateKeyBytes33());
+            byteBuffer.put(parent.getPrivateKeyBytes33());
         } else {
-            data.put(parentPublicKey);
+            byteBuffer.put(parentPublicKey);
         }
-        data.putInt(childNumber.i());
-        byte[] i = HDUtils.hmacSha512(parent.getChainCode(), data.array());
+        byteBuffer.putInt(childNumber.i());
+        LogUtil.getInstance().print("-------21-------deriveChildKeyBytesFromPrivate:" + Hex.toHexString(byteBuffer.array()));
+        byte[] i = HDUtils.hmacSha512(parent.getChainCode(), byteBuffer.array());
         assert i.length == 64 : i.length;
-        byte[]     il        = Arrays.copyOfRange(i, 0, 32);
-        byte[]     chainCode = Arrays.copyOfRange(i, 32, 64);
-        BigInteger ilInt     = new BigInteger(1, il);
+        byte[] il = Arrays.copyOfRange(i, 0, 32);
+        byte[] chainCode = Arrays.copyOfRange(i, 32, 64);
+        BigInteger ilInt = new BigInteger(1, il);
         ilInt = ilInt.mod(ECKey.CURVE.getN());
-        final BigInteger priv = parent.getPrivKey();
-        BigInteger       ki   = priv.add(ilInt).mod(ECKey.CURVE.getN());
+        final BigInteger privateKey = parent.getPrivateKey();
+        BigInteger ki = privateKey.add(ilInt).mod(ECKey.CURVE.getN());
         assertNonZero(ki, "Illegal derived key: derived private key equals 0.");
         return new RawKeyBytes(ki.toByteArray(), chainCode);
     }
 
-    public enum PublicDeriveMode {
-        NORMAL,
-        WITH_INVERSION
-    }
-
-    public static RawKeyBytes deriveChildKeyBytesFromPublic(DeterministicKey parent, ChildNumber childNumber, PublicDeriveMode mode) throws HDDerivationException {
+    public static RawKeyBytes deriveChildKeyBytesFromPublic(DeterministicKey parent, ChildNumber childNumber, PublicDeriveMode publicDeriveMode) throws HDDerivationException {
         checkArgument(!childNumber.isHardened(), "Can't use private derivation with public keys only.");
-        byte[] parentPublicKey = ECKey.compressPoint(parent.getPubKeyPoint()).getEncoded();
+        byte[] parentPublicKey = ECKey.compressPoint(parent.getPublicKeyPoint()).getEncoded();
         assert parentPublicKey.length == 33 : parentPublicKey.length;
-        ByteBuffer data = ByteBuffer.allocate(37);
-        data.put(parentPublicKey);
-        data.putInt(childNumber.i());
-        byte[] i = HDUtils.hmacSha512(parent.getChainCode(), data.array());
+        ByteBuffer byteBuffer = ByteBuffer.allocate(37);
+        byteBuffer.put(parentPublicKey);
+        byteBuffer.putInt(childNumber.i());
+        LogUtil.getInstance().print("-------20-------deriveChildKeyBytesFromPublic:" + Hex.toHexString(byteBuffer.array()));
+        byte[] i = HDUtils.hmacSha512(parent.getChainCode(), byteBuffer.array());
         assert i.length == 64 : i.length;
-        byte[]     il        = Arrays.copyOfRange(i, 0, 32);
-        byte[]     chainCode = Arrays.copyOfRange(i, 32, 64);
-        BigInteger ilInt     = new BigInteger(1, il);
+        byte[] il = Arrays.copyOfRange(i, 0, 32);
+        byte[] chainCode = Arrays.copyOfRange(i, 32, 64);
+        BigInteger ilInt = new BigInteger(1, il);
         assertLessThanN(ilInt, "Illegal derived key: I_L >= n");
 
-        final ECPoint    G = ECKey.CURVE.getG();
+        final ECPoint G = ECKey.CURVE.getG();
         final BigInteger N = ECKey.CURVE.getN();
-        ECPoint          Ki;
-        switch (mode) {
+        ECPoint Ki;
+        switch (publicDeriveMode) {
             case NORMAL:
-                Ki = G.multiply(ilInt).add(parent.getPubKeyPoint());
+                Ki = G.multiply(ilInt).add(parent.getPublicKeyPoint());
                 break;
             case WITH_INVERSION:
                 // This trick comes from Gregory Maxwell. Check the homomorphic properties of our curve hold. The
@@ -218,7 +209,7 @@ public final class HDKeyDerivation {
                 Ki = G.multiply(ilInt.add(rand));
                 BigInteger additiveInverse = rand.negate().mod(N);
                 Ki = Ki.add(G.multiply(additiveInverse));
-                Ki = Ki.add(parent.getPubKeyPoint());
+                Ki = Ki.add(parent.getPublicKeyPoint());
                 break;
             default:
                 throw new AssertionError();

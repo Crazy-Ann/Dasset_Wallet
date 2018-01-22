@@ -107,7 +107,7 @@ public class EnterpriseHDMKeychain {
                  i < pubCount();
                  i++) {
                 if (!Arrays.equals(firstPubs.get(i), externalRootPubs.get(i).deriveSoftened(0)
-                                .getPubKey()
+                                .getPublicKey()
                 )) {
                     throw new KeyNotMatchException(i);
                 }
@@ -122,7 +122,7 @@ public class EnterpriseHDMKeychain {
             for (int j = 0;
                  j < pubCount();
                  j++) {
-                pubs.add(externalRootPubs.get(j).deriveSoftened(index).getPubKey());
+                pubs.add(externalRootPubs.get(j).deriveSoftened(index).getPublicKey());
             }
             EnterpriseHDMAddress a = new EnterpriseHDMAddress(new EnterpriseHDMAddress.Pubs
                     (index, threshold(), pubs), this, false);

@@ -46,7 +46,6 @@ public class SaltForQRCode {
         } else {
             System.arraycopy(salt, 0, qrCodeSalt, 0, salt.length);
         }
-
     }
 
     public byte[] getSalt() {

@@ -41,8 +41,8 @@ public final class HDUtils {
     private static final Joiner PATH_JOINER = Joiner.on("/");
 
     static HMac createHmacSha512Digest(byte[] key) {
-        SHA512Digest digest = new SHA512Digest();
-        HMac         hMac   = new HMac(digest);
+        SHA512Digest sha512Digest = new SHA512Digest();
+        HMac hMac = new HMac(sha512Digest);
         hMac.init(new KeyParameter(key));
         return hMac;
     }
@@ -85,8 +85,8 @@ public final class HDUtils {
      * Where a letter "H" means hardened key. Spaces are ignored.
      */
     public static List<ChildNumber> parsePath(@Nonnull String path) {
-        String[]          parsedNodes = path.replace("M", "").split("/");
-        List<ChildNumber> nodes       = new ArrayList<ChildNumber>();
+        String[] parsedNodes = path.replace("M", "").split("/");
+        List<ChildNumber> nodes = new ArrayList<ChildNumber>();
 
         for (String n : parsedNodes) {
             n = n.replaceAll(" ", "");

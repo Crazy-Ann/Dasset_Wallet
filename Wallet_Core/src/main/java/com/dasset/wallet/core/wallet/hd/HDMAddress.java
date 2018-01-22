@@ -17,12 +17,11 @@ import java.util.List;
 public class HDMAddress extends Address {
 
     public static interface HDMFetchOtherSignatureDelegate {
-        List<TransactionSignature> getOtherSignature(int addressIndex, CharSequence password,
-                                                     List<byte[]> unsignHash, Tx tx);
+        List<TransactionSignature> getOtherSignature(int addressIndex, CharSequence password, List<byte[]> unsignHash, Tx tx);
     }
 
     private HDMKeychain keychain;
-    private Pubs        pubs;
+    private Pubs pubs;
 
     public HDMAddress(Pubs pubs, HDMKeychain keychain, boolean isSyncComplete) {
         this(pubs, pubs.getAddress(), isSyncComplete, keychain);
@@ -83,7 +82,7 @@ public class HDMAddress extends Address {
         if (isInRecovery()) {
             throw new AssertionError("recovery hdm address can not sign");
         }
-        DeterministicKey                key  = keychain.getExternalKey(pubs.index, password);
+        DeterministicKey key = keychain.getExternalKey(pubs.index, password);
         ArrayList<TransactionSignature> sigs = new ArrayList<TransactionSignature>();
         for (int i = 0;
              i < unsignedHashes.size();
@@ -98,8 +97,8 @@ public class HDMAddress extends Address {
 
     @Override
     public String signMessage(String msg, CharSequence password) {
-        DeterministicKey key    = keychain.getExternalKey(pubs.index, password);
-        String           result = key.signMessage(msg);
+        DeterministicKey key = keychain.getExternalKey(pubs.index, password);
+        String result = key.signMessage(msg);
         key.clearPrivateKey();
         return result;
     }
@@ -170,7 +169,7 @@ public class HDMAddress extends Address {
         public byte[] hot;
         public byte[] cold;
         public byte[] remote;
-        public int    index;
+        public int index;
 
         public Pubs(byte[] hot, byte[] cold, byte[] remote, int index) {
             this.hot = hot;
