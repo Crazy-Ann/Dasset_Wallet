@@ -20,7 +20,7 @@ package com.dasset.wallet.core;
 
 import com.dasset.wallet.core.script.Script;
 import com.dasset.wallet.core.script.ScriptBuilder;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.utils.Utils;
 
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class EnterpriseHDMAddress extends Address {
 
     @Override
     public void updateSyncComplete() {
-        AbstractDb.enterpriseHDMProvider.updateSyncComplete(EnterpriseHDMAddress.this);
+        BaseDb.iEnterpriseHDMProvider.updateSyncComplete(EnterpriseHDMAddress.this);
     }
 
     public static final class Pubs {

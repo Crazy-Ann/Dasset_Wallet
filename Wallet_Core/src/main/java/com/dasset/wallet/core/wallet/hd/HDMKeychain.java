@@ -12,7 +12,7 @@ import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.crypto.hd.HDKeyDerivation;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicCode;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicException;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.password.SecureCharSequence;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
 import com.dasset.wallet.core.utils.Base58;
@@ -73,8 +73,8 @@ public class HDMKeychain extends AbstractHD {
         firstAddress = getFirstAddressFromSeed(password);
         wipeHDSeed();
         wipeMnemonicSeed();
-        hdSeedId = AbstractDb.addressProvider.addHDKey(encryptedMnemonicSeed.toEncryptedString(),
-                                                       encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address);
+        hdSeedId = BaseDb.iAddressProvider.addHDKey(encryptedMnemonicSeed.toEncryptedString(),
+                                                    encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address);
         allCompletedAddresses = new ArrayList<HDMAddress>();
 
     }
@@ -102,8 +102,8 @@ public class HDMKeychain extends AbstractHD {
         k.clearPrivateKey();
         wipeHDSeed();
         wipeMnemonicSeed();
-        hdSeedId = AbstractDb.addressProvider.addHDKey(encryptedMnemonicSeed.toEncryptedString(),
-                                                       encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address);
+        hdSeedId = BaseDb.iAddressProvider.addHDKey(encryptedMnemonicSeed.toEncryptedString(),
+                                                    encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address);
         allCompletedAddresses = new ArrayList<HDMAddress>();
     }
 
@@ -159,16 +159,16 @@ public class HDMKeychain extends AbstractHD {
         wipeMnemonicSeed();
         wipeHDSeed();
 
-        this.hdSeedId = AbstractDb.addressProvider.addHDKey(encryptedMnemonicSeed
+        this.hdSeedId = BaseDb.iAddressProvider.addHDKey(encryptedMnemonicSeed
                                                                     .toEncryptedString(), encryptedHDSeed.toEncryptedString(), firstAddress,
-                                                            isFromXRandom, address);
+                                                         isFromXRandom, address);
         if (as.size() > 0) {
-            AbstractDb.addressProvider.completeHDMAddresses(getHdSeedId(), as);
+            BaseDb.iAddressProvider.completeHDMAddresses(getHdSeedId(), as);
             allCompletedAddresses.addAll(as);
             if (uncompPubs.size() > 0) {
-                AbstractDb.addressProvider.prepareHDMAddresses(getHdSeedId(), uncompPubs);
+                BaseDb.iAddressProvider.prepareHDMAddresses(getHdSeedId(), uncompPubs);
                 for (HDMAddress.Pubs p : uncompPubs) {
-                    AbstractDb.addressProvider.setHDMPubsRemote(getHdSeedId(), p.index, p.remote);
+                    BaseDb.iAddressProvider.setHDMPubsRemote(getHdSeedId(), p.index, p.remote);
                 }
             }
         }
@@ -188,7 +188,7 @@ public class HDMKeychain extends AbstractHD {
         }
         ArrayList<HDMAddress.Pubs> pubs       = new ArrayList<HDMAddress.Pubs>();
         int                        startIndex = 0;
-        int                        maxIndex   = AbstractDb.addressProvider.maxHDMAddressPubIndex(getHdSeedId());
+        int                        maxIndex   = BaseDb.iAddressProvider.maxHDMAddressPubIndex(getHdSeedId());
         if (maxIndex >= 0) {
             startIndex = maxIndex + 1;
         }
@@ -223,7 +223,7 @@ public class HDMKeychain extends AbstractHD {
             p.index = i;
             pubs.add(p);
         }
-        AbstractDb.addressProvider.prepareHDMAddresses(getHdSeedId(), pubs);
+        BaseDb.iAddressProvider.prepareHDMAddresses(getHdSeedId(), pubs);
         if (externalRootHot != null) {
             externalRootHot.wipe();
         }
@@ -242,7 +242,7 @@ public class HDMKeychain extends AbstractHD {
         }
         ArrayList<HDMAddress> as = new ArrayList<HDMAddress>();
         synchronized (allCompletedAddresses) {
-            List<HDMAddress.Pubs> pubs = AbstractDb.addressProvider.getUncompletedHDMAddressPubs
+            List<HDMAddress.Pubs> pubs = BaseDb.iAddressProvider.getUncompletedHDMAddressPubs
                     (getHdSeedId(), count);
             try {
                 fetchDelegate.completeRemotePublicKeys(password, pubs);
@@ -250,11 +250,11 @@ public class HDMKeychain extends AbstractHD {
                     if (p.isCompleted()) {
                         as.add(new HDMAddress(p, this, true));
                     } else {
-                        AbstractDb.addressProvider.setHDMPubsRemote(getHdSeedId(), p.index,
-                                                                    p.remote);
+                        BaseDb.iAddressProvider.setHDMPubsRemote(getHdSeedId(), p.index,
+                                                                 p.remote);
                     }
                 }
-                AbstractDb.addressProvider.completeHDMAddresses(getHdSeedId(), as);
+                BaseDb.iAddressProvider.completeHDMAddresses(getHdSeedId(), as);
             } catch (Exception e) {
                 e.printStackTrace();
                 return as;
@@ -341,13 +341,13 @@ public class HDMKeychain extends AbstractHD {
     }
 
     private void initFromDb() {
-        isFromXRandom = AbstractDb.addressProvider.isHDSeedFromXRandom(getHdSeedId());
+        isFromXRandom = BaseDb.iAddressProvider.isHDSeedFromXRandom(getHdSeedId());
         initAddressesFromDb();
     }
 
     private void initAddressesFromDb() {
         synchronized (allCompletedAddresses) {
-            List<HDMAddress> addrs = AbstractDb.addressProvider.getHDMAddressInUse(this);
+            List<HDMAddress> addrs = BaseDb.iAddressProvider.getHDMAddressInUse(this);
             if (addrs != null) {
                 allCompletedAddresses.addAll(addrs);
             }
@@ -356,7 +356,7 @@ public class HDMKeychain extends AbstractHD {
 
 
     public int uncompletedAddressCount() {
-        return AbstractDb.addressProvider.uncompletedHDMAddressCount(getHdSeedId());
+        return BaseDb.iAddressProvider.uncompletedHDMAddressCount(getHdSeedId());
     }
 
     public HDMAddressChangeDelegate getAddressChangeDelegate() {
@@ -388,7 +388,7 @@ public class HDMKeychain extends AbstractHD {
         if (isInRecovery()) {
             throw new AssertionError("recover mode hdm keychain do not have encrypted hd seed");
         }
-        String encrypted = AbstractDb.addressProvider.getEncryptHDSeed(hdSeedId);
+        String encrypted = BaseDb.iAddressProvider.getEncryptHDSeed(hdSeedId);
         if (encrypted == null) {
             return null;
         }
@@ -401,11 +401,11 @@ public class HDMKeychain extends AbstractHD {
             throw new AssertionError("recover mode hdm keychain do not have encrypted mnemonic "
                                              + "seed");
         }
-        return AbstractDb.addressProvider.getEncryptMnemonicSeed(hdSeedId).toUpperCase();
+        return BaseDb.iAddressProvider.getEncryptMnemonicSeed(hdSeedId).toUpperCase();
     }
 
     public String getFirstAddressFromDb() {
-        return AbstractDb.addressProvider.getHDMFristAddress(hdSeedId);
+        return BaseDb.iAddressProvider.getHDMFristAddress(hdSeedId);
     }
 
     public boolean checkWithPassword(CharSequence password) {
@@ -436,7 +436,7 @@ public class HDMKeychain extends AbstractHD {
         if (getAllCompletedAddresses().size() == 0) {
             return true;
         }
-        String backup = AbstractDb.addressProvider.getSingularModeBackup(getHdSeedId());
+        String backup = BaseDb.iAddressProvider.getSingularModeBackup(getHdSeedId());
         if (backup == null) {
             return true;
         }
@@ -472,7 +472,7 @@ public class HDMKeychain extends AbstractHD {
         if (isInRecovery()) {
             throw new AssertionError("HDM in recovery can not create passwordSeed");
         }
-        String encrypted = AbstractDb.addressProvider.getEncryptMnemonicSeed(hdSeedId);
+        String encrypted = BaseDb.iAddressProvider.getEncryptMnemonicSeed(hdSeedId);
         byte[] priv      = new EncryptedData(encrypted).decrypt(password);
         ECKey  k         = new ECKey(priv, null);
         String address   = k.toAddress();
@@ -494,9 +494,9 @@ public class HDMKeychain extends AbstractHD {
     }
 
     public boolean isInRecovery() {
-        return Utils.compareString(AbstractDb.addressProvider.getEncryptMnemonicSeed(hdSeedId),
+        return Utils.compareString(BaseDb.iAddressProvider.getEncryptMnemonicSeed(hdSeedId),
                                    HDMKeychainRecover.RecoverPlaceHolder) ||
-                Utils.compareString(AbstractDb.addressProvider.getEncryptHDSeed(hdSeedId),
+                Utils.compareString(BaseDb.iAddressProvider.getEncryptHDSeed(hdSeedId),
                                     HDMKeychainRecover.RecoverPlaceHolder) ||
                 Utils.compareString(getFirstAddressFromDb(), HDMKeychainRecover.RecoverPlaceHolder);
     }
@@ -563,8 +563,8 @@ public class HDMKeychain extends AbstractHD {
 
         public HDMKeychainRecover(byte[] coldExternalRootPub, CharSequence password,
                                   HDMFetchRemoteAddresses fetchDelegate) {
-            super(AbstractDb.addressProvider.addHDKey(RecoverPlaceHolder, RecoverPlaceHolder,
-                                                      RecoverPlaceHolder, false, null));
+            super(BaseDb.iAddressProvider.addHDKey(RecoverPlaceHolder, RecoverPlaceHolder,
+                                                   RecoverPlaceHolder, false, null));
             DeterministicKey coldRoot = HDKeyDerivation.createMasterPubKeyFromExtendedBytes
                     (Arrays.copyOf(coldExternalRootPub, coldExternalRootPub.length));
             ArrayList<HDMAddress>      as         = new ArrayList<HDMAddress>();
@@ -588,12 +588,12 @@ public class HDMKeychain extends AbstractHD {
                 }
             }
             if (as.size() > 0) {
-                AbstractDb.addressProvider.recoverHDMAddresses(getHdSeedId(), as);
+                BaseDb.iAddressProvider.recoverHDMAddresses(getHdSeedId(), as);
                 allCompletedAddresses.addAll(as);
                 if (uncompPubs.size() > 0) {
-                    AbstractDb.addressProvider.prepareHDMAddresses(getHdSeedId(), uncompPubs);
+                    BaseDb.iAddressProvider.prepareHDMAddresses(getHdSeedId(), uncompPubs);
                     for (HDMAddress.Pubs p : uncompPubs) {
-                        AbstractDb.addressProvider.setHDMPubsRemote(getHdSeedId(), p.index, p.remote);
+                        BaseDb.iAddressProvider.setHDMPubsRemote(getHdSeedId(), p.index, p.remote);
                     }
                 }
             }
@@ -611,6 +611,6 @@ public class HDMKeychain extends AbstractHD {
     }
 
     public void setSingularModeBackup(String singularModeBackup) {
-        AbstractDb.addressProvider.setSingularModeBackup(this.hdSeedId, singularModeBackup);
+        BaseDb.iAddressProvider.setSingularModeBackup(this.hdSeedId, singularModeBackup);
     }
 }

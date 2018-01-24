@@ -7,7 +7,7 @@ import com.dasset.wallet.core.api.UploadHDMBidApi;
 import com.dasset.wallet.core.api.http.HttpException;
 import com.dasset.wallet.core.crypto.EncryptedData;
 import com.dasset.wallet.core.crypto.ECKey;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.utils.Utils;
 
 import org.slf4j.Logger;
@@ -91,7 +91,7 @@ public class HDMBId {
     }
 
     public void save(String addressOfPS) {
-        AbstractDb.addressProvider.addAndUpdateHDMBId(HDMBId.this, addressOfPS);
+        BaseDb.iAddressProvider.addAndUpdateHDMBId(HDMBId.this, addressOfPS);
     }
 
     public List<HDMAddress.Pubs> recoverHDM(String signString, CharSequence secureCharSequence) throws Exception {
@@ -110,7 +110,7 @@ public class HDMBId {
         String address = k.toAddress();
         k.clearPrivateKey();
         encryptedBitherPassword = new EncryptedData(decryptedPassword, secureCharSequence);
-        AbstractDb.addressProvider.addAndUpdateHDMBId(HDMBId.this, address);
+        BaseDb.iAddressProvider.addAndUpdateHDMBId(HDMBId.this, address);
         return result;
 
 
@@ -136,7 +136,7 @@ public class HDMBId {
 
 
     public byte[] decryptHDMBIdPassword(CharSequence password) {
-        HDMBId hdmbId = AbstractDb.addressProvider.getHDMBId();
+        HDMBId hdmbId = BaseDb.iAddressProvider.getHDMBId();
         if (!Utils.isEmpty(hdmbId.getEncryptedBitherPasswordString())) {
             encryptedBitherPassword = new EncryptedData(hdmbId.getEncryptedBitherPasswordString());
         }
@@ -149,7 +149,7 @@ public class HDMBId {
         if (hdmbidCache != null) {
             return hdmbidCache;
         }
-        hdmbidCache = AbstractDb.addressProvider.getHDMBId();
+        hdmbidCache = BaseDb.iAddressProvider.getHDMBId();
         if (hdmbidCache == null || Utils.isEmpty(hdmbidCache.getAddress()) ||
                 Utils.isEmpty(hdmbidCache.getEncryptedBitherPasswordString())) {
             hdmbidCache = null;

@@ -17,13 +17,13 @@
 package com.dasset.wallet.core.db.implement;
 
 import com.dasset.wallet.core.crypto.PasswordSeed;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.db.IHDAccountProvider;
 import com.dasset.wallet.core.db.base.ICursor;
 import com.dasset.wallet.core.db.base.IDb;
 import com.dasset.wallet.core.utils.Base58;
 import com.dasset.wallet.core.utils.Utils;
 import com.google.common.base.Function;
-import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.exception.AddressFormatException;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
             @Nullable
             @Override
             public Void apply(ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.HD_ADDRESS);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.HD_ADDRESS);
                 if (idColumn != -1) {
                     address[0] = c.getString(idColumn);
                 }
@@ -54,7 +54,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //                , new String[]{Integer.toString(hdSeedId)});
 //        String address = null;
 //        if (cursor.moveToNext()) {
-//            int idColumn = cursor.getColumnIndex(AbstractDb.HDAccountColumns.HD_ADDRESS);
+//            int idColumn = cursor.getColumnIndex(BaseDb.HDAccountColumns.HD_ADDRESS);
 //            if (idColumn != -1) {
 //                address = cursor.getString(idColumn);
 //            }
@@ -83,13 +83,13 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //        SQLiteDatabase db = this.mDb.getWritableDatabase();
 //        db.beginTransaction();
 //        ContentValues cv = new ContentValues();
-//        cv.put(AbstractDb.HDAccountColumns.ENCRYPT_SEED, encryptSeed);
-//        cv.put(AbstractDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED, encryptedMnemonicSeed);
-//        cv.put(AbstractDb.HDAccountColumns.IS_XRANDOM, isXrandom ? 1 : 0);
-//        cv.put(AbstractDb.HDAccountColumns.HD_ADDRESS, firstAddress);
-//        cv.put(AbstractDb.HDAccountColumns.EXTERNAL_PUB, Base58.encode(externalPub));
-//        cv.put(AbstractDb.HDAccountColumns.INTERNAL_PUB, Base58.encode(internalPub));
-//        int seedId = (int) db.insert(AbstractDb.Tables.HD_ACCOUNT, null, cv);
+//        cv.put(BaseDb.HDAccountColumns.ENCRYPT_SEED, encryptSeed);
+//        cv.put(BaseDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED, encryptedMnemonicSeed);
+//        cv.put(BaseDb.HDAccountColumns.IS_XRANDOM, isXrandom ? 1 : 0);
+//        cv.put(BaseDb.HDAccountColumns.HD_ADDRESS, firstAddress);
+//        cv.put(BaseDb.HDAccountColumns.EXTERNAL_PUB, Base58.encode(externalPub));
+//        cv.put(BaseDb.HDAccountColumns.INTERNAL_PUB, Base58.encode(internalPub));
+//        int seedId = (int) db.insert(BaseDb.Tables.HD_ACCOUNT, null, cv);
 //        if (!AddressProvider.hasPasswordSeed(db) && !Utils.isEmpty(addressOfPS)) {
 //            AddressProvider.addPasswordSeed(db, new PasswordSeed(addressOfPS, encryptedMnemonicSeed));
 //        }
@@ -141,11 +141,11 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //        SQLiteDatabase db = this.mDb.getWritableDatabase();
 //        db.beginTransaction();
 //        ContentValues cv = new ContentValues();
-//        cv.put(AbstractDb.HDAccountColumns.HD_ADDRESS, firstAddress);
-//        cv.put(AbstractDb.HDAccountColumns.IS_XRANDOM, isXrandom ? 1 : 0);
-//        cv.put(AbstractDb.HDAccountColumns.EXTERNAL_PUB, Base58.encode(externalPub));
-//        cv.put(AbstractDb.HDAccountColumns.INTERNAL_PUB, Base58.encode(internalPub));
-//        int seedId = (int) db.insert(AbstractDb.Tables.HD_ACCOUNT, null, cv);
+//        cv.put(BaseDb.HDAccountColumns.HD_ADDRESS, firstAddress);
+//        cv.put(BaseDb.HDAccountColumns.IS_XRANDOM, isXrandom ? 1 : 0);
+//        cv.put(BaseDb.HDAccountColumns.EXTERNAL_PUB, Base58.encode(externalPub));
+//        cv.put(BaseDb.HDAccountColumns.INTERNAL_PUB, Base58.encode(internalPub));
+//        int seedId = (int) db.insert(BaseDb.Tables.HD_ACCOUNT, null, cv);
 //        db.setTransactionSuccessful();
 //        db.endTransaction();
 //        return seedId;
@@ -207,7 +207,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.EXTERNAL_PUB);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.EXTERNAL_PUB);
                 if (idColumn != -1) {
                     String pubStr = c.getString(idColumn);
                     try {
@@ -226,7 +226,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //            Cursor c = db.rawQuery("select external_pub from hd_account where hd_account_id=? "
 //                    , new String[]{Integer.toString(hdSeedId)});
 //            if (c.moveToNext()) {
-//                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.EXTERNAL_PUB);
+//                int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.EXTERNAL_PUB);
 //                if (idColumn != -1) {
 //                    String pubStr = c.getString(idColumn);
 //                    publicKey = Base58.decode(pubStr);
@@ -248,7 +248,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.INTERNAL_PUB);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.INTERNAL_PUB);
                 if (idColumn != -1) {
                     String pubStr = c.getString(idColumn);
                     try {
@@ -266,7 +266,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //            Cursor c = db.rawQuery("select internal_pub from hd_account where hd_account_id=? "
 //                    , new String[]{Integer.toString(hdSeedId)});
 //            if (c.moveToNext()) {
-//                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.INTERNAL_PUB);
+//                int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.INTERNAL_PUB);
 //                if (idColumn != -1) {
 //                    String pubStr = c.getString(idColumn);
 //                    publicKey = Base58.decode(pubStr);
@@ -290,7 +290,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.ENCRYPT_SEED);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.ENCRYPT_SEED);
                 if (idColumn != -1) {
                     hdAccountEncryptSeed[0] = c.getString(idColumn);
                 }
@@ -299,10 +299,10 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
         });
         return hdAccountEncryptSeed[0];
 //        SQLiteDatabase db = this.mDb.getReadableDatabase();
-//        Cursor c = db.rawQuery("select " + AbstractDb.HDAccountColumns.ENCRYPT_SEED + " from hd_account where hd_account_id=? "
+//        Cursor c = db.rawQuery("select " + BaseDb.HDAccountColumns.ENCRYPT_SEED + " from hd_account where hd_account_id=? "
 //                , new String[]{Integer.toString(hdSeedId)});
 //        if (c.moveToNext()) {
-//            int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.ENCRYPT_SEED);
+//            int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.ENCRYPT_SEED);
 //            if (idColumn != -1) {
 //                hdAccountEncryptSeed = c.getString(idColumn);
 //            }
@@ -319,7 +319,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED);
                 if (idColumn != -1) {
                     hdAccountMnmonicEncryptSeed[0] = c.getString(idColumn);
                 }
@@ -328,10 +328,10 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
         });
         return hdAccountMnmonicEncryptSeed[0];
 //        SQLiteDatabase db = this.mDb.getReadableDatabase();
-//        Cursor c = db.rawQuery("select " + AbstractDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED + " from hd_account where hd_account_id=? "
+//        Cursor c = db.rawQuery("select " + BaseDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED + " from hd_account where hd_account_id=? "
 //                , new String[]{Integer.toString(hdSeedId)});
 //        if (c.moveToNext()) {
-//            int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED);
+//            int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED);
 //            if (idColumn != -1) {
 //                hdAccountMnmonicEncryptSeed = c.getString(idColumn);
 //            }
@@ -348,7 +348,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.IS_XRANDOM);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.IS_XRANDOM);
                 if (idColumn != -1) {
                     result[0] = c.getInt(idColumn) == 1;
                 }
@@ -361,7 +361,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //        String sql = "select is_xrandom from hd_account where hd_account_id=?";
 //        Cursor cursor = db.rawQuery(sql, new String[]{Integer.toString(seedId)});
 //        if (cursor.moveToNext()) {
-//            int idColumn = cursor.getColumnIndex(AbstractDb.HDAccountColumns.IS_XRANDOM);
+//            int idColumn = cursor.getColumnIndex(BaseDb.HDAccountColumns.IS_XRANDOM);
 //            if (idColumn != -1) {
 //                result[0] = cursor.getInt(idColumn) == 1;
 //            }
@@ -386,7 +386,7 @@ public abstract class AbstractHDAccountProvider extends AbstractProvider impleme
 //        Cursor c = null;
 //        try {
 //            SQLiteDatabase db = this.mDb.getReadableDatabase();
-//            String sql = "select " + AbstractDb.HDAccountColumns.HD_ACCOUNT_ID + " from " + AbstractDb.Tables.HD_ACCOUNT;
+//            String sql = "select " + BaseDb.HDAccountColumns.HD_ACCOUNT_ID + " from " + BaseDb.Tables.HD_ACCOUNT;
 //            c = db.rawQuery(sql, null);
 //            while (c.moveToNext()) {
 //                hdSeedIds.add(c.getInt(0));

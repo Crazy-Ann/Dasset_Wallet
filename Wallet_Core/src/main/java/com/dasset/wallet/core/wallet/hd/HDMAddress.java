@@ -5,7 +5,7 @@ import com.dasset.wallet.core.Tx;
 import com.dasset.wallet.core.contant.SigHash;
 import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.script.Script;
 import com.dasset.wallet.core.script.ScriptBuilder;
 import com.dasset.wallet.core.utils.Utils;
@@ -146,7 +146,7 @@ public class HDMAddress extends Address {
 
     @Override
     public void updateSyncComplete() {
-        AbstractDb.addressProvider.syncComplete(keychain.getHdSeedId(), pubs.index);
+        BaseDb.iAddressProvider.syncComplete(keychain.getHdSeedId(), pubs.index);
     }
 
     @Override

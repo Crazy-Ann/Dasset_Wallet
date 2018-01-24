@@ -6,9 +6,9 @@ import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.crypto.hd.HDKeyDerivation;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicCode;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicException;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.exception.KeyCrypterException;
 import com.dasset.wallet.core.utils.Utils;
-import com.dasset.wallet.core.db.AbstractDb;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +87,8 @@ public abstract class AbstractHD {
         decryptMnemonicSeed(password);
         hdSeed = seedFromMnemonic(mnemonicSeed);
         wipeMnemonicSeed();
-        AbstractDb.addressProvider.updateEncrypttMnmonicSeed(getHdSeedId(), new EncryptedData(hdSeed,
-                                                                                              password, isFromXRandom).toEncryptedString());
+        BaseDb.iAddressProvider.updateEncryptedMnmonicSeed(getHdSeedId(), new EncryptedData(hdSeed,
+                                                                                            password, isFromXRandom).toEncryptedString());
     }
 
     public void decryptMnemonicSeed(CharSequence password) throws KeyCrypterException {

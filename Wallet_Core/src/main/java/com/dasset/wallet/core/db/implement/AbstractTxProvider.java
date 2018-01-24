@@ -18,6 +18,7 @@ package com.dasset.wallet.core.db.implement;
 
 import com.dasset.wallet.core.Tx;
 import com.dasset.wallet.core.contant.BitherjSettings;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.db.ITxProvider;
 import com.dasset.wallet.core.db.base.ICursor;
 import com.dasset.wallet.core.db.base.IDb;
@@ -27,7 +28,6 @@ import com.google.common.base.Function;
 
 import com.dasset.wallet.core.In;
 import com.dasset.wallet.core.Out;
-import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.exception.AddressFormatException;
 import com.dasset.wallet.core.utils.Utils;
 
@@ -238,7 +238,7 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.OutsColumns.OUT_VALUE);
+                int idColumn = c.getColumnIndex(BaseDb.OutsColumns.OUT_VALUE);
                 if (idColumn != -1) {
                     sum[0] = c.getLong(idColumn);
                 }
@@ -335,13 +335,13 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int    idColumn   = c.getColumnIndex(AbstractDb.InsColumns.PREV_TX_HASH);
+                int    idColumn   = c.getColumnIndex(BaseDb.InsColumns.PREV_TX_HASH);
                 String prevTxHash = null;
                 int    prevOutSn  = 0;
                 if (idColumn != -1) {
                     prevTxHash = c.getString(idColumn);
                 }
-                idColumn = c.getColumnIndex(AbstractDb.InsColumns.PREV_OUT_SN);
+                idColumn = c.getColumnIndex(BaseDb.InsColumns.PREV_OUT_SN);
                 if (idColumn != -1) {
                     prevOutSn = c.getInt(idColumn);
                 }
@@ -805,19 +805,19 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
 //        SQLiteDatabase db = mDb.getWritableDatabase();
         IDb db = this.getWriteDb();
         db.beginTransaction();
-        this.execUpdate(db, "drop table " + AbstractDb.Tables.TXS + ";", null);
-        this.execUpdate(db, "drop table " + AbstractDb.Tables.OUTS + ";", null);
-        this.execUpdate(db, "drop table " + AbstractDb.Tables.INS + ";", null);
-        this.execUpdate(db, "drop table " + AbstractDb.Tables.ADDRESSES_TXS + ";", null);
-        this.execUpdate(db, "drop table " + AbstractDb.Tables.PEERS + ";", null);
-        this.execUpdate(db, AbstractDb.CREATE_TXS_SQL, null);
-        this.execUpdate(db, AbstractDb.CREATE_TX_BLOCK_NO_INDEX, null);
-        this.execUpdate(db, AbstractDb.CREATE_OUTS_SQL, null);
-        this.execUpdate(db, AbstractDb.CREATE_OUT_OUT_ADDRESS_INDEX, null);
-        this.execUpdate(db, AbstractDb.CREATE_INS_SQL, null);
-        this.execUpdate(db, AbstractDb.CREATE_IN_PREV_TX_HASH_INDEX, null);
-        this.execUpdate(db, AbstractDb.CREATE_ADDRESSTXS_SQL, null);
-        this.execUpdate(db, AbstractDb.CREATE_PEER_SQL, null);
+        this.execUpdate(db, "drop table " + BaseDb.Tables.TXS + ";", null);
+        this.execUpdate(db, "drop table " + BaseDb.Tables.OUTS + ";", null);
+        this.execUpdate(db, "drop table " + BaseDb.Tables.INS + ";", null);
+        this.execUpdate(db, "drop table " + BaseDb.Tables.ADDRESSES_TXS + ";", null);
+        this.execUpdate(db, "drop table " + BaseDb.Tables.PEERS + ";", null);
+        this.execUpdate(db, BaseDb.CREATE_TXS_SQL, null);
+        this.execUpdate(db, BaseDb.CREATE_TX_BLOCK_NO_INDEX, null);
+        this.execUpdate(db, BaseDb.CREATE_OUTS_SQL, null);
+        this.execUpdate(db, BaseDb.CREATE_OUT_ADDRESS_INDEX, null);
+        this.execUpdate(db, BaseDb.CREATE_INS_SQL, null);
+        this.execUpdate(db, BaseDb.CREATE_IN_PREV_TX_HASH_INDEX, null);
+        this.execUpdate(db, BaseDb.CREATE_ADDRESSTXS_SQL, null);
+        this.execUpdate(db, BaseDb.CREATE_PEER_SQL, null);
         db.endTransaction();
     }
 
@@ -861,13 +861,13 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
         } else {
             txItem = tx;
         }
-        int idColumn = c.getColumnIndex(AbstractDb.TxsColumns.BLOCK_NO);
+        int idColumn = c.getColumnIndex(BaseDb.TxsColumns.BLOCK_NO);
         if (!c.isNull(idColumn)) {
             txItem.setBlockNo(c.getInt(idColumn));
         } else {
             txItem.setBlockNo(Tx.TX_UNCONFIRMED);
         }
-        idColumn = c.getColumnIndex(AbstractDb.TxsColumns.TX_HASH);
+        idColumn = c.getColumnIndex(BaseDb.TxsColumns.TX_HASH);
         if (idColumn != -1) {
             try {
                 txItem.setTxHash(Base58.decode(c.getString(idColumn)));
@@ -875,7 +875,7 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.TxsColumns.SOURCE);
+        idColumn = c.getColumnIndex(BaseDb.TxsColumns.SOURCE);
         if (idColumn != -1) {
             txItem.setSource(c.getInt(idColumn));
         }
@@ -886,15 +886,15 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
             txItem.setSawByPeerCnt(0);
             txItem.setSource(0);
         }
-        idColumn = c.getColumnIndex(AbstractDb.TxsColumns.TX_TIME);
+        idColumn = c.getColumnIndex(BaseDb.TxsColumns.TX_TIME);
         if (idColumn != -1) {
             txItem.setTxTime(c.getInt(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.TxsColumns.TX_VER);
+        idColumn = c.getColumnIndex(BaseDb.TxsColumns.TX_VER);
         if (idColumn != -1) {
             txItem.setTxVer(c.getInt(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.TxsColumns.TX_LOCKTIME);
+        idColumn = c.getColumnIndex(BaseDb.TxsColumns.TX_LOCKTIME);
         if (idColumn != -1) {
             txItem.setTxLockTime(c.getInt(idColumn));
         }
@@ -903,7 +903,7 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
 
     public static In applyCursorIn(ICursor c) {
         In  inItem   = new In();
-        int idColumn = c.getColumnIndex(AbstractDb.InsColumns.TX_HASH);
+        int idColumn = c.getColumnIndex(BaseDb.InsColumns.TX_HASH);
         if (idColumn != -1) {
             try {
                 inItem.setTxHash(Base58.decode(c.getString(idColumn)));
@@ -911,11 +911,11 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.InsColumns.IN_SN);
+        idColumn = c.getColumnIndex(BaseDb.InsColumns.IN_SN);
         if (idColumn != -1) {
             inItem.setInSn(c.getInt(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.InsColumns.PREV_TX_HASH);
+        idColumn = c.getColumnIndex(BaseDb.InsColumns.PREV_TX_HASH);
         if (idColumn != -1) {
             try {
                 inItem.setPrevTxHash(Base58.decode(c.getString(idColumn)));
@@ -923,11 +923,11 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.InsColumns.PREV_OUT_SN);
+        idColumn = c.getColumnIndex(BaseDb.InsColumns.PREV_OUT_SN);
         if (idColumn != -1) {
             inItem.setPrevOutSn(c.getInt(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.InsColumns.IN_SIGNATURE);
+        idColumn = c.getColumnIndex(BaseDb.InsColumns.IN_SIGNATURE);
         if (idColumn != -1) {
             String inSignature = c.getString(idColumn);
             if (!Utils.isEmpty(inSignature)) {
@@ -938,7 +938,7 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
                 }
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.InsColumns.IN_SEQUENCE);
+        idColumn = c.getColumnIndex(BaseDb.InsColumns.IN_SEQUENCE);
         if (idColumn != -1) {
             inItem.setInSequence(c.getInt(idColumn));
         }
@@ -947,7 +947,7 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
 
     public static Out applyCursorOut(ICursor c) {
         Out outItem  = new Out();
-        int idColumn = c.getColumnIndex(AbstractDb.OutsColumns.TX_HASH);
+        int idColumn = c.getColumnIndex(BaseDb.OutsColumns.TX_HASH);
         if (idColumn != -1) {
             try {
                 outItem.setTxHash(Base58.decode(c.getString(idColumn)));
@@ -955,11 +955,11 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.OutsColumns.OUT_SN);
+        idColumn = c.getColumnIndex(BaseDb.OutsColumns.OUT_SN);
         if (idColumn != -1) {
             outItem.setOutSn(c.getInt(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.OutsColumns.OUT_SCRIPT);
+        idColumn = c.getColumnIndex(BaseDb.OutsColumns.OUT_SCRIPT);
         if (idColumn != -1) {
             try {
                 outItem.setOutScript(Base58.decode(c.getString(idColumn)));
@@ -967,19 +967,19 @@ public abstract class AbstractTxProvider extends AbstractProvider implements ITx
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.OutsColumns.OUT_VALUE);
+        idColumn = c.getColumnIndex(BaseDb.OutsColumns.OUT_VALUE);
         if (idColumn != -1) {
             outItem.setOutValue(c.getLong(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.OutsColumns.OUT_STATUS);
+        idColumn = c.getColumnIndex(BaseDb.OutsColumns.OUT_STATUS);
         if (idColumn != -1) {
             outItem.setOutStatus(Out.getOutStatus(c.getInt(idColumn)));
         }
-        idColumn = c.getColumnIndex(AbstractDb.OutsColumns.OUT_ADDRESS);
+        idColumn = c.getColumnIndex(BaseDb.OutsColumns.OUT_ADDRESS);
         if (idColumn != -1) {
             outItem.setOutAddress(c.getString(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.OutsColumns.HD_ACCOUNT_ID);
+        idColumn = c.getColumnIndex(BaseDb.OutsColumns.HD_ACCOUNT_ID);
         if (idColumn != -1 && !c.isNull(idColumn)) {
             outItem.setHDAccountId(c.getInt(idColumn));
         }

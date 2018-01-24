@@ -25,7 +25,7 @@ public abstract class AbstractApp {
 
     public static boolean addressIsReady = false;
 
-    public void construct() {
+    public void intialize() {
         bitherjSetting = initSetting();
         notificationService = initNotification();
         trustCert = initTrustCert();

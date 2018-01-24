@@ -17,6 +17,7 @@
 package com.dasset.wallet.core.db.implement;
 
 import com.dasset.wallet.core.Address;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.wallet.hd.HDMAddress;
 import com.dasset.wallet.core.wallet.hd.HDMBId;
 import com.dasset.wallet.core.crypto.EncryptedData;
@@ -25,7 +26,6 @@ import com.dasset.wallet.core.db.IAddressProvider;
 import com.dasset.wallet.core.utils.Base58;
 import com.google.common.base.Function;
 import com.dasset.wallet.core.wallet.hd.HDMKeychain;
-import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.db.base.ICursor;
 import com.dasset.wallet.core.db.base.IDb;
 import com.dasset.wallet.core.exception.AddressFormatException;
@@ -105,17 +105,17 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.HD_ACCOUNT_ID);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.HD_ACCOUNT_ID);
                 Integer hdAccountId = 0;
                 if (idColumn != -1) {
                     hdAccountId = c.getInt(idColumn);
                 }
-                idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.ENCRYPT_SEED);
+                idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.ENCRYPT_SEED);
                 if (idColumn != -1) {
                     String encryptSeed = c.getString(idColumn);
                     hdEncryptSeedHashMap.put(hdAccountId, encryptSeed);
                 }
-                idColumn = c.getColumnIndex(AbstractDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED);
+                idColumn = c.getColumnIndex(BaseDb.HDAccountColumns.ENCRYPT_MNMONIC_SEED);
                 if (idColumn != -1) {
                     String encryptHDSeed = c.getString(idColumn);
                     hdEncryptMnemonicSeedHashMap.put(hdAccountId, encryptHDSeed);
@@ -131,19 +131,19 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.EnterpriseHDAccountColumns.HD_ACCOUNT_ID);
+                int idColumn = c.getColumnIndex(BaseDb.EnterpriseHDAccountColumns.HD_ACCOUNT_ID);
                 Integer hdAccountId = 0;
                 if (idColumn != -1) {
                     hdAccountId = c.getInt(idColumn);
                 }
-                idColumn = c.getColumnIndex(AbstractDb.EnterpriseHDAccountColumns.ENCRYPT_SEED);
+                idColumn = c.getColumnIndex(BaseDb.EnterpriseHDAccountColumns.ENCRYPT_SEED);
                 if (idColumn != -1) {
                     String encryptSeed = c.getString(idColumn);
                     if (!Utils.isEmpty(encryptSeed)) {
                         enterpriseHDEncryptSeedHashMap.put(hdAccountId, encryptSeed);
                     }
                 }
-                idColumn = c.getColumnIndex(AbstractDb.EnterpriseHDAccountColumns.ENCRYPT_MNEMONIC_SEED);
+                idColumn = c.getColumnIndex(BaseDb.EnterpriseHDAccountColumns.ENCRYPT_MNEMONIC_SEED);
                 if (idColumn != -1) {
                     String encryptHDMnemonicSeed = c.getString(idColumn);
                     if (Utils.isEmpty(encryptHDMnemonicSeed)) {
@@ -321,7 +321,7 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDSeedsColumns.HD_SEED_ID);
+                int idColumn = c.getColumnIndex(BaseDb.HDSeedsColumns.HD_SEED_ID);
                 if (idColumn != -1) {
                     hdSeedIds.add(c.getInt(idColumn));
                 }
@@ -363,7 +363,7 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
 
 
     @Override
-    public void updateEncrypttMnmonicSeed(int hdSeedId, String encryptMnmonicSeed) {
+    public void updateEncryptedMnmonicSeed(int hdSeedId, String encryptMnmonicSeed) {
         String sql = "update hd_seeds set encrypt_hd_seed=? where hd_seed_id=?";
         this.execUpdate(sql, new String[]{encryptMnmonicSeed, Integer.toString(hdSeedId)});
     }
@@ -396,7 +396,7 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDSeedsColumns.HDM_ADDRESS);
+                int idColumn = c.getColumnIndex(BaseDb.HDSeedsColumns.HDM_ADDRESS);
                 if (idColumn != -1) {
                     address[0] = c.getString(idColumn);
                 }
@@ -465,11 +465,11 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDMBIdColumns.HDM_BID);
+                int idColumn = c.getColumnIndex(BaseDb.HDMBIdColumns.HDM_BID);
                 if (idColumn != -1) {
                     address[0] = c.getString(idColumn);
                 }
-                idColumn = c.getColumnIndex(AbstractDb.HDMBIdColumns.ENCRYPT_BITHER_PASSWORD);
+                idColumn = c.getColumnIndex(BaseDb.HDMBIdColumns.ENCRYPT_BITHER_PASSWORD);
                 if (idColumn != -1) {
                     encryptBitherPassword[0] = c.getString(idColumn);
                 }
@@ -600,7 +600,7 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDMAddressesColumns.HD_SEED_INDEX);
+                int idColumn = c.getColumnIndex(BaseDb.HDMAddressesColumns.HD_SEED_INDEX);
                 if (idColumn != -1) {
                     maxIndex[0] = c.getInt(idColumn);
                 }
@@ -729,7 +729,7 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.AddressesColumns.ENCRYPT_PRIVATE_KEY);
+                int idColumn = c.getColumnIndex(BaseDb.AddressesColumns.ENCRYPT_PRIVATE_KEY);
                 if (idColumn != -1) {
                     encryptPrivateKey[0] = c.getString(idColumn);
                 }
@@ -795,13 +795,13 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.AliasColumns.ADDRESS);
+                int idColumn = c.getColumnIndex(BaseDb.AliasColumns.ADDRESS);
                 String address = null;
                 String alias = null;
                 if (idColumn > -1) {
                     address = c.getString(idColumn);
                 }
-                idColumn = c.getColumnIndex(AbstractDb.AliasColumns.ALIAS);
+                idColumn = c.getColumnIndex(BaseDb.AliasColumns.ALIAS);
                 if (idColumn > -1) {
                     alias = c.getString(idColumn);
                 }
@@ -832,13 +832,13 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.VanityAddressColumns.ADDRESS);
+                int idColumn = c.getColumnIndex(BaseDb.VanityAddressColumns.ADDRESS);
                 String address = null;
                 int alias = Address.VANITY_LEN_NO_EXSITS;
                 if (idColumn > -1) {
                     address = c.getString(idColumn);
                 }
-                idColumn = c.getColumnIndex(AbstractDb.VanityAddressColumns.VANITY_LEN);
+                idColumn = c.getColumnIndex(BaseDb.VanityAddressColumns.VANITY_LEN);
                 if (idColumn > -1) {
                     alias = c.getInt(idColumn);
                 }
@@ -866,11 +866,11 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
         String address = null;
         boolean isSynced = false;
 
-        int idColumn = c.getColumnIndex(AbstractDb.HDMAddressesColumns.ADDRESS);
+        int idColumn = c.getColumnIndex(BaseDb.HDMAddressesColumns.ADDRESS);
         if (idColumn != -1) {
             address = c.getString(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDMAddressesColumns.IS_SYNCED);
+        idColumn = c.getColumnIndex(BaseDb.HDMAddressesColumns.IS_SYNCED);
         if (idColumn != -1) {
             isSynced = c.getInt(idColumn) == 1;
         }
@@ -880,7 +880,7 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
     }
 
     public PasswordSeed applyPasswordSeed(ICursor c) {
-        int idColumn = c.getColumnIndex(AbstractDb.PasswordSeedColumns.PASSWORD_SEED);
+        int idColumn = c.getColumnIndex(BaseDb.PasswordSeedColumns.PASSWORD_SEED);
         String passwordSeed = null;
         if (idColumn != -1) {
             passwordSeed = c.getString(idColumn);
@@ -896,11 +896,11 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
         byte[] hot = null;
         byte[] cold = null;
         byte[] remote = null;
-        int idColumn = c.getColumnIndex(AbstractDb.HDMAddressesColumns.HD_SEED_INDEX);
+        int idColumn = c.getColumnIndex(BaseDb.HDMAddressesColumns.HD_SEED_INDEX);
         if (idColumn != -1) {
             hdSeedIndex = c.getInt(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDMAddressesColumns.PUB_KEY_HOT);
+        idColumn = c.getColumnIndex(BaseDb.HDMAddressesColumns.PUB_KEY_HOT);
         if (idColumn != -1 && !c.isNull(idColumn)) {
             try {
                 hot = Base58.decode(c.getString(idColumn));
@@ -908,7 +908,7 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDMAddressesColumns.PUB_KEY_COLD);
+        idColumn = c.getColumnIndex(BaseDb.HDMAddressesColumns.PUB_KEY_COLD);
         if (idColumn != -1 && !c.isNull(idColumn)) {
             try {
                 cold = Base58.decode(c.getString(idColumn));
@@ -916,7 +916,7 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDMAddressesColumns.PUB_KEY_REMOTE);
+        idColumn = c.getColumnIndex(BaseDb.HDMAddressesColumns.PUB_KEY_REMOTE);
         if (idColumn != -1 && !c.isNull(idColumn)) {
             try {
                 remote = Base58.decode(c.getString(idColumn));
@@ -929,7 +929,7 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
 
     private Address applyAddressCursor(ICursor c) throws AddressFormatException {
         Address address;
-        int idColumn = c.getColumnIndex(AbstractDb.AddressesColumns.ADDRESS);
+        int idColumn = c.getColumnIndex(BaseDb.AddressesColumns.ADDRESS);
         String addressStr = null;
         String encryptPrivateKey = null;
         byte[] pubKey = null;
@@ -944,27 +944,27 @@ public abstract class AbstractAddressProvider extends AbstractProvider implement
                 return null;
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.AddressesColumns.ENCRYPT_PRIVATE_KEY);
+        idColumn = c.getColumnIndex(BaseDb.AddressesColumns.ENCRYPT_PRIVATE_KEY);
         if (idColumn != -1) {
             encryptPrivateKey = c.getString(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.AddressesColumns.PUB_KEY);
+        idColumn = c.getColumnIndex(BaseDb.AddressesColumns.PUB_KEY);
         if (idColumn != -1) {
             pubKey = Base58.decode(c.getString(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.AddressesColumns.IS_XRANDOM);
+        idColumn = c.getColumnIndex(BaseDb.AddressesColumns.IS_XRANDOM);
         if (idColumn != -1) {
             isXRandom = c.getInt(idColumn) == 1;
         }
-        idColumn = c.getColumnIndex(AbstractDb.AddressesColumns.IS_SYNCED);
+        idColumn = c.getColumnIndex(BaseDb.AddressesColumns.IS_SYNCED);
         if (idColumn != -1) {
             isSynced = c.getInt(idColumn) == 1;
         }
-        idColumn = c.getColumnIndex(AbstractDb.AddressesColumns.IS_TRASH);
+        idColumn = c.getColumnIndex(BaseDb.AddressesColumns.IS_TRASH);
         if (idColumn != -1) {
             isTrash = c.getInt(idColumn) == 1;
         }
-        idColumn = c.getColumnIndex(AbstractDb.AddressesColumns.SORT_TIME);
+        idColumn = c.getColumnIndex(BaseDb.AddressesColumns.SORT_TIME);
         if (idColumn != -1) {
             sortTime = c.getLong(idColumn);
         }

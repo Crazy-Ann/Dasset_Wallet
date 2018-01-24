@@ -17,6 +17,7 @@
 package com.dasset.wallet.core.db.implement;
 
 import com.dasset.wallet.core.contant.PathType;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.wallet.hd.HDAccount;
 import com.dasset.wallet.core.OutPoint;
 import com.dasset.wallet.core.Tx;
@@ -33,7 +34,6 @@ import com.google.common.base.Function;
 import com.dasset.wallet.core.wallet.hd.AbstractHD;
 import com.dasset.wallet.core.In;
 import com.dasset.wallet.core.Out;
-import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.exception.AddressFormatException;
 
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
             @Nullable
             @Override
             public Void apply(ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.ADDRESS_INDEX);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.ADDRESS_INDEX);
                 if (idColumn != -1) {
                     issuedIndex[0] = c.getInt(idColumn);
                 }
@@ -115,7 +115,7 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.ADDRESS);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.ADDRESS);
                 if (idColumn != -1) {
                     address[0] = c.getString(idColumn);
                 }
@@ -141,7 +141,7 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.ADDRESS);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.ADDRESS);
                 if (idColumn != -1) {
                     addressSet.add(c.getString(idColumn));
                 }
@@ -167,7 +167,7 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.ADDRESS);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.ADDRESS);
                 if (idColumn != -1) {
                     addressSet.add(c.getString(idColumn));
                 }
@@ -265,7 +265,7 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.PUB);
+                int idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.PUB);
                 if (idColumn != -1) {
                     try {
                         adressPubList.add(Base58.decode(c.getString(idColumn)));
@@ -570,7 +570,7 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
             @Nullable
             @Override
             public Void apply(@Nullable ICursor c) {
-                int idColumn = c.getColumnIndex(AbstractDb.OutsColumns.OUT_VALUE);
+                int idColumn = c.getColumnIndex(BaseDb.OutsColumns.OUT_VALUE);
                 if (idColumn != -1) {
                     sum[0] = c.getLong(idColumn);
                 }
@@ -846,11 +846,11 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
         boolean   isSynced         = true;
         int       hdAccountId      = 0;
         HDAddress hdAccountAddress = null;
-        int       idColumn         = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.ADDRESS);
+        int       idColumn         = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.ADDRESS);
         if (idColumn != -1) {
             address = c.getString(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.PUB);
+        idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.PUB);
         if (idColumn != -1) {
             try {
                 pubs = Base58.decode(c.getString(idColumn));
@@ -858,23 +858,23 @@ public abstract class AbstractHDAccountAddressProvider extends AbstractProvider 
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.PATH_TYPE);
+        idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.PATH_TYPE);
         if (idColumn != -1) {
             ternalRootType = AbstractHD.getTernalRootType(c.getInt(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.ADDRESS_INDEX);
+        idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.ADDRESS_INDEX);
         if (idColumn != -1) {
             index = c.getInt(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.IS_ISSUED);
+        idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.IS_ISSUED);
         if (idColumn != -1) {
             isIssued = c.getInt(idColumn) == 1;
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.IS_SYNCED);
+        idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.IS_SYNCED);
         if (idColumn != -1) {
             isSynced = c.getInt(idColumn) == 1;
         }
-        idColumn = c.getColumnIndex(AbstractDb.HDAccountAddressesColumns.HD_ACCOUNT_ID);
+        idColumn = c.getColumnIndex(BaseDb.HDAccountAddressesColumns.HD_ACCOUNT_ID);
         if (idColumn != -1) {
             hdAccountId = c.getInt(idColumn);
         }

@@ -17,8 +17,8 @@
 package com.dasset.wallet.core;
 
 import com.dasset.wallet.core.contant.BitherjSettings;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.exception.VerificationException;
-import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.utils.Utils;
 
 import org.slf4j.Logger;
@@ -37,11 +37,11 @@ public class BlockChain {
     protected Block lastOrphanBlock;
 
     BlockChain() {
-        AbstractDb.blockProvider.cleanOldBlock();
+        BaseDb.iBlockProvider.cleanOldBlock();
 
         this.singleBlocks = new HashMap<byte[], Block>();
-        this.lastBlock = AbstractDb.blockProvider.getLastBlock();
-        this.lastOrphanBlock = AbstractDb.blockProvider.getLastOrphanBlock();
+        this.lastBlock = BaseDb.iBlockProvider.getLastBlock();
+        this.lastOrphanBlock = BaseDb.iBlockProvider.getLastOrphanBlock();
     }
 
     public static BlockChain getInstance() {
@@ -60,7 +60,7 @@ public class BlockChain {
     }
 
     public void addBlocks(List<Block> blocks) {
-        AbstractDb.blockProvider.addBlocks(blocks);
+        BaseDb.iBlockProvider.addBlocks(blocks);
     }
 
     public Block getLastBlock() {
@@ -68,11 +68,11 @@ public class BlockChain {
     }
 
     public Block getBlock(byte[] blockHash) {
-        return AbstractDb.blockProvider.getBlock(blockHash);
+        return BaseDb.iBlockProvider.getBlock(blockHash);
     }
 
     public int getBlockCount() {
-        return AbstractDb.blockProvider.getBlockCount();
+        return BaseDb.iBlockProvider.getBlockCount();
     }
 
     public List<byte[]> getBlockLocatorArray() {
@@ -89,7 +89,7 @@ public class BlockChain {
             }
 
             for (int i = 0; b != null && i < step; i++) {
-                b = AbstractDb.blockProvider.getMainChainBlock(b.getBlockPrev());
+                b = BaseDb.iBlockProvider.getMainChainBlock(b.getBlockPrev());
             }
         }
         locators.add(BitherjSettings.GENESIS_BLOCK_HASH);
@@ -107,17 +107,17 @@ public class BlockChain {
             return false;
         }
 
-        List<Block> blocks = AbstractDb.blockProvider.getBlocksFrom(blockNo);
+        List<Block> blocks = BaseDb.iBlockProvider.getBlocksFrom(blockNo);
         // DDLogWarn(@"roll back block from %d to %d", self.lastBlock.height, blockNo);
 
         for (Block block : blocks) {
-            AbstractDb.blockProvider.removeBlock(block.getBlockHash());
+            BaseDb.iBlockProvider.removeBlock(block.getBlockHash());
 
             if (block.isMain()) {
-                AbstractDb.txProvider.unConfirmTxByBlockNo(block.getBlockNo());
+                BaseDb.iTxProvider.unConfirmTxByBlockNo(block.getBlockNo());
             }
         }
-        this.lastBlock = AbstractDb.blockProvider.getLastBlock();
+        this.lastBlock = BaseDb.iBlockProvider.getLastBlock();
         return true;
     }
 
@@ -167,7 +167,7 @@ public class BlockChain {
      * or orphan.
      * */
     public boolean relayedBlock(Block block) throws VerificationException {
-        Block prev = AbstractDb.blockProvider.getBlock(block.getBlockPrev());
+        Block prev = BaseDb.iBlockProvider.getBlock(block.getBlockPrev());
 
         if (prev == null) {
 
@@ -194,7 +194,7 @@ public class BlockChain {
 //        if ((block.getBlockNo() % BitherjSettings.BLOCK_DIFFICULTY_INTERVAL) == 0) {
 //            Block b = block;
 //            for (int i = 0; b != null && i < BitherjSettings.BLOCK_DIFFICULTY_INTERVAL; i++) {
-//                b = DbHelper.blockProvider.getBlock(b.getBlockPrev());
+//                b = DbHelper.iBlockProvider.getBlock(b.getBlockPrev());
 //            }
 //            transitionTime = b.getBlockTime();
 //        }
@@ -245,7 +245,7 @@ public class BlockChain {
         int rollbackBlockNo = 0;
         if (Arrays.equals(first.getBlockPrev(), this.getLastBlock().getBlockHash())) {
             prev = this.getLastBlock();
-        } else if (AbstractDb.blockProvider.getMainChainBlock(first.getBlockPrev()) != null) {
+        } else if (BaseDb.iBlockProvider.getMainChainBlock(first.getBlockPrev()) != null) {
             prev = this.getSameParent(first, this.getLastBlock());
             rollbackBlockNo = prev.getBlockNo();
         }
@@ -293,7 +293,7 @@ public class BlockChain {
         }
         this.addBlocks(blocks);
         for (Block block : blocks) {
-            AbstractDb.txProvider.confirmTx(block.getBlockNo(), block.getTxHashes());
+            BaseDb.iTxProvider.confirmTx(block.getBlockNo(), block.getTxHashes());
         }
         this.lastBlock = blocks.get(blocks.size() - 1);
         return blocks.size();
@@ -310,13 +310,13 @@ public class BlockChain {
     private boolean inMainChain(Block block) {
         Block b = this.lastBlock;
         while (b != null && b.getBlockNo() > block.getBlockNo()) {
-            b = AbstractDb.blockProvider.getBlock(b.getBlockPrev());
+            b = BaseDb.iBlockProvider.getBlock(b.getBlockPrev());
         }
         return b != null && Arrays.equals(b.getBlockHash(), block.getBlockHash());
     }
 
     private void addBlock(Block block) {
-        AbstractDb.blockProvider.addBlock(block);
+        BaseDb.iBlockProvider.addBlock(block);
     }
 
     private void addOrphan(Block block) {
@@ -331,10 +331,10 @@ public class BlockChain {
 
         while (b1 != null && b2 != null && !Arrays.equals(b1.getBlockHash(), b2.getBlockHash())) {
             if (b1.getBlockNo() == 0 || b1.getBlockNo() >= b2.getBlockNo()) {
-                b1 = AbstractDb.blockProvider.getBlock(b1.getBlockPrev());
+                b1 = BaseDb.iBlockProvider.getBlock(b1.getBlockPrev());
             }
             if (b1.getBlockNo() < b2.getBlockNo()) {
-                b2 = AbstractDb.blockProvider.getBlock(b2.getBlockPrev());
+                b2 = BaseDb.iBlockProvider.getBlock(b2.getBlockPrev());
             }
         }
         return b1;
@@ -344,18 +344,18 @@ public class BlockChain {
         Block b = this.lastBlock;
         Block next = lastBlock;
         while (!Arrays.equals(b.getBlockHash(), forkStartBlock.getBlockHash())) {
-            next = AbstractDb.blockProvider.getOrphanBlockByPrevHash(b.getBlockPrev());
-            AbstractDb.blockProvider.updateBlock(b.getBlockHash(), false);
-            b = AbstractDb.blockProvider.getMainChainBlock(b.getBlockPrev());
+            next = BaseDb.iBlockProvider.getOrphanBlockByPrevHash(b.getBlockPrev());
+            BaseDb.iBlockProvider.updateBlock(b.getBlockHash(), false);
+            b = BaseDb.iBlockProvider.getMainChainBlock(b.getBlockPrev());
             this.lastBlock = b;
         }
         b = next;
-        AbstractDb.blockProvider.updateBlock(next.getBlockHash(), true);
+        BaseDb.iBlockProvider.updateBlock(next.getBlockHash(), true);
         this.lastBlock = next;
         while (!Arrays.equals(b.getBlockHash(), lastBlock.getBlockPrev())) {
-            AbstractDb.blockProvider.updateBlock(b.getBlockHash(), true);
+            BaseDb.iBlockProvider.updateBlock(b.getBlockHash(), true);
             this.lastBlock = b;
-            b = AbstractDb.blockProvider.getOrphanBlockByPrevHash(b.getBlockHash());
+            b = BaseDb.iBlockProvider.getOrphanBlockByPrevHash(b.getBlockHash());
         }
         lastBlock.setMain(true);
         this.addBlock(lastBlock);
@@ -363,6 +363,6 @@ public class BlockChain {
     }
 
     public List<Block> getLimitBlocks(int limit) {
-        return AbstractDb.blockProvider.getLimitBlocks(limit);
+        return BaseDb.iBlockProvider.getLimitBlocks(limit);
     }
 }

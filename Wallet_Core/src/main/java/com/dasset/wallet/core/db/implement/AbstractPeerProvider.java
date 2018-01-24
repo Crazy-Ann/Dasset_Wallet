@@ -16,10 +16,10 @@
 
 package com.dasset.wallet.core.db.implement;
 
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.db.IPeerProvider;
 import com.google.common.base.Function;
 import com.dasset.wallet.core.Peer;
-import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.db.base.ICursor;
 import com.dasset.wallet.core.db.base.IDb;
 import com.dasset.wallet.core.utils.Utils;
@@ -172,7 +172,7 @@ public abstract class AbstractPeerProvider extends AbstractProvider implements I
                 @Nullable
                 @Override
                 public Void apply(@Nullable ICursor c) {
-                    int idColumn = c.getColumnIndex(AbstractDb.PeersColumns.PEER_TIMESTAMP);
+                    int idColumn = c.getColumnIndex(BaseDb.PeersColumns.PEER_TIMESTAMP);
                     if (idColumn != -1) {
                         timestamp[0] = c.getLong(idColumn);
                     }
@@ -193,7 +193,7 @@ public abstract class AbstractPeerProvider extends AbstractProvider implements I
 
     private Peer applyCursor(ICursor c) {
         InetAddress address  = null;
-        int         idColumn = c.getColumnIndex(AbstractDb.PeersColumns.PEER_ADDRESS);
+        int         idColumn = c.getColumnIndex(BaseDb.PeersColumns.PEER_ADDRESS);
         if (idColumn != -1) {
             long addressLong = c.getLong(idColumn);
             try {
@@ -209,19 +209,19 @@ public abstract class AbstractPeerProvider extends AbstractProvider implements I
             }
         }
         Peer peerItem = new Peer(address);
-        idColumn = c.getColumnIndex(AbstractDb.PeersColumns.PEER_CONNECTED_CNT);
+        idColumn = c.getColumnIndex(BaseDb.PeersColumns.PEER_CONNECTED_CNT);
         if (idColumn != -1) {
             peerItem.setPeerConnectedCnt(c.getInt(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.PeersColumns.PEER_PORT);
+        idColumn = c.getColumnIndex(BaseDb.PeersColumns.PEER_PORT);
         if (idColumn != -1) {
             peerItem.setPeerPort(c.getInt(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.PeersColumns.PEER_SERVICES);
+        idColumn = c.getColumnIndex(BaseDb.PeersColumns.PEER_SERVICES);
         if (idColumn != -1) {
             peerItem.setPeerServices(c.getLong(idColumn));
         }
-        idColumn = c.getColumnIndex(AbstractDb.PeersColumns.PEER_TIMESTAMP);
+        idColumn = c.getColumnIndex(BaseDb.PeersColumns.PEER_TIMESTAMP);
         if (idColumn != -1) {
             peerItem.setPeerTimestamp(c.getInt(idColumn));
         }
@@ -233,7 +233,7 @@ public abstract class AbstractPeerProvider extends AbstractProvider implements I
         IDb writeDb = this.getWriteDb();
         writeDb.beginTransaction();
         this.execUpdate(writeDb, "drop table peers", null);
-        this.execUpdate(writeDb, AbstractDb.CREATE_PEER_SQL, null);
+        this.execUpdate(writeDb, BaseDb.CREATE_PEER_SQL, null);
         writeDb.endTransaction();
     }
 }

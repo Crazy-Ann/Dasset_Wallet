@@ -5,7 +5,7 @@ import com.dasset.wallet.core.AddressManager;
 import com.dasset.wallet.core.contant.AbstractApp;
 import com.dasset.wallet.core.contant.BitherjSettings;
 import com.dasset.wallet.core.contant.Constant;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
 
 import java.io.File;
@@ -131,7 +131,7 @@ public class UpgradeAddressUtil {
         }
         if (AbstractApp.bitherjSetting.getAppMode() == BitherjSettings.AppMode.HOT) {
             if (addressList.size() > 0) {
-                AbstractDb.txProvider.clearAllTx();
+                BaseDb.iTxProvider.clearAllTx();
             }
         }
         return success;

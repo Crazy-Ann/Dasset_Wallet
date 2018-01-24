@@ -16,6 +16,7 @@
 
 package com.dasset.wallet.core;
 
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.message.GetHeadersMessage;
 import com.dasset.wallet.core.message.InventoryMessage;
@@ -26,7 +27,6 @@ import com.dasset.wallet.core.net.NioClientManager;
 import com.dasset.wallet.core.net.PeerSocketHandler;
 import com.dasset.wallet.core.utils.InventoryItem;
 import com.dasset.wallet.core.contant.BitherjSettings;
-import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.exception.ProtocolException;
 import com.dasset.wallet.core.exception.VerificationException;
 import com.dasset.wallet.core.message.AlertMessage;
@@ -621,7 +621,7 @@ public class Peer extends PeerSocketHandler {
             }
 
             // check dependency
-            HashMap<Sha256Hash, Tx> dependency = AbstractDb.txProvider.getTxDependencies(tx);
+            HashMap<Sha256Hash, Tx> dependency = BaseDb.iTxProvider.getTxDependencies(tx);
             HashSet<Sha256Hash> needToRequest = new HashSet<Sha256Hash>();
             boolean valid = true;
             for (int i = 0;
@@ -879,9 +879,9 @@ public class Peer extends PeerSocketHandler {
             return;
         }
         InventoryMessage m  = new InventoryMessage();
-        Tx               tx = AbstractDb.txProvider.getTxDetailByTxHash(txHash.getBytes());
+        Tx               tx = BaseDb.iTxProvider.getTxDetailByTxHash(txHash.getBytes());
         if (tx == null) {
-            tx = AbstractDb.txProvider.getTxDetailByTxHash(txHash.getBytes());
+            tx = BaseDb.iTxProvider.getTxDetailByTxHash(txHash.getBytes());
         }
         if (tx == null) {
             return;
@@ -982,18 +982,18 @@ public class Peer extends PeerSocketHandler {
 
 
     public void connectFail() {
-        AbstractDb.peerProvider.removePeer(getPeerAddress());
+        BaseDb.iPeerProvider.removePeer(getPeerAddress());
     }
 
     public void connectError() {
-        AbstractDb.peerProvider.removePeer(getPeerAddress());
+        BaseDb.iPeerProvider.removePeer(getPeerAddress());
     }
 
 
     public void connectSucceed() {
         peerConnectedCnt = 1;
         peerTimestamp = (int) (System.currentTimeMillis() / 1000);
-        AbstractDb.peerProvider.connectSucceed(getPeerAddress());
+        BaseDb.iPeerProvider.connectSucceed(getPeerAddress());
         sendFilterLoadMessage(PeerManager.instance().bloomFilterForPeer(this));
     }
 

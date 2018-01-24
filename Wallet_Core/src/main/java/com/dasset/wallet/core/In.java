@@ -16,7 +16,7 @@
 
 package com.dasset.wallet.core;
 
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.exception.ProtocolException;
 import com.dasset.wallet.core.message.Message;
 import com.dasset.wallet.core.script.Script;
@@ -205,7 +205,7 @@ public class In extends Message {
 
     public Out getConnectedOut() {
         if (connectedOut == null) {
-            Tx preTx = AbstractDb.txProvider.getTxDetailByTxHash(getPrevTxHash());
+            Tx preTx = BaseDb.iTxProvider.getTxDetailByTxHash(getPrevTxHash());
             if (preTx == null) {
                 return null;
             }

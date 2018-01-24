@@ -52,6 +52,4 @@ public interface IBlockProvider {
     void removeBlock(byte[] blockHash);
 
     void cleanOldBlock();
-
-
 }

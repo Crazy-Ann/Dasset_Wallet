@@ -3,7 +3,7 @@ package com.dasset.wallet.core;
 import com.dasset.wallet.core.contant.BitherjSettings;
 import com.dasset.wallet.core.contant.Coin;
 import com.dasset.wallet.core.contant.SplitCoin;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.exception.TxBuilderException;
 import com.dasset.wallet.core.script.Script;
 import com.dasset.wallet.core.script.ScriptBuilder;
@@ -135,11 +135,11 @@ public class TxBuilder {
         List<Tx>  unspendTxs;
         List<Out> unspendOuts;
         if (coin == Coin.BTC) {
-            unspendTxs = AbstractDb.txProvider.getUnspendTxWithAddress(address.getAddress());
+            unspendTxs = BaseDb.iTxProvider.getUnspendTxWithAddress(address.getAddress());
             unspendOuts = getUnspendOuts(unspendTxs);
         } else {
-            unspendOuts = AbstractDb.txProvider.getUnspentOutputByBlockNo(coin.getForkBlockHeight(), address.getAddress());
-            unspendTxs = AbstractDb.txProvider.getUnspendTxWithAddress(address.getAddress(), unspendOuts);
+            unspendOuts = BaseDb.iTxProvider.getUnspentOutputByBlockNo(coin.getForkBlockHeight(), address.getAddress());
+            unspendTxs = BaseDb.iTxProvider.getUnspendTxWithAddress(address.getAddress(), unspendOuts);
         }
         List<Out> canSpendOuts    = getCanSpendOuts(unspendTxs);
         List<Out> canNotSpendOuts = getCanNotSpendOuts(unspendTxs);
@@ -200,8 +200,8 @@ public class TxBuilder {
         for (long amount : amounts) {
             value += amount;
         }
-        List<Out> unspendOuts     = AbstractDb.txProvider.getUnspentOutputByBlockNo(splitCoin.getForkBlockHeight(), address.getAddress());
-        List<Tx>  unspendTxs      = AbstractDb.txProvider.getUnspendTxWithAddress(address.getAddress(), unspendOuts);
+        List<Out> unspendOuts     = BaseDb.iTxProvider.getUnspentOutputByBlockNo(splitCoin.getForkBlockHeight(), address.getAddress());
+        List<Tx>  unspendTxs      = BaseDb.iTxProvider.getUnspendTxWithAddress(address.getAddress(), unspendOuts);
         List<Out> canSpendOuts    = getCanSpendOuts(unspendTxs);
         List<Out> canNotSpendOuts = getCanNotSpendOuts(unspendTxs);
         if (value > getAmount(unspendOuts)) {

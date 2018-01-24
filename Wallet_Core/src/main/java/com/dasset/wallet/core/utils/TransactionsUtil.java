@@ -14,7 +14,7 @@ import com.dasset.wallet.core.api.BlockChainMytransactionsApi;
 import com.dasset.wallet.core.contant.AbstractApp;
 import com.dasset.wallet.core.contant.BitherjSettings;
 import com.dasset.wallet.core.contant.PathType;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
 import com.dasset.wallet.core.wallet.hd.HDAccount;
@@ -59,7 +59,7 @@ public class TransactionsUtil {
     private static List<Tx> getTransactionsFromBlockChain(
             JSONObject jsonObject, int storeBlockHeight) throws Exception {
         List<Tx>              transactions = new ArrayList<Tx>();
-        List<Block>           blocks       = AbstractDb.blockProvider.getAllBlocks();
+        List<Block>           blocks       = BaseDb.iBlockProvider.getAllBlocks();
         Map<Integer, Integer> blockMapList = new HashMap<Integer, Integer>();
         int                   minBlockNo   = blocks.get(blocks.size() - 1).getBlockNo();
         for (Block block : blocks) {
@@ -120,7 +120,7 @@ public class TransactionsUtil {
     private static List<Tx> getTransactionsFromBither(
             JSONObject jsonObject, int storeBlockHeight) throws JSONException {
         List<Tx>              transactions = new ArrayList<Tx>();
-        List<Block>           blocks       = AbstractDb.blockProvider.getAllBlocks();
+        List<Block>           blocks       = BaseDb.iBlockProvider.getAllBlocks();
         Map<Integer, Integer> blockMapList = new HashMap<Integer, Integer>();
         int                   minBlockNo   = blocks.get(blocks.size() - 1).getBlockNo();
         for (Block block : blocks) {
@@ -272,8 +272,8 @@ public class TransactionsUtil {
             while (unusedAddressCnt <= maxUnusedAddressCount) {
                 Block storedBlock      = BlockChain.getInstance().getLastBlock();
                 int   storeBlockHeight = storedBlock.getBlockNo();
-                hdAddress = AbstractDb.hdAccountAddressProvider.addressForPath(hdSeedId,
-                                                                               pathType, addressIndex);
+                hdAddress = BaseDb.iHDAccountAddressProvider.addressForPath(hdSeedId,
+                                                                            pathType, addressIndex);
                 if (hdAddress == null) {
 //                    hasTx = false;
                     unusedAddressCnt += 1;
@@ -387,7 +387,7 @@ public class TransactionsUtil {
                 }
                 addressIndex++;
             }
-            AbstractDb.hdAccountAddressProvider.updateSyncedForIndex(hdSeedId, pathType, addressIndex - 1);
+            BaseDb.iHDAccountAddressProvider.updateSyncedForIndex(hdSeedId, pathType, addressIndex - 1);
         }
     }
 
@@ -401,8 +401,8 @@ public class TransactionsUtil {
             while (unusedAddressCnt <= maxUnusedAddressCount) {
                 Block storedBlock      = BlockChain.getInstance().getLastBlock();
                 int   storeBlockHeight = storedBlock.getBlockNo();
-                hdAccountAddress = AbstractDb.hdAccountAddressProvider.addressForPath(hdSeedId,
-                                                                                      pathType, addressIndex);
+                hdAccountAddress = BaseDb.iHDAccountAddressProvider.addressForPath(hdSeedId,
+                                                                                   pathType, addressIndex);
                 if (hdAccountAddress == null) {
 //                    hasTx = false;
                     unusedAddressCnt += 1;
@@ -514,7 +514,7 @@ public class TransactionsUtil {
                 }
                 addressIndex++;
             }
-            AbstractDb.hdAccountAddressProvider.updateSyncedForIndex(hdSeedId, pathType, addressIndex - 1);
+            BaseDb.iHDAccountAddressProvider.updateSyncedForIndex(hdSeedId, pathType, addressIndex - 1);
         }
     }
 
@@ -526,8 +526,8 @@ public class TransactionsUtil {
             while (hasTx) {
                 Block storedBlock      = BlockChain.getInstance().getLastBlock();
                 int   storeBlockHeight = storedBlock.getBlockNo();
-                desktopHDMAddress = AbstractDb.desktopTxProvider.addressForPath(desktopHDMKeychain,
-                                                                                pathType, addressIndex);
+                desktopHDMAddress = BaseDb.iDesktopTxProvider.addressForPath(desktopHDMKeychain,
+                                                                             pathType, addressIndex);
                 if (desktopHDMAddress == null) {
                     hasTx = false;
                     log.warn("AccountAddress", "address is null path {} ,index {}", pathType, addressIndex);
@@ -628,7 +628,7 @@ public class TransactionsUtil {
                     hasTx = true;
                 } else {
                     hasTx = false;
-                    AbstractDb.desktopTxProvider.updateSyncdForIndex(pathType, addressIndex);
+                    BaseDb.iDesktopTxProvider.updateSyncdForIndex(pathType, addressIndex);
                 }
             }
             addressIndex++;

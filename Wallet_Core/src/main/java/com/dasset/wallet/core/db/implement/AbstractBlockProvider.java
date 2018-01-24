@@ -16,11 +16,11 @@
 
 package com.dasset.wallet.core.db.implement;
 
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.utils.Base58;
 import com.google.common.base.Function;
 import com.dasset.wallet.core.Block;
 import com.dasset.wallet.core.contant.BitherjSettings;
-import com.dasset.wallet.core.db.AbstractDb;
 import com.dasset.wallet.core.db.IBlockProvider;
 import com.dasset.wallet.core.db.base.ICursor;
 import com.dasset.wallet.core.db.base.IDb;
@@ -300,11 +300,11 @@ public abstract class AbstractBlockProvider extends AbstractProvider implements 
         long    nonce      = 0;
         int     blockNo    = 0;
         boolean isMain     = false;
-        int     idColumn   = c.getColumnIndex(AbstractDb.BlocksColumns.BLOCK_BITS);
+        int     idColumn   = c.getColumnIndex(BaseDb.BlocksColumns.BLOCK_BITS);
         if (idColumn != -1) {
             target = c.getLong(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.BlocksColumns.BLOCK_HASH);
+        idColumn = c.getColumnIndex(BaseDb.BlocksColumns.BLOCK_HASH);
         if (idColumn != -1) {
             try {
                 blockHash = Base58.decode(c.getString(idColumn));
@@ -312,15 +312,15 @@ public abstract class AbstractBlockProvider extends AbstractProvider implements 
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.BlocksColumns.BLOCK_NO);
+        idColumn = c.getColumnIndex(BaseDb.BlocksColumns.BLOCK_NO);
         if (idColumn != -1) {
             blockNo = c.getInt(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.BlocksColumns.BLOCK_NONCE);
+        idColumn = c.getColumnIndex(BaseDb.BlocksColumns.BLOCK_NONCE);
         if (idColumn != -1) {
             nonce = c.getLong(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.BlocksColumns.BLOCK_PREV);
+        idColumn = c.getColumnIndex(BaseDb.BlocksColumns.BLOCK_PREV);
         if (idColumn != -1) {
             try {
                 prevBlock = Base58.decode(c.getString(idColumn));
@@ -328,7 +328,7 @@ public abstract class AbstractBlockProvider extends AbstractProvider implements 
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.BlocksColumns.BLOCK_ROOT);
+        idColumn = c.getColumnIndex(BaseDb.BlocksColumns.BLOCK_ROOT);
         if (idColumn != -1) {
             try {
                 merkleRoot = Base58.decode(c.getString(idColumn));
@@ -336,15 +336,15 @@ public abstract class AbstractBlockProvider extends AbstractProvider implements 
                 e.printStackTrace();
             }
         }
-        idColumn = c.getColumnIndex(AbstractDb.BlocksColumns.BLOCK_TIME);
+        idColumn = c.getColumnIndex(BaseDb.BlocksColumns.BLOCK_TIME);
         if (idColumn != -1) {
             timestamp = c.getInt(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.BlocksColumns.BLOCK_VER);
+        idColumn = c.getColumnIndex(BaseDb.BlocksColumns.BLOCK_VER);
         if (idColumn != -1) {
             version = c.getLong(idColumn);
         }
-        idColumn = c.getColumnIndex(AbstractDb.BlocksColumns.IS_MAIN);
+        idColumn = c.getColumnIndex(BaseDb.BlocksColumns.IS_MAIN);
         if (idColumn != -1) {
             isMain = c.getInt(idColumn) == 1;
         }

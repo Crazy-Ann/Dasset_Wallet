@@ -2,7 +2,7 @@ package com.dasset.wallet.core;
 
 import com.dasset.wallet.core.contant.AbstractApp;
 import com.dasset.wallet.core.contant.BitherjSettings;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.exception.ProtocolException;
 import com.dasset.wallet.core.net.NioClientManager;
 import com.dasset.wallet.core.utils.DnsDiscovery;
@@ -97,7 +97,7 @@ public class PeerManager {
     }
 
     private void initPublishedTx() {
-        for (Tx tx : AbstractDb.txProvider.getPublishedTxs()) {
+        for (Tx tx : BaseDb.iTxProvider.getPublishedTxs()) {
             if (tx.getBlockNo() == Tx.TX_UNCONFIRMED) {
                 publishedTx.put(new Sha256Hash(tx.getTxHash()), tx);
             }
@@ -164,7 +164,7 @@ public class PeerManager {
 
     public void clearPeerAndRestart() {
         this.stop();
-        AbstractDb.peerProvider.recreate();
+        BaseDb.iPeerProvider.recreate();
         this.start();
     }
 
@@ -214,14 +214,14 @@ public class PeerManager {
 
     private HashSet<Peer> bestPeers() {
         HashSet<Peer> peers = new HashSet<Peer>();
-        peers.addAll(AbstractDb.peerProvider.getPeersWithLimit(getMaxPeerConnect()));
+        peers.addAll(BaseDb.iPeerProvider.getPeersWithLimit(getMaxPeerConnect()));
         log.info("{} dbpeers", peers.size());
         if (peers.size() < getMaxPeerConnect()) {
-            AbstractDb.peerProvider.recreate();
-            AbstractDb.peerProvider.addPeers(new ArrayList<Peer>(peers));
+            BaseDb.iPeerProvider.recreate();
+            BaseDb.iPeerProvider.addPeers(new ArrayList<Peer>(peers));
             if (getPeersFromDns().size() > 0) {
                 peers.clear();
-                peers.addAll(AbstractDb.peerProvider.getPeersWithLimit(getMaxPeerConnect()));
+                peers.addAll(BaseDb.iPeerProvider.getPeersWithLimit(getMaxPeerConnect()));
             }
         }
         log.info("{} totalpeers", peers.size());
@@ -232,7 +232,7 @@ public class PeerManager {
         HashSet<Peer> peers = new HashSet<Peer>();
         Peer[]        ps    = DnsDiscovery.instance().getPeers(5, TimeUnit.SECONDS);
         Collections.addAll(peers, ps);
-        AbstractDb.peerProvider.addPeers(new ArrayList<Peer>(peers));
+        BaseDb.iPeerProvider.addPeers(new ArrayList<Peer>(peers));
         return peers;
     }
 
@@ -260,8 +260,8 @@ public class PeerManager {
                         result.add(peer);
                     }
                 }
-                AbstractDb.peerProvider.addPeers(result);
-                AbstractDb.peerProvider.cleanPeers();
+                BaseDb.iPeerProvider.addPeers(result);
+                BaseDb.iPeerProvider.cleanPeers();
             }
         });
     }
@@ -273,7 +273,7 @@ public class PeerManager {
         if (height != BitherjSettings.TX_UNCONFIRMED) {
             // update all tx in db
             log.info("update {} txs confirmation", txHashes.size());
-            AbstractDb.txProvider.confirmTx(height, txHashes);
+            BaseDb.iTxProvider.confirmTx(height, txHashes);
             // update all address 's tx and balance
             for (Address address : AddressManager.getInstance().getAllAddresses()) {
                 address.setBlockHeight(txHashes, height);
@@ -495,7 +495,7 @@ public class PeerManager {
                 boolean isRel = AddressManager.getInstance().registerTx(tx, Tx.TxNotificationType
                         .txReceive, isConfirmed);
                 if (isRel) {
-                    boolean isAlreadyInDb = AbstractDb.txProvider.isExist(tx.getTxHash());
+                    boolean isAlreadyInDb = BaseDb.iTxProvider.isExist(tx.getTxHash());
 
                     if (publishedTx.get(new Sha256Hash(tx.getTxHash())) == null) {
                         publishedTx.put(new Sha256Hash(tx.getTxHash()), tx);
@@ -839,7 +839,7 @@ public class PeerManager {
             }
 
             List<Out> outs = new ArrayList<Out>();
-            for (Out out : AbstractDb.txProvider.getOuts()) {
+            for (Out out : BaseDb.iTxProvider.getOuts()) {
                 if (AddressManager.getInstance().getAddressHashSet().contains(out.getOutAddress()
                 )) {
                     outs.add(out);

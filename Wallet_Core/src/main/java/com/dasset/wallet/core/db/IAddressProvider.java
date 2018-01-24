@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface IAddressProvider {
+
     // password
     boolean changePassword(CharSequence oldPassword, CharSequence newPassword);
 
@@ -26,8 +27,7 @@ public interface IAddressProvider {
 
     String getEncryptHDSeed(int hdSeedId);
 
-
-    void updateEncrypttMnmonicSeed(int hdSeedId, String encryptMnmonicSeed);
+    void updateEncryptedMnmonicSeed(int hdSeedId, String encryptMnmonicSeed);
 
     boolean isHDSeedFromXRandom(int hdSeedId);
 
@@ -54,7 +54,6 @@ public interface IAddressProvider {
     int maxHDMAddressPubIndex(int hdSeedId);//including completed and uncompleted
 
     void recoverHDMAddresses(int hdSeedId, List<HDMAddress> addresses);
-
 
     void completeHDMAddresses(int hdSeedId, List<HDMAddress> addresses);
 
@@ -90,6 +89,4 @@ public interface IAddressProvider {
     Map<String, Integer> getVanitylens();
 
     void updateVaitylen(String address, int vanitylen);
-
-
 }

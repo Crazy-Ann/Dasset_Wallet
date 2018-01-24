@@ -6,7 +6,7 @@ import com.dasset.wallet.core.contant.SigHash;
 import com.dasset.wallet.core.contant.SplitCoin;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.TransactionSignature;
-import com.dasset.wallet.core.db.AbstractDb;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.exception.PasswordException;
 import com.dasset.wallet.core.exception.TxBuilderException;
 import com.dasset.wallet.core.script.ScriptBuilder;
@@ -75,13 +75,13 @@ public class Address implements Comparable<Address> {
 
 
     public int txCount() {
-        return AbstractDb.txProvider.txCount(this.address);
+        return BaseDb.iTxProvider.txCount(this.address);
     }
 
     public List<Tx> getRecentlyTxsWithConfirmationCntLessThan(int confirmationCnt, int limit) {
         List<Tx> txList  = new ArrayList<Tx>();
         int      blockNo = BlockChain.getInstance().getLastBlock().getBlockNo() - confirmationCnt + 1;
-        for (Tx tx : AbstractDb.txProvider.getRecentlyTxsByAddress(this.address, blockNo, limit)) {
+        for (Tx tx : BaseDb.iTxProvider.getRecentlyTxsByAddress(this.address, blockNo, limit)) {
             txList.add(tx);
         }
         return txList;
@@ -89,13 +89,13 @@ public class Address implements Comparable<Address> {
 
 
     public List<Tx> getTxs() {
-        List<Tx> txs = AbstractDb.txProvider.getTxAndDetailByAddress(this.address);
+        List<Tx> txs = BaseDb.iTxProvider.getTxAndDetailByAddress(this.address);
         Collections.sort(txs);
         return txs;
     }
 
     public List<Tx> getTxs(int page) {
-        List<Tx> txs = AbstractDb.txProvider.getTxAndDetailByAddress(this.address, page);
+        List<Tx> txs = BaseDb.iTxProvider.getTxAndDetailByAddress(this.address, page);
         return txs;
     }
 
@@ -106,9 +106,9 @@ public class Address implements Comparable<Address> {
     public void setTrashed(boolean isTrashed, boolean fromDb) {
         if (!fromDb && isTrashed() != isTrashed) {
             if (isTrashed) {
-                AbstractDb.addressProvider.trashPrivKeyAddress(this);
+                BaseDb.iAddressProvider.trashPrivKeyAddress(this);
             } else {
-                AbstractDb.addressProvider.restorePrivKeyAddress(this);
+                BaseDb.iAddressProvider.restorePrivKeyAddress(this);
             }
         }
         this.isTrashed = isTrashed;
@@ -124,14 +124,14 @@ public class Address implements Comparable<Address> {
     }
 
     public void updateBalance() {
-        this.balance = AbstractDb.txProvider.getConfirmedBalanceWithAddress(getAddress())
+        this.balance = BaseDb.iTxProvider.getConfirmedBalanceWithAddress(getAddress())
                 + this.calculateUnconfirmedBalance();
     }
 
     private long calculateUnconfirmedBalance() {
         long balance = 0;
 
-        List<Tx> txs = AbstractDb.txProvider.getUnconfirmedTxWithAddress(this.address);
+        List<Tx> txs = BaseDb.iTxProvider.getUnconfirmedTxWithAddress(this.address);
         Collections.sort(txs);
 
         Set<byte[]>   invalidTx  = new HashSet<byte[]>();
@@ -165,7 +165,7 @@ public class Address implements Comparable<Address> {
             spent.addAll(unspendOut);
             spent.retainAll(spentOut);
             for (OutPoint o : spent) {
-                Tx tx1 = AbstractDb.txProvider.getTxDetailByTxHash(o.getTxHash());
+                Tx tx1 = BaseDb.iTxProvider.getTxDetailByTxHash(o.getTxHash());
                 unspendOut.remove(o);
                 for (Out out : tx1.getOuts()) {
                     if (out.getOutSn() == o.getOutSn()) {
@@ -198,7 +198,7 @@ public class Address implements Comparable<Address> {
     }
 
     public boolean initTxs(List<Tx> txs) {
-        AbstractDb.txProvider.addTxs(txs);
+        BaseDb.iTxProvider.addTxs(txs);
         notificatTx(null, Tx.TxNotificationType.txFromApi);
         return true;
     }
@@ -230,7 +230,7 @@ public class Address implements Comparable<Address> {
 
 
     public void updateSyncComplete() {
-        AbstractDb.addressProvider.updateSyncComplete(Address.this);
+        BaseDb.iAddressProvider.updateSyncComplete(Address.this);
     }
 
     @Override
@@ -259,11 +259,11 @@ public class Address implements Comparable<Address> {
     }
 
     public void recoverFromBackup(String encryptPriv) {
-        AbstractDb.addressProvider.updatePrivateKey(getAddress(), encryptPriv);
+        BaseDb.iAddressProvider.updatePrivateKey(getAddress(), encryptPriv);
     }
 
     public String getFullEncryptPrivKey() {
-        String encryptPrivKeyString = AbstractDb.addressProvider.getEncryptPrivateKey(getAddress());
+        String encryptPrivKeyString = BaseDb.iAddressProvider.getEncryptPrivateKey(getAddress());
         if (Utils.isEmpty(encryptPrivKeyString)) {
             return "";
         } else {
@@ -325,7 +325,7 @@ public class Address implements Comparable<Address> {
 
     public List<Tx> getRecentlyTxs(int confirmationCnt, int limit) {
         int blockNo = BlockChain.getInstance().lastBlock.getBlockNo() - confirmationCnt + 1;
-        return AbstractDb.txProvider.getRecentlyTxsByAddress(this.address, blockNo, limit);
+        return BaseDb.iTxProvider.getRecentlyTxsByAddress(this.address, blockNo, limit);
     }
 
     public String getShortAddress() {
@@ -402,15 +402,15 @@ public class Address implements Comparable<Address> {
     }
 
     public void completeInSignature(List<In> ins) {
-        AbstractDb.txProvider.completeInSignature(ins);
+        BaseDb.iTxProvider.completeInSignature(ins);
     }
 
     public int needCompleteInSignature() {
-        return AbstractDb.txProvider.needCompleteInSignature(this.address);
+        return BaseDb.iTxProvider.needCompleteInSignature(this.address);
     }
 
     public long totalReceive() {
-        return AbstractDb.txProvider.totalReceive(getAddress());
+        return BaseDb.iTxProvider.totalReceive(getAddress());
     }
 
     public boolean isHDM() {
@@ -422,7 +422,7 @@ public class Address implements Comparable<Address> {
     }
 
     public boolean removeTx(Tx tx) {
-        AbstractDb.txProvider.remove(tx.getTxHash());
+        BaseDb.iTxProvider.remove(tx.getTxHash());
         return true;
     }
 
@@ -440,12 +440,12 @@ public class Address implements Comparable<Address> {
 
     public void updateAlias(String alias) {
         this.alias = alias;
-        AbstractDb.addressProvider.updateAlias(this.address, this.alias);
+        BaseDb.iAddressProvider.updateAlias(this.address, this.alias);
     }
 
     public void removeAlias() {
         this.alias = null;
-        AbstractDb.addressProvider.updateAlias(getAddress(), null);
+        BaseDb.iAddressProvider.updateAlias(getAddress(), null);
     }
 
     public int getVanityLen() {
@@ -458,12 +458,12 @@ public class Address implements Comparable<Address> {
 
     public void updateVanityLen(int vanityLen) {
         this.vanityLen = vanityLen;
-        AbstractDb.addressProvider.updateVaitylen(this.address, this.vanityLen);
+        BaseDb.iAddressProvider.updateVaitylen(this.address, this.vanityLen);
     }
 
     public void removeVanitylen() {
         this.vanityLen = VANITY_LEN_NO_EXSITS;
-        AbstractDb.addressProvider.updateVaitylen(this.address, VANITY_LEN_NO_EXSITS);
+        BaseDb.iAddressProvider.updateVaitylen(this.address, VANITY_LEN_NO_EXSITS);
 
     }
 

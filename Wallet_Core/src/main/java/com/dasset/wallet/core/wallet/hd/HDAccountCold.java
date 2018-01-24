@@ -26,13 +26,13 @@ import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.crypto.hd.HDKeyDerivation;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicException;
+import com.dasset.wallet.core.db.BaseDb;
 import com.dasset.wallet.core.script.ScriptBuilder;
 import com.dasset.wallet.core.utils.PrivateKeyUtil;
 import com.dasset.wallet.core.utils.Utils;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.dasset.wallet.core.crypto.ECKey;
-import com.dasset.wallet.core.db.AbstractDb;
 
 
 import org.slf4j.Logger;
@@ -77,9 +77,9 @@ public class HDAccountCold extends AbstractHD {
         master.wipe();
         wipeHDSeed();
         wipeMnemonicSeed();
-        hdSeedId = AbstractDb.hdAccountProvider.addHDAccount(encryptedMnemonicSeed
+        hdSeedId = BaseDb.iHDAccountProvider.addHDAccount(encryptedMnemonicSeed
                         .toEncryptedString(), encryptedHDSeed.toEncryptedString(), firstAddress,
-                                                             isFromXRandom, address, externalKey.getPubKeyExtended(), internalKey
+                                                          isFromXRandom, address, externalKey.getPubKeyExtended(), internalKey
                         .getPubKeyExtended());
         externalKey.wipe();
     }
@@ -102,7 +102,7 @@ public class HDAccountCold extends AbstractHD {
 
     public HDAccountCold(int hdSeedId) {
         this.hdSeedId = hdSeedId;
-        this.isFromXRandom = AbstractDb.hdAccountProvider.hdAccountIsXRandom(hdSeedId);
+        this.isFromXRandom = BaseDb.iHDAccountProvider.hdAccountIsXRandom(hdSeedId);
     }
 
     public List<byte[]> signHashHexes(final Collection<String> hashes, Collection<PathTypeIndex>
@@ -150,7 +150,7 @@ public class HDAccountCold extends AbstractHD {
     }
 
     public String getFirstAddressFromDb() {
-        return AbstractDb.hdAccountProvider.getHDFirstAddress(hdSeedId);
+        return BaseDb.iHDAccountProvider.getHDFirstAddress(hdSeedId);
     }
 
     public boolean checkWithPassword(CharSequence password) {
@@ -173,12 +173,12 @@ public class HDAccountCold extends AbstractHD {
 
     @Override
     protected String getEncryptedHDSeed() {
-        return AbstractDb.hdAccountProvider.getHDAccountEncryptSeed(hdSeedId);
+        return BaseDb.iHDAccountProvider.getHDAccountEncryptSeed(hdSeedId);
     }
 
     @Override
     protected String getEncryptedMnemonicSeed() {
-        return AbstractDb.hdAccountProvider.getHDAccountEncryptMnemonicSeed(hdSeedId);
+        return BaseDb.iHDAccountProvider.getHDAccountEncryptMnemonicSeed(hdSeedId);
     }
 
     public String getFullEncryptPrivKey() {
