@@ -18,7 +18,7 @@ import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.components.validation.EditTextValidator;
 import com.dasset.wallet.components.validation.Validation;
 import com.dasset.wallet.constant.Constant;
-import com.dasset.wallet.model.validation.AccountNameValidation;
+import com.dasset.wallet.model.validation.WalletNameValidation;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.AccountRenameContract;
 import com.dasset.wallet.ui.activity.presenter.AccountRenamePresenter;
@@ -48,8 +48,8 @@ public class AccountRenameActivity extends ActivityViewImplement<AccountRenameCo
     @Override
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
-        etAccountName = ViewUtil.getInstance().findView(this, R.id.etAccountName);
-        ibAccountNameEmpty = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.ibAccountNameEmpty, this);
+        etAccountName = ViewUtil.getInstance().findView(this, R.id.etWalletName);
+        ibAccountNameEmpty = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.ibWalletNameEmpty, this);
         btnConfirm = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnConfirm, this);
     }
 
@@ -82,7 +82,7 @@ public class AccountRenameActivity extends ActivityViewImplement<AccountRenameCo
         setBasePresenterImplement(accountRenamePresenter);
 
         editTextValidator = new EditTextValidator();
-        editTextValidator.add(new Validation(null, etAccountName, true, ibAccountNameEmpty, new AccountNameValidation()));
+        editTextValidator.add(new Validation(null, etAccountName, true, ibAccountNameEmpty, new WalletNameValidation()));
         editTextValidator.execute(this, btnConfirm, R.drawable.rectangle_b7b7fa, R.drawable.rectangle_5757ff, R.color.color_d1d1fb, android.R.color.white, null, null, false);
     }
 
@@ -161,7 +161,7 @@ public class AccountRenameActivity extends ActivityViewImplement<AccountRenameCo
             return;
         }
         switch (v.getId()) {
-            case R.id.ibAccountNameEmpty:
+            case R.id.ibWalletNameEmpty:
                 etAccountName.setText(null);
                 break;
             case R.id.btnConfirm:

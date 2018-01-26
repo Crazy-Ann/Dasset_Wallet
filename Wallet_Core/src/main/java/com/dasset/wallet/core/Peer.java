@@ -16,7 +16,7 @@
 
 package com.dasset.wallet.core;
 
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.message.GetHeadersMessage;
 import com.dasset.wallet.core.message.InventoryMessage;
@@ -621,7 +621,7 @@ public class Peer extends PeerSocketHandler {
             }
 
             // check dependency
-            HashMap<Sha256Hash, Tx> dependency = BaseDb.iTxProvider.getTxDependencies(tx);
+            HashMap<Sha256Hash, Tx> dependency = BaseProvider.iTxProvider.getTxDependencies(tx);
             HashSet<Sha256Hash> needToRequest = new HashSet<Sha256Hash>();
             boolean valid = true;
             for (int i = 0;
@@ -879,9 +879,9 @@ public class Peer extends PeerSocketHandler {
             return;
         }
         InventoryMessage m  = new InventoryMessage();
-        Tx               tx = BaseDb.iTxProvider.getTxDetailByTxHash(txHash.getBytes());
+        Tx               tx = BaseProvider.iTxProvider.getTxDetailByTxHash(txHash.getBytes());
         if (tx == null) {
-            tx = BaseDb.iTxProvider.getTxDetailByTxHash(txHash.getBytes());
+            tx = BaseProvider.iTxProvider.getTxDetailByTxHash(txHash.getBytes());
         }
         if (tx == null) {
             return;
@@ -982,18 +982,18 @@ public class Peer extends PeerSocketHandler {
 
 
     public void connectFail() {
-        BaseDb.iPeerProvider.removePeer(getPeerAddress());
+        BaseProvider.iPeerProvider.removePeer(getPeerAddress());
     }
 
     public void connectError() {
-        BaseDb.iPeerProvider.removePeer(getPeerAddress());
+        BaseProvider.iPeerProvider.removePeer(getPeerAddress());
     }
 
 
     public void connectSucceed() {
         peerConnectedCnt = 1;
         peerTimestamp = (int) (System.currentTimeMillis() / 1000);
-        BaseDb.iPeerProvider.connectSucceed(getPeerAddress());
+        BaseProvider.iPeerProvider.connectSucceed(getPeerAddress());
         sendFilterLoadMessage(PeerManager.instance().bloomFilterForPeer(this));
     }
 

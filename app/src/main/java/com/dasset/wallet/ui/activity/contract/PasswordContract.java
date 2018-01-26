@@ -8,9 +8,12 @@ public interface PasswordContract {
     interface View extends BaseView<Presenter> {
 
         boolean isActive();
+
+        void startCreateWalletResultActivity();
     }
 
     interface Presenter extends BasePresenter {
 
+        void createWallet(boolean compressed, String password);
     }
 }

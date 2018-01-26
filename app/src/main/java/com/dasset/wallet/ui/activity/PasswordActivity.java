@@ -4,41 +4,29 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.dasset.wallet.R;
+import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
-import com.dasset.wallet.components.utils.GlideUtil;
-import com.dasset.wallet.components.utils.InputUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
-import com.dasset.wallet.components.validation.EditTextValidator;
-import com.dasset.wallet.components.validation.Validation;
 import com.dasset.wallet.constant.Constant;
-import com.dasset.wallet.model.validation.TransactionPasswordValidation;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.PasswordContract;
 import com.dasset.wallet.ui.activity.presenter.PasswordPresenter;
+import com.yjt.keyboard.DynamicKeyBoardView;
+import com.yjt.keyboard.listener.OnKeyboardListener;
+import com.yjt.password.PasswordView;
+import com.yjt.password.constant.PasswordType;
+import com.yjt.password.listener.OnPasswordChangedListener;
 
 import java.util.List;
 
-public class PasswordActivity extends ActivityViewImplement<PasswordContract.Presenter> implements PasswordContract.View, View.OnClickListener {
+public class PasswordActivity extends ActivityViewImplement<PasswordContract.Presenter> implements PasswordContract.View, OnLeftIconEventListener, OnPasswordChangedListener, OnKeyboardListener {
 
     private PasswordPresenter passwordPresenter;
-
-    private EditText etTransactionPassword;
-    private ImageButton ibTransactionPasswordDisplay;
-    private ImageButton ibTransactionPasswordEmpty;
-    private Button btnImport;
-
-    private EditTextValidator editTextValidator;
-    private boolean isTransactionPasswordHidden;
+    private PasswordView pvPassowrd;
+    private DynamicKeyBoardView dkbvPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +41,7 @@ public class PasswordActivity extends ActivityViewImplement<PasswordContract.Pre
     @Override
     protected void onResume() {
         super.onResume();
+        dkbvPassword.shuffleKeyboard();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             passwordPresenter.checkPermission(new PermissionCallback() {
 
@@ -73,60 +62,27 @@ public class PasswordActivity extends ActivityViewImplement<PasswordContract.Pre
 
     @Override
     protected void findViewById() {
-        etTransactionPassword = ViewUtil.getInstance().findView(this, R.id.etTransactionPassword);
-        ibTransactionPasswordDisplay = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.ibTransactionPasswordDisplay, this);
-        ibTransactionPasswordEmpty = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.ibTransactionPasswordEmpty, this);
-        btnImport = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnImport, this);
+        inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
+        pvPassowrd = ViewUtil.getInstance().findView(this, R.id.pvPassowrd);
+        dkbvPassword = ViewUtil.getInstance().findView(this, R.id.dkbvPassword);
     }
 
     @Override
     protected void initialize(Bundle savedInstanceState) {
+        initializeToolbar(android.R.color.white, true, R.mipmap.icon_back_black, this, android.R.color.black, getString(R.string.transaction_password));
         passwordPresenter = new PasswordPresenter(this, this);
         passwordPresenter.initialize();
+        pvPassowrd.setPasswordType(PasswordType.NUMBER);
+        pvPassowrd.setHasAddTextChangedListener(false);
         setBasePresenterImplement(passwordPresenter);
-
-        editTextValidator = new EditTextValidator();
-        editTextValidator.add(new Validation(null, etTransactionPassword, true, ibTransactionPasswordEmpty, new TransactionPasswordValidation()));
-        editTextValidator.execute(this, btnImport, R.drawable.rectangle_b7b7fa, R.drawable.rectangle_5757ff, R.color.color_d1d1fb, android.R.color.white, null, null, false);
     }
 
     @Override
     protected void setListener() {
-
+        pvPassowrd.setOnPasswordChangedListener(this);
+        dkbvPassword.setOnKeyboardListener(this);
     }
 
-    @Override
-    public void onClick(View view) {
-        if (InputUtil.getInstance().isDoubleClick()) {
-            return;
-        }
-        switch (view.getId()) {
-            case R.id.ibTransactionPasswordDisplay:
-                if (isTransactionPasswordHidden) {
-                    etTransactionPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                    GlideUtil.getInstance().with(this, R.mipmap.icon_eye_on, null, null, DiskCacheStrategy.NONE, ibTransactionPasswordDisplay);
-                } else {
-                    etTransactionPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                    GlideUtil.getInstance().with(this, R.mipmap.icon_eye_off, null, null, DiskCacheStrategy.NONE, ibTransactionPasswordDisplay);
-                }
-                isTransactionPasswordHidden = !isTransactionPasswordHidden;
-                break;
-            case R.id.ibTransactionPasswordEmpty:
-                etTransactionPassword.setText(null);
-                break;
-            case R.id.btnImport:
-                if (editTextValidator.validate(this)) {
-                    Intent intent = new Intent();
-                    intent.putExtra(Constant.BundleKey.IMPORT_PASSWORD, etTransactionPassword.getText().toString().trim());
-                    intent.putExtra(Constant.BundleKey.IMPORT_FILE_PATH, passwordPresenter.getPath());
-                    setResult(Constant.ResultCode.PASSWORD_VERIFICATION, intent);
-                    onFinish("btnImport");
-                }
-                break;
-            default:
-                break;
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -189,4 +145,34 @@ public class PasswordActivity extends ActivityViewImplement<PasswordContract.Pre
         return false;
     }
 
+    @Override
+    public void startCreateWalletResultActivity() {
+        startActivityForResult(CreateWalletResultActivity.class, Constant.RequestCode.CREATE_WALLET);
+        onFinish("startCreateWalletResultActivity");
+    }
+
+    @Override
+    public void onLeftIconEvent() {
+        onFinish("onLeftIconEvent");
+    }
+
+    @Override
+    public void onPasswordChange(String password) {
+        LogUtil.getInstance().print("onPasswordChange:" + password);
+    }
+
+    @Override
+    public void onInputFinish(String password) {
+        //TODO
+    }
+
+    @Override
+    public void onInsert(String data) {
+        pvPassowrd.setPassword(pvPassowrd.getPassword() + data);
+    }
+
+    @Override
+    public void onDelete() {
+        pvPassowrd.onPasswordDelete();
+    }
 }

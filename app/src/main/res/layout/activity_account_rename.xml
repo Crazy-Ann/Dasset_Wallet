@@ -46,13 +46,13 @@
                 android:layout_weight="3">
 
                 <EditText
-                    android:id="@+id/etAccountName"
+                    android:id="@+id/etWalletName"
                     style="@style/edit_content"
-                    android:hint="@string/hint_account_name"
+                    android:hint="@string/hint_wallet_name"
                     android:inputType="text"/>
 
                 <ImageButton
-                    android:id="@+id/ibAccountNameEmpty"
+                    android:id="@+id/ibWalletNameEmpty"
                     style="@style/edit_content_delete1"
                     android:contentDescription="@null"/>
             </RelativeLayout>

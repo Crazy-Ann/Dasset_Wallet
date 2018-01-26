@@ -11,41 +11,41 @@ public final class MessageUtil {
     }
 
     public static Message getMessage(int state) {
-        Message msg = Message.obtain();
-        msg.what = state;
-        return msg;
+        Message message = Message.obtain();
+        message.what = state;
+        return message;
     }
 
     public static Message getMessage(int state, Bundle bundle) {
-        Message msg = Message.obtain();
-        msg.setData(bundle);
-        msg.what = state;
-        return msg;
+        Message message = Message.obtain();
+        message.setData(bundle);
+        message.what = state;
+        return message;
     }
 
     public static Message getMessage(int state, Object obj) {
-        Message msg = Message.obtain();
-        msg.obj = obj;
-        msg.what = state;
-        return msg;
+        Message message = Message.obtain();
+        message.obj = obj;
+        message.what = state;
+        return message;
     }
 
     public static Message getMessage(int state, String param) {
-        Message msg = Message.obtain();
-        msg.what = state;
-        msg.obj = param;
-        return msg;
+        Message message = Message.obtain();
+        message.what = state;
+        message.obj = param;
+        return message;
     }
 
 
     public static Message getErrorMessage(int state, Exception e, String error) {
-        Message msg = Message.obtain();
-        msg.what = state;
+        Message message = Message.obtain();
+        message.what = state;
         if (!TextUtils.isEmpty(e.getMessage())) {
-            msg.obj = e.getMessage();
+            message.obj = e.getMessage();
         } else {
-            msg.obj = error;
+            message.obj = error;
         }
-        return msg;
+        return message;
     }
 }

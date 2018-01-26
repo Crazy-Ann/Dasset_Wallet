@@ -30,6 +30,9 @@ public final class Constant {
         public static final int DIALOG_PROGRESS_WALLET = 0x1005;
         public static final int INSTALL_APK = 0x1006;
         public static final int DIALOG_PROMPT_REQUEST_DATA_ERROR = 0x1007;
+        public static final int DIALOG_PROGRESS_CREATE_WALLET = 0x1008;
+        public static final int DIALOG_PROMPT_CREATE_WALLET = 0x1009;
+        public static final int DIALOG_PROMPT_CREATE_WALLET_ERROR = 0x1010;
         public static final int DIALOG_PROGRESS_CREATE_ACCOUNT = 0x1008;
         public static final int DIALOG_PROMPT_CREATE_ACCOUNT = 0x1009;
         public static final int DIALOG_PROMPT_CREATE_ACCOUNT_ERROR = 0x1010;
@@ -61,14 +64,15 @@ public final class Constant {
         public static final int DIALOG_PROMPT_DOWNLOAD_ERROR = 0x1034;
         public static final int DIALOG_PROMPT_INSTALL = 0x1035;
         public static final int DIALOG_PROMPT_INSTALL_ERROR = 0x1036;
-        public static final int CREATE_ACCOUNT = 0x2000;
-        public static final int QRCODE_RECOGNITION = 0x2001;
-        public static final int QRCODE_RECOGNITION_ALBUM = 0x2002;
-        public static final int ACCOUNT_RENAME = 0x2003;
-        public static final int FILE_MANAGER = 0x2004;
-        public static final int PASSWORD_VERIFICATION = 0x2005;
-        public static final int EXPORT_ACCOUNT = 0x2006;
-        public static final int EXPORT_QRCODE = 0x2007;
+        public static final int CREATE_WALLET = 0x2000;
+        public static final int IMPORT_WALLET = 0x2001;
+        public static final int QRCODE_RECOGNITION = 0x2002;
+        public static final int QRCODE_RECOGNITION_ALBUM = 0x2003;
+        public static final int ACCOUNT_RENAME = 0x2004;
+        public static final int FILE_MANAGER = 0x2005;
+        public static final int PASSWORD_VERIFICATION = 0x2006;
+        public static final int EXPORT_ACCOUNT = 0x2007;
+        public static final int EXPORT_QRCODE = 0x2008;
     }
 
     public final static class ResultCode {
@@ -80,18 +84,21 @@ public final class Constant {
         public static final int PASSWORD_VERIFICATION = 0x3005;
     }
 
-    public final static class Configuration {
-        public static final String CONFIGURATION = "configuration";
-        public static final String KEY1 = "page_src_sign";
-    }
-
     public final static class BundleKey {
         public static final String ENCRYPT_KEY = "encrypt_key";
         public static final String PAGE_LIST = "page_list";
+        public static final String OPERATION = "operation";
+        public static final String WALLET_NAME = "wallet_name";
+        public static final String WALLET_ADDRESS = "wallet_address";
+        public static final String WALLET_MNEMONIC_CODE = "wallet_mnemonic_code";
         public static final String WALLET_ACCOUNT = "wallet_account";
         public static final String QRCODE_RESULT = "qrcode_result";
         public static final String IMPORT_PASSWORD = "import_password";
         public static final String IMPORT_FILE_PATH = "import_file_path";
+    }
+    
+    public final static class BundleValue {
+        public static final String GENERATE_WALLET = "generate_wallet";
     }
 
     public static class RecycleView {
@@ -113,6 +120,8 @@ public final class Constant {
     public static class StateCode {
         public static final int TEST_SUCCESS = 0x8001;
         public static final int TEST_FAILED = 0x8002;
+        public static final int CREATE_WALLET_SUCCESS = 0x8003;
+        public static final int CREATE_WALLET_FAILED = 0x8004;
         public static final int ECKEYPAIR_GENERATE_SUCCESS = 0x8003;
         public static final int ECKEYPAIR_GENERATE_FAILED = 0x8004;
         public static final int ACCOUNT_EXPORT_SUCCESS = 0x8005;

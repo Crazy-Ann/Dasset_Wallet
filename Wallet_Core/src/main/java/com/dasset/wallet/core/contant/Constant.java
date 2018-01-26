@@ -24,6 +24,10 @@ public final class Constant {
     public static final String HD_QR_CODE_FLAG = "%";
     public static final String HD_MONITOR_QR_PREFIX = "BitherHD:";
     public static final int PBKDF2_ROUNDS = 2048;
+    public static final String DATA_BASE_ADDRESS = "address.db";
+    public static final int DATA_BASE_ADDRESS_VERSION = 1;
+    public static final String DATA_BASE_TX = "tx.db";
+    public static final int DATA_BASE_TX_VERSION = 1;
 
     public final static class FilePath {
         public static final String KEYSTORE = "keystore";

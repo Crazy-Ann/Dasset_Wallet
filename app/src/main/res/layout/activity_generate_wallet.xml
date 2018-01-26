@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    tools:context="com.dasset.wallet.ui.activity.GenerateWalletActivity">
+
+    <include
+        android:id="@+id/inToolbar"
+        layout="@layout/view_toolbar"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/inToolbar"
+        android:layout_marginEnd="@dimen/dp_15"
+        android:layout_marginStart="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_20"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48">
+
+            <EditText
+                android:id="@+id/etWalletName"
+                style="@style/edit_content"
+                android:hint="@string/wallet_name"
+                android:inputType="text"
+                android:maxLength="20"/>
+
+            <ImageButton
+                android:id="@+id/ibWalletNameEmpty"
+                style="@style/edit_content_delete1"
+                android:contentDescription="@null"/>
+
+        </RelativeLayout>
+
+        <include layout="@layout/view_line"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnCreateWallet"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/rectangle_b7b7fa"
+            android:enabled="false"
+            android:text="@string/create_wallet"
+            android:textColor="@android:color/white"/>
+
+        <Button
+            android:id="@+id/btnImportWallet"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/rectangle_f9f8fc"
+            android:enabled="false"
+            android:text="@string/import_wallet"
+            android:textColor="@android:color/black"/>
+
+    </LinearLayout>
+    
+</RelativeLayout>

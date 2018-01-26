@@ -67,7 +67,6 @@ dependencies {
     api deps.annotation_java5
     api deps.jsr305
     api deps.scrypt
-    implementation deps.bitcoinj_core
     implementation deps.geth
     implementation 'org.web3j:core-android:2.2.1'
     implementation deps.slf4j
@@ -75,5 +74,5 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpmime:4.3.6@jar'
     implementation 'org.apache.httpcomponents:httpcore:4.4.5@jar'
     implementation 'org.apache.james:apache-mime4j-core:0.7.1@jar'
-    api project(':Wallet_Components')
+    api project(':Wallet_Base')
 }

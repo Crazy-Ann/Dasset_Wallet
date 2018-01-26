@@ -3,7 +3,7 @@ package com.dasset.wallet.core.crypto;
 
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.core.contant.Constant;
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 import com.dasset.wallet.core.exception.AddressFormatException;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
 import com.dasset.wallet.core.utils.Base58;
@@ -85,11 +85,11 @@ public class PasswordSeed {
     }
 
     public static boolean hasPasswordSeed() {
-        return BaseDb.iAddressProvider.hasPasswordSeed();
+        return BaseProvider.iAddressProvider.hasPasswordSeed();
     }
 
     public static PasswordSeed getPasswordSeed() {
-        return BaseDb.iAddressProvider.getPasswordSeed();
+        return BaseProvider.iAddressProvider.getPasswordSeed();
     }
 
 }

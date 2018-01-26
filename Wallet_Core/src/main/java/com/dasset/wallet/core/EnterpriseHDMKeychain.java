@@ -20,7 +20,7 @@ package com.dasset.wallet.core;
 
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.crypto.hd.HDKeyDerivation;
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class EnterpriseHDMKeychain {
     public EnterpriseHDMKeychain(int threshold, int prepareCount, List<byte[]> externalRoots) {
         this.threshold = threshold;
         this.pubCount = externalRoots.size();
-        BaseDb.iEnterpriseHDMProvider.addMultiSignSet(this.threshold, this.pubCount);
+        BaseProvider.iEnterpriseHDMProvider.addMultiSignSet(this.threshold, this.pubCount);
         if (prepareCount > 0) {
             try {
                 prepareAddresses(prepareCount, externalRoots);
@@ -76,11 +76,11 @@ public class EnterpriseHDMKeychain {
     }
 
     private void initFromDb() {
-        pubCount = BaseDb.iEnterpriseHDMProvider.getPubCount();
-        threshold = BaseDb.iEnterpriseHDMProvider.getThreshold();
+        pubCount = BaseProvider.iEnterpriseHDMProvider.getPubCount();
+        threshold = BaseProvider.iEnterpriseHDMProvider.getThreshold();
         synchronized (addresses) {
             addresses.clear();
-            List<EnterpriseHDMAddress> temp = BaseDb.iEnterpriseHDMProvider.
+            List<EnterpriseHDMAddress> temp = BaseProvider.iEnterpriseHDMProvider.
                     getEnterpriseHDMAddress(EnterpriseHDMKeychain.this);
             if (temp != null) {
                 addresses.addAll(temp);
@@ -139,7 +139,7 @@ public class EnterpriseHDMKeychain {
     }
 
     private void addAddressesToDb(List<EnterpriseHDMAddress> addresses) {
-        BaseDb.iEnterpriseHDMProvider.addEnterpriseHDMAddress(addresses);
+        BaseProvider.iEnterpriseHDMProvider.addEnterpriseHDMAddress(addresses);
     }
 
     private List<byte[]> sortExternalRoots(List<byte[]> externalRoots) {

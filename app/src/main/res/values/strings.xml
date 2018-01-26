@@ -19,10 +19,13 @@
     <string name="dialog_prompt_download_url_error">更新失败，请前往官方网站下载。</string>
     <string name="dialog_prompt_install">是否安装新版本?</string>
     <string name="dialog_prompt_install_error">安装失败</string>
-    <string name="create_account">创建新账户</string>
-    <string name="account_name">账户名称</string>
-    <string name="hint_account_name">请为你的账户命名</string>
-    <string name="prompt_account_name">账户名称不能为空</string>
+    <string name="create_wallet">创建钱包</string>
+    <string name="import_wallet">导入钱包</string>
+    <string name="dialog_prompt_create_wallet">正在创建钱包,请稍后…</string>
+    <string name="dialog_prompt_create_wallet_error">创建钱包失败!</string>
+    <string name="wallet_name">钱包名称</string>
+    <string name="hint_wallet_name">请为你的钱包名称</string>
+    <string name="prompt_wallet_name">钱包名称不能为空</string>
     <string name="transaction_password">交易密码</string>
     <string name="hint_transaction_password">请输入交易密码</string>
     <string name="confirm_password">确认密码</string>

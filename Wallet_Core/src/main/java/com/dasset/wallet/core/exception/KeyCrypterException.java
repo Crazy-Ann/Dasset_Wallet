@@ -26,7 +26,6 @@ package com.dasset.wallet.core.exception;
  * to the user other than as part of a "general failure to parse" response.</p>
  */
 public class KeyCrypterException extends RuntimeException {
-    private static final long serialVersionUID = -4441989608332681377L;
 
     public KeyCrypterException(String s) {
         super(s);

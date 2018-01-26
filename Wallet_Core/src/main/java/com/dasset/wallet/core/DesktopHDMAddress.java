@@ -22,7 +22,7 @@ import com.dasset.wallet.core.contant.PathType;
 import com.dasset.wallet.core.contant.SigHash;
 import com.dasset.wallet.core.crypto.TransactionSignature;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 import com.dasset.wallet.core.script.ScriptBuilder;
 import com.dasset.wallet.core.wallet.hd.HDMAddress;
 
@@ -182,7 +182,7 @@ public class DesktopHDMAddress extends Address {
 
     @Override
     public void updateSyncComplete() {
-        BaseDb.iAddressProvider.syncComplete(keychain.getHdSeedId(), pubs.index);
+        BaseProvider.iAddressProvider.syncComplete(keychain.getHdSeedId(), pubs.index);
     }
 
     @Override

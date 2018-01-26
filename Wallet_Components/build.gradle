@@ -61,6 +61,8 @@ dependencies {
     api deps.glide
     api deps.zxing
     api deps.JsBridge
+    api deps.NumericKeyboard
+    api deps.Password
     api deps.objectbox
 //    debugImplementation deps.objectbox_browser
 //    releaseImplementation deps.objectbox

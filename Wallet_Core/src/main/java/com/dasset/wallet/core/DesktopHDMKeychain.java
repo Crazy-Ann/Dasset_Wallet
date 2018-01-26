@@ -30,7 +30,7 @@ import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.crypto.hd.HDKeyDerivation;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicCode;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicException;
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 import com.dasset.wallet.core.exception.AddressFormatException;
 import com.dasset.wallet.core.exception.TxBuilderException;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
@@ -112,7 +112,7 @@ public class DesktopHDMKeychain extends AbstractHD {
     // From DB
     public DesktopHDMKeychain(int seedId) {
         this.hdSeedId = seedId;
-        isFromXRandom = BaseDb.iDesktopAddressProvider.isHDSeedFromXRandom(getHdSeedId());
+        isFromXRandom = BaseProvider.iDesktopAddressProvider.isHDSeedFromXRandom(getHdSeedId());
         updateBalance();
     }
 
@@ -133,16 +133,16 @@ public class DesktopHDMKeychain extends AbstractHD {
         wipeMnemonicSeed();
         wipeHDSeed();
 
-        this.hdSeedId = BaseDb.iDesktopAddressProvider.addHDKey(encryptedMnemonicSeed
+        this.hdSeedId = BaseProvider.iDesktopAddressProvider.addHDKey(encryptedMnemonicSeed
                                                                            .toEncryptedString(), encryptedHDSeed.toEncryptedString(), firstAddress,
-                                                                isFromXRandom, address, null, null);
+                                                                      isFromXRandom, address, null, null);
         if (as.size() > 0) {
             //   EnDesktopAddressProvider.getInstance().completeHDMAddresses(getHdSeedId(), as);
 
             if (uncompPubs.size() > 0) {
                 //  EnDesktopAddressProvider.getInstance().prepareHDMAddresses(getHdSeedId(), uncompPubs);
                 for (HDMAddress.Pubs p : uncompPubs) {
-                    BaseDb.iAddressProvider.setHDMPubsRemote(getHdSeedId(), p.index, p.remote);
+                    BaseProvider.iAddressProvider.setHDMPubsRemote(getHdSeedId(), p.index, p.remote);
                 }
             }
         }
@@ -165,8 +165,8 @@ public class DesktopHDMKeychain extends AbstractHD {
 
         wipeHDSeed();
         wipeMnemonicSeed();
-        hdSeedId = BaseDb.iDesktopAddressProvider.addHDKey(encryptedMnemonicSeed.toEncryptedString(),
-                                                           encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address, externalKey.getPubKeyExtended(), internalKey
+        hdSeedId = BaseProvider.iDesktopAddressProvider.addHDKey(encryptedMnemonicSeed.toEncryptedString(),
+                                                                 encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address, externalKey.getPubKeyExtended(), internalKey
                                                                       .getPubKeyExtended());
         internalKey.wipe();
         externalKey.wipe();
@@ -197,7 +197,7 @@ public class DesktopHDMKeychain extends AbstractHD {
         externalPubs.add(secondExternalKey.getPubKeyExtended());
         internalPubs.add(firestInternalKey.getPubKeyExtended());
         internalPubs.add(secondInternalKey.getPubKeyExtended());
-        BaseDb.iDesktopAddressProvider.addHDMPub(externalPubs, internalPubs);
+        BaseProvider.iDesktopAddressProvider.addHDMPublicKey(externalPubs, internalPubs);
         addDesktopAddress(PathType.EXTERNAL_ROOT_PATH, LOOK_AHEAD_SIZE);
         addDesktopAddress(PathType.INTERNAL_ROOT_PATH, LOOK_AHEAD_SIZE);
     }
@@ -205,7 +205,7 @@ public class DesktopHDMKeychain extends AbstractHD {
     private void addDesktopAddress(PathType pathType, int count) {
         if (pathType == PathType.EXTERNAL_ROOT_PATH) {
             List<DesktopHDMAddress> desktopHDMAddresses = new ArrayList<DesktopHDMAddress>();
-            List<byte[]>            externalPubs        = BaseDb.iDesktopAddressProvider.getExternalPubs();
+            List<byte[]>            externalPubs        = BaseProvider.iDesktopAddressProvider.getExternalPublicKeys();
             DeterministicKey externalKey1 = HDKeyDerivation.createMasterPubKeyFromExtendedBytes
                     (externalPubs.get(0));
             DeterministicKey externalKey2 = HDKeyDerivation.createMasterPubKeyFromExtendedBytes
@@ -227,10 +227,10 @@ public class DesktopHDMKeychain extends AbstractHD {
                 desktopHDMAddresses.add(desktopHDMAddress);
 
             }
-            BaseDb.iDesktopTxProvider.addAddress(desktopHDMAddresses);
+            BaseProvider.iDesktopTxProvider.addAddress(desktopHDMAddresses);
         } else {
             List<DesktopHDMAddress> desktopHDMAddresses = new ArrayList<DesktopHDMAddress>();
-            List<byte[]>            internalPubs        = BaseDb.iDesktopAddressProvider.getInternalPubs();
+            List<byte[]>            internalPubs        = BaseProvider.iDesktopAddressProvider.getInternalPublicKeys();
             DeterministicKey internalKey1 = HDKeyDerivation.createMasterPubKeyFromExtendedBytes
                     (internalPubs.get(0));
             DeterministicKey internalKey2 = HDKeyDerivation.createMasterPubKeyFromExtendedBytes
@@ -252,7 +252,7 @@ public class DesktopHDMKeychain extends AbstractHD {
                 desktopHDMAddresses.add(desktopHDMAddress);
 
             }
-            BaseDb.iDesktopTxProvider.addAddress(desktopHDMAddresses);
+            BaseProvider.iDesktopTxProvider.addAddress(desktopHDMAddresses);
         }
 
 
@@ -260,7 +260,7 @@ public class DesktopHDMKeychain extends AbstractHD {
 
     private void supplyNewInternalKey(int count, boolean isSyncedComplete) {
         List<DesktopHDMAddress> desktopHDMAddresses = new ArrayList<DesktopHDMAddress>();
-        List<byte[]>            internalPubs        = BaseDb.iDesktopAddressProvider.getInternalPubs();
+        List<byte[]>            internalPubs        = BaseProvider.iDesktopAddressProvider.getInternalPublicKeys();
         DeterministicKey internalKey1 = HDKeyDerivation.createMasterPubKeyFromExtendedBytes
                 (internalPubs.get(0));
         DeterministicKey internalKey2 = HDKeyDerivation.createMasterPubKeyFromExtendedBytes
@@ -283,12 +283,12 @@ public class DesktopHDMKeychain extends AbstractHD {
             desktopHDMAddresses.add(desktopHDMAddress);
 
         }
-        BaseDb.iDesktopTxProvider.addAddress(desktopHDMAddresses);
+        BaseProvider.iDesktopTxProvider.addAddress(desktopHDMAddresses);
 
     }
 
     private void supplyNewExternalKey(int count, boolean isSyncedComplete) {
-        List<byte[]> externalPubs = BaseDb.iDesktopAddressProvider.getExternalPubs();
+        List<byte[]> externalPubs = BaseProvider.iDesktopAddressProvider.getExternalPublicKeys();
         DeterministicKey externalKey1 = HDKeyDerivation.createMasterPubKeyFromExtendedBytes
                 (externalPubs.get(0));
         DeterministicKey externalKey2 = HDKeyDerivation.createMasterPubKeyFromExtendedBytes
@@ -312,13 +312,13 @@ public class DesktopHDMKeychain extends AbstractHD {
             desktopHDMAddresses.add(desktopHDMAddress);
 
         }
-        BaseDb.iDesktopTxProvider.addAddress(desktopHDMAddresses);
+        BaseProvider.iDesktopTxProvider.addAddress(desktopHDMAddresses);
         log.info("HD supplied {} internal addresses", desktopHDMAddresses.size());
     }
 
 
     public boolean initTxs(List<Tx> txs) {
-        BaseDb.iTxProvider.addTxs(txs);
+        BaseProvider.iTxProvider.addTxs(txs);
         notificatTx(null, Tx.TxNotificationType.txFromApi);
         return true;
     }
@@ -330,11 +330,11 @@ public class DesktopHDMKeychain extends AbstractHD {
     }
 
     public boolean hasDesktopHDMAddress() {
-        return BaseDb.iDesktopTxProvider.hasAddress();
+        return BaseProvider.iDesktopTxProvider.hasAddress();
     }
 
     public void updateSyncComplete(DesktopHDMAddress accountAddress) {
-        BaseDb.iDesktopTxProvider.updateSyncdComplete(accountAddress);
+        BaseProvider.iDesktopTxProvider.updateSyncdComplete(accountAddress);
     }
 
 
@@ -370,7 +370,7 @@ public class DesktopHDMKeychain extends AbstractHD {
 
 
     public Tx newTx(String[] toAddresses, Long[] amounts) throws TxBuilderException, MnemonicException.MnemonicLengthException, AddressFormatException {
-        List<Out> outs = BaseDb.iDesktopTxProvider.getUnspendOutByHDAccount(hdSeedId);
+        List<Out> outs = BaseProvider.iDesktopTxProvider.getUnspendOutByHDAccount(hdSeedId);
 
         Tx tx = TxBuilder.getInstance().buildTxFromAllAddress(outs, getNewChangeAddress(), Arrays
                 .asList(amounts), Arrays.asList(toAddresses));
@@ -528,7 +528,7 @@ public class DesktopHDMKeychain extends AbstractHD {
             String outAddress = out.getOutAddress();
             outAddressList.add(outAddress);
         }
-        List<DesktopHDMAddress> belongAccountOfOutList = BaseDb.iDesktopTxProvider.belongAccount(DesktopHDMKeychain.this, outAddressList);
+        List<DesktopHDMAddress> belongAccountOfOutList = BaseProvider.iDesktopTxProvider.belongAccount(DesktopHDMKeychain.this, outAddressList);
         if (belongAccountOfOutList != null
                 && belongAccountOfOutList.size() > 0) {
             hdAccountAddressList.addAll(belongAccountOfOutList);
@@ -544,7 +544,7 @@ public class DesktopHDMKeychain extends AbstractHD {
 
     private List<DesktopHDMAddress> getAddressFromIn(List<String> addresses) {
 
-        List<DesktopHDMAddress> hdAccountAddressList = BaseDb.iDesktopTxProvider.belongAccount(DesktopHDMKeychain.this, addresses);
+        List<DesktopHDMAddress> hdAccountAddressList = BaseProvider.iDesktopTxProvider.belongAccount(DesktopHDMKeychain.this, addresses);
         return hdAccountAddressList;
     }
 
@@ -556,7 +556,7 @@ public class DesktopHDMKeychain extends AbstractHD {
     private DesktopHDMAddress addressForPath(PathType type, int index) {
         assert index < (type == PathType.EXTERNAL_ROOT_PATH ? allGeneratedExternalAddressCount()
                 : allGeneratedInternalAddressCount());
-        return BaseDb.iDesktopTxProvider.addressForPath(DesktopHDMKeychain.this, type, index);
+        return BaseProvider.iDesktopTxProvider.addressForPath(DesktopHDMKeychain.this, type, index);
     }
 
     @Override
@@ -571,7 +571,7 @@ public class DesktopHDMKeychain extends AbstractHD {
     }
 
     public List<DesktopHDMAddress> getSigningAddressesForInputs(List<In> inputs) {
-        return BaseDb.iDesktopTxProvider.getSigningAddressesForInputs(DesktopHDMKeychain.this, inputs);
+        return BaseProvider.iDesktopTxProvider.getSigningAddressesForInputs(DesktopHDMKeychain.this, inputs);
     }
 
     public String getQRCodeFullEncryptPrivKey() {
@@ -581,7 +581,7 @@ public class DesktopHDMKeychain extends AbstractHD {
     @Override
     protected String getEncryptedHDSeed() {
 
-        String encrypted = BaseDb.iDesktopAddressProvider.getEncryptHDSeed(hdSeedId);
+        String encrypted = BaseProvider.iDesktopAddressProvider.getEncryptHDSeed(hdSeedId);
         if (encrypted == null) {
             return null;
         }
@@ -591,11 +591,11 @@ public class DesktopHDMKeychain extends AbstractHD {
     @Override
     public String getEncryptedMnemonicSeed() {
 
-        return BaseDb.iDesktopAddressProvider.getEncryptMnemonicSeed(hdSeedId).toUpperCase();
+        return BaseProvider.iDesktopAddressProvider.getEncryptMnemonicSeed(hdSeedId).toUpperCase();
     }
 
     public String getFirstAddressFromDb() {
-        return BaseDb.iDesktopAddressProvider.getHDMFristAddress(hdSeedId);
+        return BaseProvider.iDesktopAddressProvider.getHDMFristAddress(hdSeedId);
     }
 
     public boolean checkWithPassword(CharSequence password) {
@@ -710,20 +710,20 @@ public class DesktopHDMKeychain extends AbstractHD {
 
 
     public int elementCountForBloomFilter() {
-        return allGeneratedExternalAddressCount() * 2 + BaseDb.iDesktopTxProvider
+        return allGeneratedExternalAddressCount() * 2 + BaseProvider.iDesktopTxProvider
                 .getUnspendOutCountByHDAccountWithPath(getHdSeedId(), PathType
                         .INTERNAL_ROOT_PATH);
     }
 
     public void addElementsForBloomFilter(BloomFilter filter) {
-        List<HDMAddress.Pubs> pubses = BaseDb.iDesktopTxProvider.getPubs(PathType.EXTERNAL_ROOT_PATH);
+        List<HDMAddress.Pubs> pubses = BaseProvider.iDesktopTxProvider.getPubs(PathType.EXTERNAL_ROOT_PATH);
         for (HDMAddress.Pubs pub : pubses) {
             byte[] pubByte = pub.getMultiSigScript().getProgram();
             filter.insert(pubByte);
             filter.insert(Utils.sha256hash160(pubByte));
             // System.out.println("address:" + Utils.toP2SHAddress(Utils.sha256hash160(pubByte)));
         }
-        List<Out> outs = BaseDb.iDesktopTxProvider.getUnspendOutByHDAccountWithPath
+        List<Out> outs = BaseProvider.iDesktopTxProvider.getUnspendOutByHDAccountWithPath
                 (getHdSeedId(), PathType.INTERNAL_ROOT_PATH);
         for (Out out : outs) {
             filter.insert(out.getOutpointData());
@@ -733,7 +733,7 @@ public class DesktopHDMKeychain extends AbstractHD {
     private long calculateUnconfirmedBalance() {
         long balance = 0;
 
-        List<Tx> txs = BaseDb.iDesktopTxProvider.getHDAccountUnconfirmedTx();
+        List<Tx> txs = BaseProvider.iDesktopTxProvider.getHDAccountUnconfirmedTx();
         Collections.sort(txs);
 
         Set<byte[]>   invalidTx  = new HashSet<byte[]>();
@@ -768,7 +768,7 @@ public class DesktopHDMKeychain extends AbstractHD {
             spent.addAll(unspendOut);
             spent.retainAll(spentOut);
             for (OutPoint o : spent) {
-                Tx tx1 = BaseDb.iTxProvider.getTxDetailByTxHash(o.getTxHash());
+                Tx tx1 = BaseProvider.iTxProvider.getTxDetailByTxHash(o.getTxHash());
                 unspendOut.remove(o);
                 for (Out out : tx1.getOuts()) {
                     if (out.getOutSn() == o.getOutSn()) {
@@ -787,7 +787,7 @@ public class DesktopHDMKeychain extends AbstractHD {
     }
 
     public void updateBalance() {
-        this.balance = BaseDb.iDesktopTxProvider.getHDAccountConfirmedBanlance(hdSeedId)
+        this.balance = BaseProvider.iDesktopTxProvider.getHDAccountConfirmedBanlance(hdSeedId)
                 + calculateUnconfirmedBalance();
     }
 
@@ -796,45 +796,45 @@ public class DesktopHDMKeychain extends AbstractHD {
     }
 
     public HashSet<String> getBelongAccountAddresses(List<String> addressList) {
-        return BaseDb.iDesktopTxProvider.getBelongAccountAddresses(addressList);
+        return BaseProvider.iDesktopTxProvider.getBelongAccountAddresses(addressList);
     }
 
     public void updateIssuedInternalIndex(int index) {
-        BaseDb.iDesktopTxProvider.updateIssuedIndex(PathType.INTERNAL_ROOT_PATH, index);
+        BaseProvider.iDesktopTxProvider.updateIssuedIndex(PathType.INTERNAL_ROOT_PATH, index);
     }
 
     public void updateIssuedExternalIndex(int index) {
-        BaseDb.iDesktopTxProvider.updateIssuedIndex(PathType.EXTERNAL_ROOT_PATH, index);
+        BaseProvider.iDesktopTxProvider.updateIssuedIndex(PathType.EXTERNAL_ROOT_PATH, index);
     }
 
     public byte[] getInternalPub() {
-        //   return BaseDb.iAddressProvider.getInternalPub(hdSeedId);
+        //   return BaseProvider.iAddressProvider.getInternalPublicKey(hdSeedId);
         return new byte[]{};
     }
 
     public byte[] getExternalPub() {
 
-        //return BaseDb.iAddressProvider.getExternalPub(hdSeedId);
+        //return BaseProvider.iAddressProvider.getExternalPublicKey(hdSeedId);
         return new byte[]{};
     }
 
     public int issuedInternalIndex() {
 
-        return BaseDb.iDesktopTxProvider.issuedIndex(PathType.INTERNAL_ROOT_PATH);
+        return BaseProvider.iDesktopTxProvider.issuedIndex(PathType.INTERNAL_ROOT_PATH);
     }
 
     public int issuedExternalIndex() {
-        return BaseDb.iDesktopTxProvider.issuedIndex(PathType.EXTERNAL_ROOT_PATH);
+        return BaseProvider.iDesktopTxProvider.issuedIndex(PathType.EXTERNAL_ROOT_PATH);
 
     }
 
     private int allGeneratedInternalAddressCount() {
-        return BaseDb.iDesktopTxProvider.allGeneratedAddressCount(PathType
+        return BaseProvider.iDesktopTxProvider.allGeneratedAddressCount(PathType
                                                                              .INTERNAL_ROOT_PATH);
     }
 
     private int allGeneratedExternalAddressCount() {
-        return BaseDb.iDesktopTxProvider.allGeneratedAddressCount(PathType
+        return BaseProvider.iDesktopTxProvider.allGeneratedAddressCount(PathType
                                                                              .EXTERNAL_ROOT_PATH);
     }
 
@@ -844,12 +844,12 @@ public class DesktopHDMKeychain extends AbstractHD {
     }
 
     public boolean isSyncComplete() {
-        int unsyncedAddressCount = BaseDb.iDesktopTxProvider.unSyncedAddressCount();
+        int unsyncedAddressCount = BaseProvider.iDesktopTxProvider.unSyncedAddressCount();
         return unsyncedAddressCount == 0;
     }
 
     public String externalAddress() {
-        return BaseDb.iDesktopTxProvider.externalAddress();
+        return BaseProvider.iDesktopTxProvider.externalAddress();
     }
 
     public LinkedBlockingQueue<HashMap<String, Long>> getSendRequestList() {

@@ -14,7 +14,7 @@ import com.dasset.wallet.core.api.BlockChainMytransactionsApi;
 import com.dasset.wallet.core.contant.AbstractApp;
 import com.dasset.wallet.core.contant.BitherjSettings;
 import com.dasset.wallet.core.contant.PathType;
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.qrcode.QRCodeUtil;
 import com.dasset.wallet.core.wallet.hd.HDAccount;
@@ -59,7 +59,7 @@ public class TransactionsUtil {
     private static List<Tx> getTransactionsFromBlockChain(
             JSONObject jsonObject, int storeBlockHeight) throws Exception {
         List<Tx>              transactions = new ArrayList<Tx>();
-        List<Block>           blocks       = BaseDb.iBlockProvider.getAllBlocks();
+        List<Block>           blocks       = BaseProvider.iBlockProvider.getAllBlocks();
         Map<Integer, Integer> blockMapList = new HashMap<Integer, Integer>();
         int                   minBlockNo   = blocks.get(blocks.size() - 1).getBlockNo();
         for (Block block : blocks) {
@@ -120,7 +120,7 @@ public class TransactionsUtil {
     private static List<Tx> getTransactionsFromBither(
             JSONObject jsonObject, int storeBlockHeight) throws JSONException {
         List<Tx>              transactions = new ArrayList<Tx>();
-        List<Block>           blocks       = BaseDb.iBlockProvider.getAllBlocks();
+        List<Block>           blocks       = BaseProvider.iBlockProvider.getAllBlocks();
         Map<Integer, Integer> blockMapList = new HashMap<Integer, Integer>();
         int                   minBlockNo   = blocks.get(blocks.size() - 1).getBlockNo();
         for (Block block : blocks) {
@@ -272,8 +272,8 @@ public class TransactionsUtil {
             while (unusedAddressCnt <= maxUnusedAddressCount) {
                 Block storedBlock      = BlockChain.getInstance().getLastBlock();
                 int   storeBlockHeight = storedBlock.getBlockNo();
-                hdAddress = BaseDb.iHDAccountAddressProvider.addressForPath(hdSeedId,
-                                                                            pathType, addressIndex);
+                hdAddress = BaseProvider.iHDAccountAddressProvider.addressForPath(hdSeedId,
+                                                                                  pathType, addressIndex);
                 if (hdAddress == null) {
 //                    hasTx = false;
                     unusedAddressCnt += 1;
@@ -313,8 +313,8 @@ public class TransactionsUtil {
                         transactions = AddressManager.getInstance().compressTxsForHDAccount(transactions);
 
                         Collections.sort(transactions, new ComparatorTx());
-                        // address.initTxs(transactions);
-                        AddressManager.getInstance().getHDAccountMonitored().initTxs(transactions);
+                        // address.initializeTxs(transactions);
+                        AddressManager.getInstance().getHDAccountMonitored().initializeTxs(transactions);
 
                         txSum = txSum + transactions.size();
                         needGetTxs = transactions.size() > 0;
@@ -336,8 +336,8 @@ public class TransactionsUtil {
                         transactions = AddressManager.getInstance().compressTxsForHDAccount(transactions);
 
                         Collections.sort(transactions, new ComparatorTx());
-                        // address.initTxs(transactions);
-                        AddressManager.getInstance().getHDAccountMonitored().initTxs(transactions);
+                        // address.initializeTxs(transactions);
+                        AddressManager.getInstance().getHDAccountMonitored().initializeTxs(transactions);
                         txSum = txSum + transactions.size();
                         needGetTxs = false;
 
@@ -358,7 +358,7 @@ public class TransactionsUtil {
                             jsonObject, storeBlockHeight);
                     transactions = AddressManager.getInstance().compressTxsForHDAccount(transactions);
                     Collections.sort(transactions, new ComparatorTx());
-                    AddressManager.getInstance().getHDAccountMonitored().initTxs(transactions);
+                    AddressManager.getInstance().getHDAccountMonitored().initializeTxs(transactions);
                     txSum = txSum + transactions.size();
                     needGetTxs = transactions.size() > 0;
                     page++;
@@ -387,7 +387,7 @@ public class TransactionsUtil {
                 }
                 addressIndex++;
             }
-            BaseDb.iHDAccountAddressProvider.updateSyncedForIndex(hdSeedId, pathType, addressIndex - 1);
+            BaseProvider.iHDAccountAddressProvider.updateSyncedForIndex(hdSeedId, pathType, addressIndex - 1);
         }
     }
 
@@ -401,8 +401,8 @@ public class TransactionsUtil {
             while (unusedAddressCnt <= maxUnusedAddressCount) {
                 Block storedBlock      = BlockChain.getInstance().getLastBlock();
                 int   storeBlockHeight = storedBlock.getBlockNo();
-                hdAccountAddress = BaseDb.iHDAccountAddressProvider.addressForPath(hdSeedId,
-                                                                                   pathType, addressIndex);
+                hdAccountAddress = BaseProvider.iHDAccountAddressProvider.addressForPath(hdSeedId,
+                                                                                         pathType, addressIndex);
                 if (hdAccountAddress == null) {
 //                    hasTx = false;
                     unusedAddressCnt += 1;
@@ -441,8 +441,8 @@ public class TransactionsUtil {
                         transactions = AddressManager.getInstance().compressTxsForHDAccount(transactions);
 
                         Collections.sort(transactions, new ComparatorTx());
-                        // address.initTxs(transactions);
-                        AddressManager.getInstance().getHDAccountHot().initTxs(transactions);
+                        // address.initializeTxs(transactions);
+                        AddressManager.getInstance().getHDAccountHot().initializeTxs(transactions);
                         txSum = txSum + transactions.size();
                         needGetTxs = transactions.size() > 0;
                         page++;
@@ -463,8 +463,8 @@ public class TransactionsUtil {
                         transactions = AddressManager.getInstance().compressTxsForHDAccount(transactions);
 
                         Collections.sort(transactions, new ComparatorTx());
-                        // address.initTxs(transactions);
-                        AddressManager.getInstance().getHDAccountHot().initTxs(transactions);
+                        // address.initializeTxs(transactions);
+                        AddressManager.getInstance().getHDAccountHot().initializeTxs(transactions);
                         txSum = txSum + transactions.size();
                         needGetTxs = false;
 
@@ -485,7 +485,7 @@ public class TransactionsUtil {
                             jsonObject, storeBlockHeight);
                     transactions = AddressManager.getInstance().compressTxsForHDAccount(transactions);
                     Collections.sort(transactions, new ComparatorTx());
-                    AddressManager.getInstance().getHDAccountHot().initTxs(transactions);
+                    AddressManager.getInstance().getHDAccountHot().initializeTxs(transactions);
                     txSum = txSum + transactions.size();
                     needGetTxs = transactions.size() > 0;
                     page++;
@@ -514,7 +514,7 @@ public class TransactionsUtil {
                 }
                 addressIndex++;
             }
-            BaseDb.iHDAccountAddressProvider.updateSyncedForIndex(hdSeedId, pathType, addressIndex - 1);
+            BaseProvider.iHDAccountAddressProvider.updateSyncedForIndex(hdSeedId, pathType, addressIndex - 1);
         }
     }
 
@@ -526,8 +526,8 @@ public class TransactionsUtil {
             while (hasTx) {
                 Block storedBlock      = BlockChain.getInstance().getLastBlock();
                 int   storeBlockHeight = storedBlock.getBlockNo();
-                desktopHDMAddress = BaseDb.iDesktopTxProvider.addressForPath(desktopHDMKeychain,
-                                                                             pathType, addressIndex);
+                desktopHDMAddress = BaseProvider.iDesktopTxProvider.addressForPath(desktopHDMKeychain,
+                                                                                   pathType, addressIndex);
                 if (desktopHDMAddress == null) {
                     hasTx = false;
                     log.warn("AccountAddress", "address is null path {} ,index {}", pathType, addressIndex);
@@ -561,7 +561,7 @@ public class TransactionsUtil {
                         transactions = AddressManager.getInstance().compressTxsForDesktopHDM(transactions);
 
                         Collections.sort(transactions, new ComparatorTx());
-                        // address.initTxs(transactions);
+                        // address.initializeTxs(transactions);
                         desktopHDMKeychain.initTxs(transactions);
                         txSum = txSum + transactions.size();
                         needGetTxs = transactions.size() > 0;
@@ -583,7 +583,7 @@ public class TransactionsUtil {
                         transactions = AddressManager.getInstance().compressTxsForDesktopHDM(transactions);
 
                         Collections.sort(transactions, new ComparatorTx());
-                        // address.initTxs(transactions);
+                        // address.initializeTxs(transactions);
                         desktopHDMKeychain.initTxs(transactions);
                         txSum = txSum + transactions.size();
                         needGetTxs = false;
@@ -605,7 +605,7 @@ public class TransactionsUtil {
                             jsonObject, storeBlockHeight);
                     transactions = AddressManager.getInstance().compressTxsForDesktopHDM(transactions);
                     Collections.sort(transactions, new ComparatorTx());
-                    desktopHDMKeychain.initTxs(transactions);
+                    desktopHDMKeychain.initializeTxs(transactions);
                     txSum = txSum + transactions.size();
                     needGetTxs = transactions.size() > 0;
                     page++;
@@ -628,7 +628,7 @@ public class TransactionsUtil {
                     hasTx = true;
                 } else {
                     hasTx = false;
-                    BaseDb.iDesktopTxProvider.updateSyncdForIndex(pathType, addressIndex);
+                    BaseProvider.iDesktopTxProvider.updateSyncdForIndex(pathType, addressIndex);
                 }
             }
             addressIndex++;
@@ -667,7 +667,7 @@ public class TransactionsUtil {
                         transactions = AddressManager.getInstance().compressTxsForApi(transactions, address);
 
                         Collections.sort(transactions, new ComparatorTx());
-                        address.initTxs(transactions);
+                        address.initializeTxs(transactions);
                         txSum = txSum + transactions.size();
                         needGetTxs = transactions.size() > 0;
                         page++;
@@ -688,14 +688,14 @@ public class TransactionsUtil {
                         transactions = AddressManager.getInstance().compressTxsForApi(transactions, address);
 
                         Collections.sort(transactions, new ComparatorTx());
-                        address.initTxs(transactions);
+                        address.initializeTxs(transactions);
                         txSum = txSum + transactions.size();
                         needGetTxs = false;
 
                     }
                     /*
                     Collections.sort(transactions, new ComparatorTx());
-                    address.initTxs(transactions);
+                    address.initializeTxs(transactions);
                     txSum = txSum + transactions.size();
                     needGetTxs = transactions.size() > 0;
                     page++;

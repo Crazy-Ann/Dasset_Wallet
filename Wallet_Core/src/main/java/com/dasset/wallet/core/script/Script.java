@@ -8,7 +8,7 @@ import com.dasset.wallet.core.contant.SigHash;
 import com.dasset.wallet.core.contant.SplitCoin;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.TransactionSignature;
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.utils.UnsafeByteArrayOutputStream;
 import com.dasset.wallet.core.utils.Utils;
@@ -1427,7 +1427,7 @@ public class Script {
                                                                           connectedScript, coin.getSigHash(), false);
                     sigValid = ECKey.verify(hash, sig, pubKey);
                 } else {
-                    Out out = BaseDb.iTxProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
+                    Out out = BaseProvider.iTxProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
                     byte[] hash = txContainingThis.hashForSignatureWitness(index,
                                                                            connectedScript, BigInteger.valueOf(out.getOutValue()),
                                                                            coin.getSigHash(), false, coin.getSplitCoin());
@@ -1513,7 +1513,7 @@ public class Script {
                         sigs.pollFirst();
                 } else {
                     In  in  = txContainingThis.getIns().get(index);
-                    Out out = BaseDb.iTxProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
+                    Out out = BaseProvider.iTxProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
                     byte[] hash = txContainingThis.hashForSignatureWitness(index,
                                                                            connectedScript, BigInteger.valueOf(out.getOutValue()),
                                                                            coin.getSigHash(), false, coin.getSplitCoin());

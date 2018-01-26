@@ -54,5 +54,5 @@ dependencies {
     testImplementation deps.junit
     androidTestImplementation deps.runner
     androidTestImplementation deps.espresso_core
-    implementation project(':Wallet_Base')
+    implementation project(':Wallet_Core')
 }

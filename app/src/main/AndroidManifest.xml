@@ -84,7 +84,7 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden"/>
         <activity
-            android:name=".ui.activity.CreateAccountActivity"
+            android:name=".ui.activity.GenerateWalletActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
@@ -96,7 +96,7 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateVisible|adjustResize"/>
         <activity
-            android:name=".ui.activity.CreateAccountResultActivity"
+            android:name=".ui.activity.CreateWalletResultActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"

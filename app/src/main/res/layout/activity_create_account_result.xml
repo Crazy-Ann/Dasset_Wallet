@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/color_383856"
     android:orientation="vertical"
-    tools:context="com.dasset.wallet.ui.activity.CreateAccountResultActivity">
+    tools:context="com.dasset.wallet.ui.activity.CreateWalletResultActivity">
 
     <include
         android:id="@+id/inToolbar"

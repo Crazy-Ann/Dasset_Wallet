@@ -84,7 +84,7 @@ public class TestPresenter extends BasePresenterImplement implements TestContrac
                 @Override
                 public void run() {
                     for (Provider provider : Security.getProviders()) {
-                        LogUtil.getInstance().print(String.format("Provider: %s, Version: %s", provider.getName(), provider.getVersion()));
+                        LogUtil.getInstance().print(String.format("ProviderWrapper: %s, Version: %s", provider.getName(), provider.getVersion()));
                         for (Provider.Service service : provider.getServices()) {
                             LogUtil.getInstance().print(String.format("Type: %-30s, Algorithm: %-30s", service.getType(), service.getAlgorithm()));
                         }

@@ -49,7 +49,7 @@ public class SettingPresenter extends BasePresenterImplement implements SettingC
 
     @Override
     public void getVersion() {
-        WalletApi.getInstance().getVersion(context, view, SharedPreferenceUtil.getInstance().getString(context, Constant.Configuration.CONFIGURATION, Context.MODE_PRIVATE, Constant.Configuration.KEY1, Regex.NONE.getRegext()), new ApiResponse() {
+        WalletApi.getInstance().getVersion(context, view, SharedPreferenceUtil.getInstance().getString(context, com.dasset.wallet.components.constant.Constant.ShreadPreference.FILE_CONFIGURATION, Context.MODE_PRIVATE, com.dasset.wallet.components.constant.Constant.ShreadPreference.PAGE_SRC_SIGN, Regex.NONE.getRegext()), new ApiResponse() {
 
             @Override
             public void success(BaseEntity baseEntity) {

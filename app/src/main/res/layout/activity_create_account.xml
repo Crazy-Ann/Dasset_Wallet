@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/color_f8f8f8"
     android:orientation="vertical"
-    tools:context="com.dasset.wallet.ui.activity.CreateAccountActivity">
+    tools:context="com.dasset.wallet.ui.activity.GenerateWalletActivity">
 
     <include
         android:id="@+id/inToolbar"
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="@string/account_name"
+                android:text="@string/wallet_name"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/sp_14"/>
 
@@ -46,14 +46,14 @@
                 android:layout_weight="3">
 
                 <EditText
-                    android:id="@+id/etAccountName"
+                    android:id="@+id/etWalletName"
                     style="@style/edit_content"
-                    android:hint="@string/hint_account_name"
+                    android:hint="@string/hint_wallet_name"
                     android:inputType="text"
                     android:maxLength="20"/>
 
                 <ImageButton
-                    android:id="@+id/ibAccountNameEmpty"
+                    android:id="@+id/ibWalletNameEmpty"
                     style="@style/edit_content_delete1"
                     android:contentDescription="@null"/>
             </RelativeLayout>

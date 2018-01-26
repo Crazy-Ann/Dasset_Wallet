@@ -6,7 +6,7 @@ import com.dasset.wallet.core.contant.SigHash;
 import com.dasset.wallet.core.contant.SplitCoin;
 import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.TransactionSignature;
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 import com.dasset.wallet.core.exception.ProtocolException;
 import com.dasset.wallet.core.exception.ScriptException;
 import com.dasset.wallet.core.exception.VerificationException;
@@ -291,7 +291,7 @@ public class Tx extends Message implements Comparable<Tx> {
     }
 
     public void sawByPeer() {
-        BaseDb.iTxProvider.txSentBySelfHasSaw(getTxHash());
+        BaseProvider.iTxProvider.txSentBySelfHasSaw(getTxHash());
         setSawByPeerCnt(getSawByPeerCnt() + 1);
     }
 
@@ -391,7 +391,7 @@ public class Tx extends Message implements Comparable<Tx> {
         if (address != null) {
             return address;
         } else {
-            Tx preTx = BaseDb.iTxProvider.getTxDetailByTxHash(in.getPrevTxHash());
+            Tx preTx = BaseProvider.iTxProvider.getTxDetailByTxHash(in.getPrevTxHash());
             if (preTx == null) {
                 return null;
             }
@@ -417,7 +417,7 @@ public class Tx extends Message implements Comparable<Tx> {
     public long getFee() {
         long amount = 0;
         for (In in : getIns()) {
-            Tx      preTx  = BaseDb.iTxProvider.getTxDetailByTxHash(in.getPrevTxHash());
+            Tx      preTx  = BaseProvider.iTxProvider.getTxDetailByTxHash(in.getPrevTxHash());
             boolean hasOut = false;
             for (Out out : preTx.getOuts()) {
                 if (in.getPrevOutSn() == out.getOutSn()) {
@@ -1796,7 +1796,7 @@ public class Tx extends Message implements Comparable<Tx> {
 //    public long feeForTx() {
 //        long amount = 0;
 //        for (In in : this.ins) {
-//            Tx tx = BaseDb.iTxProvider.getTxDetailByTxHash(in.getPrevTxHash());
+//            Tx tx = BaseProvider.iTxProvider.getTxDetailByTxHash(in.getPrevTxHash());
 //            int n = in.getPrevOutSn();
 //            if (n > tx.outs.size()) {
 //                return Integer.MAX_VALUE;
@@ -1823,7 +1823,7 @@ public class Tx extends Message implements Comparable<Tx> {
 //    public long amountSentFrom(Address address) {
 //        long amount = 0;
 //        for (In in : this.ins) {
-//            Tx tx = BaseDb.iTxProvider.getTxDetailByTxHash(in.getPrevTxHash());
+//            Tx tx = BaseProvider.iTxProvider.getTxDetailByTxHash(in.getPrevTxHash());
 //            int n = in.getPrevOutSn();
 //            for (Out out : tx.getOuts()) {
 //                if (n == out.getOutSn() && Utils.compareString(address.getAddress(),
@@ -1855,7 +1855,7 @@ public class Tx extends Message implements Comparable<Tx> {
                 receive += out.getOutValue();
             }
         }
-        long sent = BaseDb.iTxProvider.sentFromAddress(getTxHash(), address.getAddress());
+        long sent = BaseProvider.iTxProvider.sentFromAddress(getTxHash(), address.getAddress());
         return receive - sent;
     }
 
@@ -1867,7 +1867,7 @@ public class Tx extends Message implements Comparable<Tx> {
                 receive += out.getOutValue();
             }
         }
-        long sent = BaseDb.iHDAccountAddressProvider.sentFromAccount(account.getHdSeedId(), getTxHash());
+        long sent = BaseProvider.iHDAccountAddressProvider.sentFromAccount(account.getHdSeedId(), getTxHash());
         return receive - sent;
     }
 
@@ -1899,7 +1899,7 @@ public class Tx extends Message implements Comparable<Tx> {
         if (canParseFromScript) {
             addresses = fromAddress;
         } else {
-            addresses = BaseDb.iTxProvider.getInAddresses(Tx.this);
+            addresses = BaseProvider.iTxProvider.getInAddresses(Tx.this);
         }
         return addresses;
 
@@ -1941,7 +1941,7 @@ public class Tx extends Message implements Comparable<Tx> {
             case BTG:
                 for (int i = 0; i < this.getIns().size(); i++) {
                     In  in  = getIns().get(i);
-                    Out out = BaseDb.iTxProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
+                    Out out = BaseProvider.iTxProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
                     result.add(this.hashForSignatureWitness(i, in.getPrevOutScript(), BigInteger.valueOf(out.getOutValue()),
                                                             sigHash, false, coin.getSplitCoin()));
                 }
@@ -2103,7 +2103,7 @@ public class Tx extends Message implements Comparable<Tx> {
             } else if (splitCoin == SplitCoin.BCD) {
                 result.add(this.hashForSignatureForBCD(i, in.getPrevOutScript(), splitCoin.getSigHash(), false));
             } else {
-                Out out = BaseDb.iTxProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
+                Out out = BaseProvider.iTxProvider.getTxPreOut(in.getPrevTxHash(), in.getPrevOutSn());
                 result.add(this.hashForSignatureWitness(i,
                                                         in.getPrevOutScript(), BigInteger.valueOf(out.getOutValue()),
                                                         splitCoin.getSigHash(), false, splitCoin));

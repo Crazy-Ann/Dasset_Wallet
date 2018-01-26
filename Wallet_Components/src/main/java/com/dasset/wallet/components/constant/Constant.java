@@ -152,6 +152,13 @@ public final class Constant {
         public static final int FILEPROVIDER_DEFAULT_FLAG = -1;
     }
 
+    public final static class ShreadPreference {
+        public static final String FILE_CONFIGURATION = "configuration";
+        public static final String PAGE_SRC_SIGN = "page_src_sign";
+        public static final String FILE_WALLET = "wallet";
+        public static final String PASSWORD_SEED = "password_seed";
+    }
+
     public class KeyBoard {
         public static final int EMPTY_CODE = -10;
     }

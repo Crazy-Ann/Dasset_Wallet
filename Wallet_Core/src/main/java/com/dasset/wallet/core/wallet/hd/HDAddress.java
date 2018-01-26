@@ -5,7 +5,7 @@ import com.dasset.wallet.core.Out;
 import com.dasset.wallet.core.OutPoint;
 import com.dasset.wallet.core.Tx;
 import com.dasset.wallet.core.contant.PathType;
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 import com.dasset.wallet.core.utils.Utils;
 
 import java.util.Collections;
@@ -81,7 +81,7 @@ public class HDAddress {
     }
 
     public long getBalance() {
-        this.balance = BaseDb.iTxProvider.getConfirmedBalanceWithAddress(getAddress())
+        this.balance = BaseProvider.iTxProvider.getConfirmedBalanceWithAddress(getAddress())
                 + this.calculateUnconfirmedBalance();
         return balance;
     }
@@ -89,7 +89,7 @@ public class HDAddress {
     private long calculateUnconfirmedBalance() {
         long balance = 0;
 
-        List<Tx> txs = BaseDb.iTxProvider.getUnconfirmedTxWithAddress(this.address);
+        List<Tx> txs = BaseProvider.iTxProvider.getUnconfirmedTxWithAddress(this.address);
         Collections.sort(txs);
 
         Set<byte[]>   invalidTx  = new HashSet<byte[]>();
@@ -123,7 +123,7 @@ public class HDAddress {
             spent.addAll(unspendOut);
             spent.retainAll(spentOut);
             for (OutPoint o : spent) {
-                Tx tx1 = BaseDb.iTxProvider.getTxDetailByTxHash(o.getTxHash());
+                Tx tx1 = BaseProvider.iTxProvider.getTxDetailByTxHash(o.getTxHash());
                 unspendOut.remove(o);
                 for (Out out : tx1.getOuts()) {
                     if (out.getOutSn() == o.getOutSn()) {

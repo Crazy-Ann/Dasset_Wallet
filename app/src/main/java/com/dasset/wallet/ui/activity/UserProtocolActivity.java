@@ -81,7 +81,7 @@ public class UserProtocolActivity extends ActivityViewImplement<UserProtocolCont
         }
         switch (view.getId()) {
             case R.id.btnUserProtocol:
-                startActivity(CreateAccountActivity.class);
+                startActivity(GenerateWalletActivity.class);
                 break;
             default:
                 break;

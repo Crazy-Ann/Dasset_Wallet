@@ -158,7 +158,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                     loadAccountData();
                 }
                 break;
-            case Constant.RequestCode.CREATE_ACCOUNT:
+            case Constant.RequestCode.CREATE_WALLET:
                 loadAccountData();
                 break;
             case Constant.RequestCode.QRCODE_RECOGNITION:
@@ -372,7 +372,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     public void onHeaderOrFooterItemClick(int id) {
         switch (id) {
             case R.id.llAddAccount:
-                startActivityForResult(CreateAccountActivity.class, Constant.RequestCode.CREATE_ACCOUNT);
+                startActivityForResult(GenerateWalletActivity.class, Constant.RequestCode.CREATE_WALLET);
                 break;
             default:
                 break;
@@ -393,7 +393,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
         } else if (viewHolder instanceof MenuHolder) {
             switch (position) {
                 case 0:
-                    startActivityForResult(CreateAccountActivity.class, Constant.RequestCode.CREATE_ACCOUNT);
+                    startActivityForResult(GenerateWalletActivity.class, Constant.RequestCode.CREATE_WALLET);
                     break;
                 case 1:
                     showImportAccountPromptDialog();

@@ -23,7 +23,7 @@ import com.dasset.wallet.core.crypto.ECKey;
 import com.dasset.wallet.core.crypto.EncryptedData;
 import com.dasset.wallet.core.crypto.hd.DeterministicKey;
 import com.dasset.wallet.core.crypto.mnemonic.MnemonicException;
-import com.dasset.wallet.core.db.BaseDb;
+import com.dasset.wallet.core.db.facade.BaseProvider;
 import com.dasset.wallet.core.utils.Utils;
 import com.dasset.wallet.core.wallet.hd.AbstractHD;
 
@@ -54,8 +54,8 @@ public class EnterpriseHDMSeed extends AbstractHD {
         firstAddress = getFirstAddressFromSeed(password);
         wipeHDSeed();
         wipeMnemonicSeed();
-        hdSeedId = BaseDb.iAddressProvider.addEnterpriseHDKey(encryptedMnemonicSeed.toEncryptedString(),
-                                                              encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address);
+        hdSeedId = BaseProvider.iAddressProvider.addEnterpriseHDKey(encryptedMnemonicSeed.toEncryptedString(),
+                                                                    encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address);
 
     }
 
@@ -87,14 +87,14 @@ public class EnterpriseHDMSeed extends AbstractHD {
         k.clearPrivateKey();
         wipeHDSeed();
         wipeMnemonicSeed();
-        hdSeedId = BaseDb.iAddressProvider.addEnterpriseHDKey(encryptedMnemonicSeed.toEncryptedString(),
-                                                              encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address);
+        hdSeedId = BaseProvider.iAddressProvider.addEnterpriseHDKey(encryptedMnemonicSeed.toEncryptedString(),
+                                                                    encryptedHDSeed.toEncryptedString(), firstAddress, isFromXRandom, address);
     }
 
     // From DB
     public EnterpriseHDMSeed(int seedId) {
         this.hdSeedId = seedId;
-        isFromXRandom = BaseDb.iEnterpriseHDMProvider.isEnterpriseHDMSeedFromXRandom(hdSeedId);
+        isFromXRandom = BaseProvider.iEnterpriseHDMProvider.isEnterpriseHDMSeedFromXRandom(hdSeedId);
     }
 
     public byte[] getExternalRootPubExtended(CharSequence password) throws MnemonicException
@@ -148,25 +148,25 @@ public class EnterpriseHDMSeed extends AbstractHD {
     @Override
     protected String getEncryptedHDSeed() {
 
-        return BaseDb.iEnterpriseHDMProvider.getEnterpriseEncryptHDSeed(this.hdSeedId);
+        return BaseProvider.iEnterpriseHDMProvider.getEnterpriseEncryptHDSeed(this.hdSeedId);
     }
 
     @Override
     public String getEncryptedMnemonicSeed() {
-        return BaseDb.iEnterpriseHDMProvider.getEnterpriseEncryptMnemonicSeed(this.hdSeedId);
+        return BaseProvider.iEnterpriseHDMProvider.getEnterpriseEncryptMnemonicSeed(this.hdSeedId);
     }
 
     public String getFirstAddressFromDb() {
-        return BaseDb.iEnterpriseHDMProvider.getEnterpriseHDFristAddress(this.hdSeedId);
+        return BaseProvider.iEnterpriseHDMProvider.getEnterpriseHDFristAddress(this.hdSeedId);
     }
 
     public static boolean hasSeed() {
-        return BaseDb.iEnterpriseHDMProvider.getEnterpriseHDMSeedId() >= 0;
+        return BaseProvider.iEnterpriseHDMProvider.getEnterpriseHDMSeedId() >= 0;
     }
 
     public static EnterpriseHDMSeed seed() {
         if (hasSeed()) {
-            return new EnterpriseHDMSeed(BaseDb.iEnterpriseHDMProvider.getEnterpriseHDMSeedId());
+            return new EnterpriseHDMSeed(BaseProvider.iEnterpriseHDMProvider.getEnterpriseHDMSeedId());
         }
         return null;
     }
