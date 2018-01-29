@@ -3,20 +3,20 @@ package com.dasset.wallet.core.db.base;
 import com.google.common.base.Function;
 
 public interface IProvider {
-    
-    IDb getReadDb();
 
-    IDb getWriteDb();
+    IDb getReadableDatabase();
 
-    void execUpdate(String sql, String[] params);
+    IDb getWritableDatabase();
 
-    void execQueryOneRecord(String sql, String[] params, Function<ICursor, Void> func);
+    void execUpdate(String sql, String[] parameters);
 
-    void execQueryLoop(String sql, String[] params, Function<ICursor, Void> func);
+    void execQueryOneRecord(String sql, String[] parameters, Function<ICursor, Void> function);
 
-    void execUpdate(IDb db, String sql, String[] params);
+    void execQueryLoop(String sql, String[] parameters, Function<ICursor, Void> function);
 
-    void execQueryOneRecord(IDb db, String sql, String[] params, Function<ICursor, Void> func);
+    void execUpdate(IDb iDb, String sql, String[] parameters);
 
-    void execQueryLoop(IDb db, String sql, String[] params, Function<ICursor, Void> func);
+    void execQueryOneRecord(IDb iDb, String sql, String[] parameters, Function<ICursor, Void> function);
+
+    void execQueryLoop(IDb iDb, String sql, String[] parameters, Function<ICursor, Void> function);
 }

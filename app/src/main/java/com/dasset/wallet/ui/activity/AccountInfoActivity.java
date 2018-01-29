@@ -95,7 +95,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     protected void findViewById() {
         inToolbar = ViewUtil.getInstance().findView(this, R.id.inToolbar);
         llAddress = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.llAddress, this);
-        tvAddress = ViewUtil.getInstance().findView(this, R.id.tvAddress);
+        tvAddress = ViewUtil.getInstance().findView(this, R.id.tvWalletAddress);
         ivAddressQRCode = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.ivAddressQRCode, this);
         tvAmount = ViewUtil.getInstance().findView(this, R.id.tvAmount);
         llTransactionRecord = ViewUtil.getInstance().findView(this, R.id.llTransactionRecord);
@@ -188,15 +188,15 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
             case Constant.RequestCode.DIALOG_PROMPT_EXPORT_ACCOUNT_FAILED:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_EXPORT_ACCOUNT_FAILED");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT:
+            case Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_DELETE_ACCOUNT");
                 accountInfoPresenter.deleteAccount();
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT_SUCCESS:
+            case Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET_SUCCESS:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_DELETE_ACCOUNT_SUCCESS");
                 onFinish("onPositiveButtonClicked_DIALOG_PROMPT_DELETE_ACCOUNT_SUCCESS");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT_FAILED:
+            case Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET_FAILED:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_DIALOG_PROMPT_DELETE_ACCOUNT_FAILED");
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
@@ -224,7 +224,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_SET_PERMISSION");
                 refusePermissionSetting();
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT:
+            case Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_DELETE_ACCOUNT");
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
@@ -252,12 +252,12 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
     public void showDeleteAccountPromptDialog() {
         PromptDialog.createBuilder(getSupportFragmentManager())
                 .setTitle(getString(R.string.dialog_prompt))
-                .setPrompt(getString(R.string.dialog_prompt_delete_account))
+                .setPrompt(getString(R.string.dialog_prompt_delete_wallet))
                 .setPositiveButtonText(this, R.string.confirm)
                 .setNegativeButtonText(this, R.string.cancel)
                 .setCancelable(false)
                 .setCancelableOnTouchOutside(false)
-                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET)
                 .showAllowingStateLoss(this);
     }
 

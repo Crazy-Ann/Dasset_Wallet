@@ -42,9 +42,9 @@ public final class Constant {
         public static final int DIALOG_PROMPT_IMPORT_ACCOUNT1 = 0x1012;
         public static final int DIALOG_PROMPT_IMPORT_ACCOUNT2 = 0x1013;
         public static final int DIALOG_PROMPT_IMPORT_ACCOUNT_ERROR = 0x1014;
-        public static final int DIALOG_PROMPT_DELETE_ACCOUNT = 0x1015;
-        public static final int DIALOG_PROMPT_DELETE_ACCOUNT_SUCCESS = 0x1016;
-        public static final int DIALOG_PROMPT_DELETE_ACCOUNT_FAILED = 0x1017;
+        public static final int DIALOG_PROMPT_DELETE_WALLET = 0x1015;
+        public static final int DIALOG_PROMPT_DELETE_WALLET_SUCCESS = 0x1016;
+        public static final int DIALOG_PROMPT_DELETE_WALLET_FAILED = 0x1017;
         public static final int DIALOG_PROGRESS_QRCODE_RECOGNITION = 0x1018;
         public static final int DIALOG_PROMPT_QRCODE_RECOGNITION_ERROR = 0x1019;
         public static final int DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR = 0x1020;
@@ -64,6 +64,7 @@ public final class Constant {
         public static final int DIALOG_PROMPT_DOWNLOAD_ERROR = 0x1034;
         public static final int DIALOG_PROMPT_INSTALL = 0x1035;
         public static final int DIALOG_PROMPT_INSTALL_ERROR = 0x1036;
+        public static final int DIALOG_PROMPT_PASSWORD_ERROR = 0x1037;
         public static final int CREATE_WALLET = 0x2000;
         public static final int IMPORT_WALLET = 0x2001;
         public static final int QRCODE_RECOGNITION = 0x2002;
@@ -87,8 +88,10 @@ public final class Constant {
     public final static class BundleKey {
         public static final String ENCRYPT_KEY = "encrypt_key";
         public static final String PAGE_LIST = "page_list";
-        public static final String OPERATION = "operation";
+        public static final String WALLET_OPERATION = "wallet_operation";
         public static final String WALLET_NAME = "wallet_name";
+        public static final String WALLET_PASSWORD = "wallet_password";
+        public static final String WALLET_INFO = "wallet_info";
         public static final String WALLET_ADDRESS = "wallet_address";
         public static final String WALLET_MNEMONIC_CODE = "wallet_mnemonic_code";
         public static final String WALLET_ACCOUNT = "wallet_account";
@@ -96,14 +99,13 @@ public final class Constant {
         public static final String IMPORT_PASSWORD = "import_password";
         public static final String IMPORT_FILE_PATH = "import_file_path";
     }
-    
+
     public final static class BundleValue {
         public static final String GENERATE_WALLET = "generate_wallet";
     }
 
     public static class RecycleView {
         public static final int ADD_ACCOUNT = 0x7000;
-
         public static final int DATA_EMPTY = 0x7001;
         public static final int DATA_LOADING = 0x7002;
         public static final int DATA_NONE = 0x7003;

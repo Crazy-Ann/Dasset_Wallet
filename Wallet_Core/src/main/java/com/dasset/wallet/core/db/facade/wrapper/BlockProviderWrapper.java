@@ -165,7 +165,7 @@ public abstract class BlockProviderWrapper extends ProviderWrapper implements IB
                 tempBlocks.add(block);
             }
         }
-        IDb writeDb = this.getWriteDb();
+        IDb writeDb = this.getWritableDatabase();
         writeDb.beginTransaction();
         String sql = "insert into blocks(block_no,block_hash,block_root,block_ver,block_bits,block_nonce,block_time,block_prev,is_main) values(?,?,?,?,?,?,?,?,?)";
         for (Block item : tempBlocks) {

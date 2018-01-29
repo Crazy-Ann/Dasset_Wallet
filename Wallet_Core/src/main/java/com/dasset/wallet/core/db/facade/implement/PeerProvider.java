@@ -29,12 +29,12 @@ public class PeerProvider extends PeerProviderWrapper {
     }
 
     @Override
-    public IDb getReadDb() {
+    public IDb getReadableDatabase() {
         return new Db(this.sqLiteOpenHelper.getReadableDatabase());
     }
 
     @Override
-    public IDb getWriteDb() {
+    public IDb getWritableDatabase() {
         return new Db(this.sqLiteOpenHelper.getWritableDatabase());
     }
 }

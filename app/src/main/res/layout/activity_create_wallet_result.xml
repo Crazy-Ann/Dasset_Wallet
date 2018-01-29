@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    tools:context="com.dasset.wallet.ui.activity.CreateWalletResultActivity">
+
+    <include
+        android:id="@+id/inToolbar"
+        layout="@layout/view_toolbar"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:layout_margin="@dimen/dp_20"
+                android:drawablePadding="@dimen/dp_10"
+                android:drawableTop="@mipmap/icon_generate_wallet_success"
+                android:text="@string/create_wallet_success"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/sp_16"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp_15"
+                android:background="@drawable/rectangle_f9f8fc1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvWalletName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="@dimen/dp_15"
+                    android:layout_marginEnd="@dimen/dp_10"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:textStyle="bold"
+                    android:layout_marginTop="@dimen/dp_25"
+                    android:gravity="center_horizontal"
+                    android:maxLines="1"
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/sp_16"/>
+
+                <TextView
+                    android:id="@+id/tvWalletAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="@dimen/dp_25"
+                    android:layout_marginEnd="@dimen/dp_10"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:drawableEnd="@mipmap/icon_qrcode"
+                    android:drawablePadding="@dimen/dp_10"
+                    android:maxLines="1"
+                    android:textColor="@color/color_f5a623"
+                    android:textSize="@dimen/sp_12"/>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnBackupsWallet"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/rectangle_5757ff"
+                android:text="@string/backups_wallet"
+                android:textColor="@android:color/white"/>
+
+            <Button
+                android:id="@+id/btnHowToBackups"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/rectangle_f9f8fc2"
+                android:text="@string/how_to_backups"
+                android:textColor="@android:color/black"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dp_10"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_20"
+                android:lineSpacingExtra="@dimen/dp_10"
+                android:text="@string/prompt_create_account5"
+                android:textColor="@color/color_828295"
+                android:textSize="@dimen/sp_10"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

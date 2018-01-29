@@ -65,7 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_margin="10dp"
-            android:background="@drawable/rectangle_f9f8fc"
+            android:background="@drawable/rectangle_f9f8fc1"
             android:enabled="false"
             android:text="@string/import_wallet"
             android:textColor="@android:color/black"/>

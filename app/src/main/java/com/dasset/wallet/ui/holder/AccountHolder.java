@@ -16,8 +16,8 @@ public class AccountHolder extends BaseViewHolder {
 
     public AccountHolder(View itemView) {
         super(itemView);
-        tvAddress = ViewUtil.getInstance().findViewAttachOnclick(itemView, R.id.tvAddress, this);
-        tvAccountName = ViewUtil.getInstance().findView(itemView, R.id.tvAccountName);
+        tvAddress = ViewUtil.getInstance().findViewAttachOnclick(itemView, R.id.tvWalletAddress, this);
+        tvAccountName = ViewUtil.getInstance().findView(itemView, R.id.tvWalletName);
         ivAddressQRCode = ViewUtil.getInstance().findViewAttachOnclick(itemView, R.id.ivAddressQRCode, this);
     }
 }

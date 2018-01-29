@@ -26,8 +26,8 @@ import java.util.ArrayList;
 public class WelcomePresenter extends BasePresenterImplement implements WelcomeContract.Presenter {
 
     private WelcomeContract.View view;
-    private Version              version;
-    private String               path;
+    private Version version;
+    private String path;
 
     public WelcomePresenter(Context context, WelcomeContract.View view) {
         this.context = context;
@@ -51,7 +51,7 @@ public class WelcomePresenter extends BasePresenterImplement implements WelcomeC
     @Override
     public void getVersion() {
         view.startMainActivity();
-//        WalletApi.getInstance().getVersion(context, view, SharedPreferenceUtil.getInstance().getString(context, Constant.ShreadPreference.FILE_WALLET, Context.MODE_PRIVATE, Constant.ShreadPreference.PASSWORD_SEED, Regex.NONE.getRegext()), new ApiResponse() {
+//        WalletApi.getInstance().getVersion(context, view, SharedPreferenceUtil.getInstance().getString(context, com.dasset.wallet.components.constant.Constant.ShreadPreference.FILE_WALLET, Context.MODE_PRIVATE, com.dasset.wallet.components.constant.Constant.ShreadPreference.PASSWORD_SEED, Regex.NONE.getRegext()), new ApiResponse() {
 //
 //            @Override
 //            public void success(BaseEntity baseEntity) {
@@ -70,7 +70,7 @@ public class WelcomePresenter extends BasePresenterImplement implements WelcomeC
 //
 //            @Override
 //            public void failed(BaseEntity entity) {
-//                
+//
 //            }
 //        });
     }

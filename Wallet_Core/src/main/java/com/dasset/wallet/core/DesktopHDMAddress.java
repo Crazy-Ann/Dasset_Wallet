@@ -140,7 +140,7 @@ public class DesktopHDMAddress extends Address {
     }
 
     @Override
-    public String getFullEncryptPrivKey() {
+    public String getFullEncryptPrivateKey() {
         throw new RuntimeException("hdm address can't get encrypted private key");
     }
 

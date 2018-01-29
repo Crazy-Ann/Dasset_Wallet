@@ -62,7 +62,7 @@ public abstract class PeerProviderWrapper extends ProviderWrapper implements IPe
         }
         if (tempPeers.size() > 0) {
             String sql = "insert into peers(peer_address,peer_port,peer_services,peer_timestamp,peer_connected_cnt) values(?,?,?,?,?)";
-            IDb writeDb = this.getWriteDb();
+            IDb writeDb = this.getWritableDatabase();
             writeDb.beginTransaction();
             for (Peer peer : tempPeers) {
                 this.execUpdate(writeDb, sql, new String[]{
@@ -221,7 +221,7 @@ public abstract class PeerProviderWrapper extends ProviderWrapper implements IPe
 
     @Override
     public void recreate() {
-        IDb writeDb = this.getWriteDb();
+        IDb writeDb = this.getWritableDatabase();
         writeDb.beginTransaction();
         this.execUpdate(writeDb, "drop table peers", null);
         this.execUpdate(writeDb, BaseProvider.CREATE_PEER_SQL, null);

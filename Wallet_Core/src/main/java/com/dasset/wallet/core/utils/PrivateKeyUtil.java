@@ -122,7 +122,7 @@ public class PrivateKeyUtil {
 
     public static String getBIP38PrivateKeyString(Address address, CharSequence password) throws
             AddressFormatException, InterruptedException {
-        SecureCharSequence decrypted = getDecryptPrivateKeyString(address.getFullEncryptPrivKey()
+        SecureCharSequence decrypted = getDecryptPrivateKeyString(address.getFullEncryptPrivateKey()
                 , password);
         String bip38 = Bip38.encryptNoEcMultiply(password, decrypted.toString());
         if (BitherjSettings.DEV_DEBUG) {
@@ -196,7 +196,7 @@ public class PrivateKeyUtil {
              i < privates.size();
              i++) {
             Address address = privates.get(i);
-            content += address.getFullEncryptPrivKey();
+            content += address.getFullEncryptPrivateKey();
             if (i < privates.size() - 1) {
                 content += Constant.QR_CODE_SPLIT;
             }
@@ -212,9 +212,9 @@ public class PrivateKeyUtil {
         HDAccount hdAccount = AddressManager.getInstance().getHDAccountHot();
         if (hdAccount != null) {
             if (Utils.isEmpty(content)) {
-                content += hdAccount.getQRCodeFullEncryptPrivKey();
+                content += hdAccount.getQRCodeFullEncryptPrivateKey();
             } else {
-                content += Constant.QR_CODE_SPLIT + hdAccount.getQRCodeFullEncryptPrivKey();
+                content += Constant.QR_CODE_SPLIT + hdAccount.getQRCodeFullEncryptPrivateKey();
             }
         }
         HDAccountCold hdAccountCold = AddressManager.getInstance().getHDAccountCold();
@@ -401,7 +401,7 @@ public class PrivateKeyUtil {
         String backupString = "";
         for (Address address : AddressManager.getInstance().getPrivKeyAddresses()) {
             if (address != null) {
-                PasswordSeed passwordSeed = new PasswordSeed(address.getAddress(), address.getFullEncryptPrivKey());
+                PasswordSeed passwordSeed = new PasswordSeed(address.getAddress(), address.getFullEncryptPrivateKey());
                 backupString = backupString
                         + passwordSeed.toPasswordSeedString()
                         + BACKUP_KEY_SPLIT_MUTILKEY_STRING;
@@ -422,7 +422,7 @@ public class PrivateKeyUtil {
             String address = hdAccount.getFirstAddressFromDb();
             backupString += Constant.HD_QR_CODE_FLAG + Base58.bas58ToHexWithAddress(address)
                     + Constant.QR_CODE_SPLIT
-                    + hdAccount.getFullEncryptPrivKey() + BACKUP_KEY_SPLIT_MUTILKEY_STRING;
+                    + hdAccount.getFullEncryptPrivateKey() + BACKUP_KEY_SPLIT_MUTILKEY_STRING;
         }
         HDAccountCold hdAccountCold = AddressManager.getInstance().getHDAccountCold();
         if (hdAccountCold != null) {

@@ -28,7 +28,7 @@
     <string name="prompt_wallet_name">钱包名称不能为空</string>
     <string name="transaction_password">交易密码</string>
     <string name="hint_transaction_password">请输入交易密码</string>
-    <string name="confirm_password">确认密码</string>
+    <string name="confirm_transaction_password">确认交易密码</string>
     <string name="hint_confirm_password">请确认交易密码</string>
     <string name="prompt_transaction_password1">交易密码不能为空</string>
     <string name="prompt_transaction_password2">两次输入密码不一致</string>
@@ -38,10 +38,19 @@
     <string name="prompt_create_account3">请妥善保管您设置的交易密码，丢失将无法找回。是否确认提交？</string>
     <string name="prompt_create_account4">为避免账户丢失，请备份好密钥文件，是否立即备份？</string>
     <string name="prompt_create_account5">
-        账户已经绑定在Dasset里，请务必保存备份好您的账户。\n\nDasset仅有个人保管，需妥善保存，一旦丢失Dasset密钥文件将无法找回。
+        强烈建议您在使用钱包前做好备份，导出 [ 助记词 ] 或 Keystore存储在安全的地方，然后开始尝试转入小额资产并启用。
     </string>
     <string name="dialog_prompt_create_account6">正在创建账户，请稍后</string>
-    <string name="create_account_success">创建账户成功</string>
+    <string name="create_wallet_success">创建钱包成功</string>
+    <string name="backups_wallet">备份钱包</string>
+    <string name="backups_mnemonic_code">备份助记词</string>
+    <string name="backups_mnemonic_code_prompt1">请抄写您的钱包助记词</string>
+    <string name="backups_mnemonic_code_prompt2">助记词由12组随机英文单词组成。便与恢复钱包，请将它抄写下来保存到安全的地方。</string>
+    <string name="backups_mnemonic_code_prompt3">请确认您的钱包助记词</string>
+    <string name="backups_mnemonic_code_prompt4">请按保存的助记词顺序，依次点击下列助记词，以确认您的备份助记词填写正确。</string>
+    <string name="how_to_backups">如何备份</string>
+    <string name="delete_wallet">删除钱包</string>
+    <string name="next">下一步</string>
     <string name="address2">地址</string>
     <string name="add_account">添加账户资产</string>
     <string name="dialog_prompt_wallet">为了保护您的比特币\n\n&#042;&#160;&#160;请不要卸载钱包\n\n&#042;&#160;&#160;不要清除钱包数据\n\n&#042;&#160;&#160;请牢记您的密码</string>
@@ -64,7 +73,7 @@
     <string name="dialog_prompt_create_account_error2">资产帐户用户名长度超过十位</string>
     <string name="dialog_prompt_import_account_to">备份至</string>
     <string name="dialog_prompt_account_info_error">账户信息异常</string>
-    <string name="dialog_prompt_delete_account">解除的账户将无法恢复，请备份后操作，确定解除账户？</string>
+    <string name="dialog_prompt_delete_wallet">删除钱包将无法恢复，请备份后操作，确定删除钱包？</string>
     <string name="dialog_prompt_delete_account_error">账户信息异常</string>
     <string name="dialog_prompt_unknow_error">未知错误</string>
     <string name="account_info_send">发送</string>

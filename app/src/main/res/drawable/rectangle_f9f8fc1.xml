@@ -5,14 +5,14 @@
     <gradient android:angle="270.0"/>
 
     <corners
-        android:bottomLeftRadius="@dimen/dp_5"
-        android:bottomRightRadius="@dimen/dp_5"
-        android:topLeftRadius="@dimen/dp_5"
-        android:topRightRadius="@dimen/dp_5"/>
+        android:bottomLeftRadius="@dimen/dp_2"
+        android:bottomRightRadius="@dimen/dp_2"
+        android:topLeftRadius="@dimen/dp_2"
+        android:topRightRadius="@dimen/dp_2"/>
 
     <stroke
         android:width="@dimen/dp_0.5"
-        android:color="@color/color_f9f8fc"/>
+        android:color="@color/color_9b9b9b"/>
 
     <solid android:color="@color/color_f9f8fc"/>
 

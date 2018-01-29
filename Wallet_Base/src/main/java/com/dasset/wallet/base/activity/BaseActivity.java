@@ -31,11 +31,11 @@ import java.util.HashMap;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    protected Toolbar   inToolbar;
+    protected Toolbar inToolbar;
     protected ImageView ivLeftIconEvent;
-    protected TextView  tvTitle;
+    protected TextView tvTitle;
     protected ImageView ivTitle;
-    protected TextView  tvRightTextEvent;
+    protected TextView tvRightTextEvent;
     protected ImageView ivRightIconEvent;
 
     protected void initializeToolbar(int toolbarColorId, int titleColorId, boolean isTitleClickable, String title, OnTitleEventListener onTitleEventListener) {
@@ -96,6 +96,15 @@ public abstract class BaseActivity extends AppCompatActivity {
                           true, titleColorId, isTitleClickable, null, titleIconId, onTitleEventListener,
                           false, Constant.View.DEFAULT_RESOURCE, null, null,
                           hasRightIconEvent, rightIconId, onRightIconEventListener);
+    }
+
+    protected void initializeToolbar(int toolbarColorId, boolean hasLeftIconEvent, int leftIconId, OnLeftIconEventListener onLeftIconEventListener
+            , int titleColorId, boolean isTitleClickable, String title, OnTitleEventListener onTitleEventListener
+            , boolean hasRightTextEvent, int rightTextId, String rightText, final OnRightTextEventListener onRightTextEventListener) {
+        initializeToolbar(toolbarColorId, hasLeftIconEvent, leftIconId, onLeftIconEventListener,
+                          true, titleColorId, isTitleClickable, title, Constant.View.DEFAULT_RESOURCE, onTitleEventListener,
+                          hasRightTextEvent, rightTextId, rightText, onRightTextEventListener,
+                          false, Constant.View.DEFAULT_RESOURCE, null);
     }
 
     @SuppressLint("NewApi")

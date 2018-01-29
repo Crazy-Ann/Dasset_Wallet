@@ -9,31 +9,31 @@ public abstract class ProviderWrapper implements IProvider {
 
     @Override
     public void execUpdate(String sql, String[] parameters) {
-        this.getWriteDb().execUpdate(sql, parameters);
+        this.getWritableDatabase().execUpdate(sql, parameters);
     }
 
     @Override
     public void execQueryOneRecord(String sql, String[] parameters, Function<ICursor, Void> function) {
-        this.getReadDb().execQueryOneRecord(sql, parameters, function);
+        this.getReadableDatabase().execQueryOneRecord(sql, parameters, function);
     }
 
     @Override
     public void execQueryLoop(String sql, String[] parameters, Function<ICursor, Void> function) {
-        this.getReadDb().execQueryLoop(sql, parameters, function);
+        this.getReadableDatabase().execQueryLoop(sql, parameters, function);
     }
 
     @Override
-    public void execUpdate(IDb db, String sql, String[] parameters) {
-        db.execUpdate(sql, parameters);
+    public void execUpdate(IDb iDb, String sql, String[] parameters) {
+        iDb.execUpdate(sql, parameters);
     }
 
     @Override
-    public void execQueryOneRecord(IDb db, String sql, String[] parameters, Function<ICursor, Void> function) {
-        db.execQueryOneRecord(sql, parameters, function);
+    public void execQueryOneRecord(IDb iDb, String sql, String[] parameters, Function<ICursor, Void> function) {
+        iDb.execQueryOneRecord(sql, parameters, function);
     }
 
     @Override
-    public void execQueryLoop(IDb db, String sql, String[] parameters, Function<ICursor, Void> function) {
-        db.execQueryLoop(sql, parameters, function);
+    public void execQueryLoop(IDb iDb, String sql, String[] parameters, Function<ICursor, Void> function) {
+        iDb.execQueryLoop(sql, parameters, function);
     }
 }

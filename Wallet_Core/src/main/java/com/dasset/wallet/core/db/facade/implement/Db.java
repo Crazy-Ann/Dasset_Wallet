@@ -43,12 +43,12 @@ public class Db implements IDb {
     }
 
     @Override
-    public void execQueryOneRecord(String sql, String[] parameterss, Function<ICursor, Void> func) {
-        ICursor c = new Cursor(this.getSQLiteDatabase().rawQuery(sql, parameterss));
-        if (c.moveToNext()) {
-            func.apply(c);
+    public void execQueryOneRecord(String sql, String[] parameterss, Function<ICursor, Void> function) {
+        ICursor iCursor = new Cursor(this.getSQLiteDatabase().rawQuery(sql, parameterss));
+        if (iCursor.moveToNext()) {
+            function.apply(iCursor);
         }
-        c.close();
+        iCursor.close();
     }
 
     @Override

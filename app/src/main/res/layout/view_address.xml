@@ -11,7 +11,7 @@
     android:padding="@dimen/dp_2">
 
     <TextView
-        android:id="@+id/tvAddress"
+        android:id="@+id/tvWalletAddress"
         android:layout_width="@dimen/dp_140"
         android:layout_height="wrap_content"
         android:ellipsize="end"

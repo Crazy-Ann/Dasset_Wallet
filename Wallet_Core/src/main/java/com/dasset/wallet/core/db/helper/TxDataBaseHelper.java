@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.dasset.wallet.base.application.BaseApplication;
+import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.core.contant.Constant;
 import com.dasset.wallet.core.db.facade.BaseProvider;
 
@@ -14,6 +15,7 @@ public class TxDataBaseHelper extends SQLiteOpenHelper {
 
     private TxDataBaseHelper() {
         super(BaseApplication.getInstance(), Constant.DATA_BASE_TX, null, Constant.DATA_BASE_TX_VERSION);
+        LogUtil.getInstance().print("TxDataBaseHelper");
     }
 
     public static synchronized TxDataBaseHelper getInstance() {
@@ -31,61 +33,45 @@ public class TxDataBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        createBlocksTable(sqLiteDatabase);
-        createTxsTable(sqLiteDatabase);
-        createAddressTxsTable(sqLiteDatabase);
-        createInsTable(sqLiteDatabase);
-        createOutsTable(sqLiteDatabase);
-        createPeersTable(sqLiteDatabase);
-        createHDAccountAddress(sqLiteDatabase);
+        LogUtil.getInstance().print("TxDataBaseHelper onCreate");
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_BLOCKS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_BLOCK_NO_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_BLOCK_PREV_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_TXS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_TX_BLOCK_NO_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_ADDRESSTXS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_INS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_IN_PREV_TX_HASH_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_OUTS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_OUT_ADDRESS_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_OUT_HD_ACCOUNT_ID_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_PEER_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ADDRESSES);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ADDRESS_INDEX);
         sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ACCOUNT_ID_AND_PATH_TYPE_INDEX);
+
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_ADDRESSES_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HDM_BID_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_SEEDS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HDM_ADDRESSES_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_PASSWORD_SEED_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_ALIASES_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_VANITY_ADDRESS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_ENTERPRISE_HD_ACCOUNT);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_ENTERPRISE_HDM_ADDRESSES_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_MULTI_SIGN_SET);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        LogUtil.getInstance().print("TxDataBaseHelper onCreate");
         switch (oldVersion) {
             case 1:
                 v1Tov2(sqLiteDatabase);
             case 2:
                 v2Tov3(sqLiteDatabase);
-
         }
-    }
-
-
-    private void createBlocksTable(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_BLOCKS_SQL);
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_BLOCK_NO_INDEX);
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_BLOCK_PREV_INDEX);
-    }
-
-    private void createTxsTable(SQLiteDatabase db) {
-        db.execSQL(BaseProvider.CREATE_TXS_SQL);
-        db.execSQL(BaseProvider.CREATE_TX_BLOCK_NO_INDEX);
-    }
-
-    private void createAddressTxsTable(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_ADDRESSTXS_SQL);
-    }
-
-    private void createInsTable(SQLiteDatabase db) {
-        db.execSQL(BaseProvider.CREATE_INS_SQL);
-        db.execSQL(BaseProvider.CREATE_IN_PREV_TX_HASH_INDEX);
-    }
-
-    private void createOutsTable(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_OUTS_SQL);
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_OUT_ADDRESS_INDEX);
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_OUT_HD_ACCOUNT_ID_INDEX);
-    }
-
-    private void createPeersTable(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_PEER_SQL);
-    }
-
-    private void createHDAccountAddress(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ADDRESSES);
-        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ADDRESS_INDEX);
     }
 
     /**
@@ -95,7 +81,9 @@ public class TxDataBaseHelper extends SQLiteOpenHelper {
      */
     private void v1Tov2(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(BaseProvider.ADD_HD_ACCOUNT_ID_FOR_OUTS);
-        createHDAccountAddress(sqLiteDatabase);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ADDRESSES);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ADDRESS_INDEX);
+        LogUtil.getInstance().print("v1Tov2");
     }
 
     /**
@@ -164,5 +152,6 @@ public class TxDataBaseHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL(BaseProvider.CREATE_OUT_HD_ACCOUNT_ID_INDEX);
         sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ACCOUNT_ID_AND_PATH_TYPE_INDEX);
+        LogUtil.getInstance().print("v2Tov3");
     }
 }

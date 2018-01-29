@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.dasset.wallet.base.application.BaseApplication;
+import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.SharedPreferenceUtil;
 import com.dasset.wallet.core.contant.Constant;
 import com.dasset.wallet.core.db.facade.BaseProvider;
@@ -17,6 +18,7 @@ public class AddressDatabaseHelper extends SQLiteOpenHelper {
 
     private AddressDatabaseHelper() {
         super(BaseApplication.getInstance(), Constant.DATA_BASE_ADDRESS, null, Constant.DATA_BASE_ADDRESS_VERSION);
+        LogUtil.getInstance().print("AddressDatabaseHelper");
     }
 
     public static synchronized AddressDatabaseHelper getInstance() {
@@ -34,6 +36,7 @@ public class AddressDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        LogUtil.getInstance().print("AddressDatabaseHelper onCreate");
         sqLiteDatabase.execSQL(BaseProvider.CREATE_ADDRESSES_SQL);
         sqLiteDatabase.execSQL(BaseProvider.CREATE_HDM_BID_SQL);
         sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_SEEDS_SQL);
@@ -45,7 +48,22 @@ public class AddressDatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(BaseProvider.CREATE_ENTERPRISE_HD_ACCOUNT);
         sqLiteDatabase.execSQL(BaseProvider.CREATE_ENTERPRISE_HDM_ADDRESSES_SQL);
         sqLiteDatabase.execSQL(BaseProvider.CREATE_MULTI_SIGN_SET);
-//        db.execSQL(BaseProvider.CREATE_COLD_HD_ACCOUNT);
+
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_BLOCKS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_BLOCK_NO_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_BLOCK_PREV_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_TXS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_TX_BLOCK_NO_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_ADDRESSTXS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_INS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_IN_PREV_TX_HASH_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_OUTS_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_OUT_ADDRESS_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_OUT_HD_ACCOUNT_ID_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_PEER_SQL);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ADDRESSES);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ADDRESS_INDEX);
+        sqLiteDatabase.execSQL(BaseProvider.CREATE_HD_ACCOUNT_ACCOUNT_ID_AND_PATH_TYPE_INDEX);
     }
 
     @Override

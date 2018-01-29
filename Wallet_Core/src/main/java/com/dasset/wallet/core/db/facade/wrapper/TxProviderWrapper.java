@@ -52,7 +52,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
         final List<Tx> txes = Lists.newArrayList();
         final HashMap<Sha256Hash, Tx> txHashMap = Maps.newHashMap();
         String sql = "select b.* from addresses_txs a, txs b  where a.tx_hash=b.tx_hash and a.address=? order by ifnull(b.block_no,4294967295) desc";
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         this.execQueryLoop(db, sql, new String[]{address}, new Function<ICursor, Void>() {
             @Nullable
             @Override
@@ -107,7 +107,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
     public List<Tx> getTxAndDetailByAddress(String address, int page) {
         final List<Tx> txes = Lists.newArrayList();
         final HashMap<Sha256Hash, Tx> txHashMap = Maps.newHashMap();
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         String sql = "select b.* from addresses_txs a, txs b where a.tx_hash=b.tx_hash and a.address=? order by ifnull(b.block_no,4294967295) desc limit ?,? ";
         final StringBuilder stringBuilder = new StringBuilder();
         this.execQueryLoop(db, sql, new String[]{address
@@ -163,7 +163,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
     public List<Tx> getPublishedTxes() {
         final List<Tx> txes = Lists.newArrayList();
         final HashMap<Sha256Hash, Tx> txHashMap = Maps.newHashMap();
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         String sql = "select * from txs where block_no is null";
         this.execQueryLoop(db, sql, null, new Function<ICursor, Void>() {
             @Nullable
@@ -208,7 +208,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
         final Tx[] txes = {null};
         final boolean[] txExists = {false};
         String sql = "select * from txs where tx_hash=?";
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         this.execQueryOneRecord(db, sql, new String[]{Base58.encode(txHash)}, new Function<ICursor, Void>() {
             @Nullable
 
@@ -262,7 +262,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
 
     @Override
     public void add(Tx tx) {
-        IDb db = this.getWriteDb();
+        IDb db = this.getWritableDatabase();
         db.beginTransaction();
         addTxToDb(db, tx);
         db.endTransaction();
@@ -271,7 +271,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
     @Override
     public void addTxs(List<Tx> txes) {
         if (txes.size() > 0) {
-            IDb db = this.getWriteDb();
+            IDb db = this.getWritableDatabase();
             db.beginTransaction();
             for (Tx txItem : txes) {
                 addTxToDb(db, txItem);
@@ -309,7 +309,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
             List<String> temp = getRelayTx(hash);
             txHashes.addAll(temp);
         }
-        IDb db = this.getWriteDb();
+        IDb db = this.getWritableDatabase();
         db.beginTransaction();
         for (String hash : needRemoveTxHashes) {
             removeSingleTx(db, hash);
@@ -387,7 +387,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
     public boolean isAddressContainsTx(String address, Tx tx) {
         boolean result = false;
         String sql = "select count(0) from ins a, txs b where a.tx_hash=b.tx_hash and b.block_no is not null and a.prev_tx_hash=? and a.prev_out_sn=?";
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         for (In in : tx.getIns()) {
             final boolean[] isDoubleSpent = {false};
             this.execQueryOneRecord(db, sql, new String[]{Base58.encode(in.getPrevTxHash()), Integer.toString(in.getPrevOutSn())}, new Function<ICursor, Void>() {
@@ -441,7 +441,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
     @Override
     public boolean isTxDoubleSpendWithConfirmedTx(Tx tx) {
         String sql = "select count(0) from ins a, txs b where a.tx_hash=b.tx_hash and b.block_no is not null and a.prev_tx_hash=? and a.prev_out_sn=?";
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         for (In inItem : tx.getIns()) {
             final int[] cnt = {0};
             this.execQueryOneRecord(db, sql, new String[]{Base58.encode(inItem.getPrevTxHash()), Integer.toString(inItem.getPrevOutSn())}, new Function<ICursor, Void>() {
@@ -463,7 +463,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
     public List<String> getInAddresses(Tx tx) {
         final List<String> result = Lists.newArrayList();
         String sql = "select out_address from outs where tx_hash=? and out_sn=?";
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         for (In in : tx.getIns()) {
             this.execQueryOneRecord(db, sql, new String[]{Base58.encode(in.getPrevTxHash())
                     , Integer.toString(in.getPrevOutSn())}, new Function<ICursor, Void>() {
@@ -491,7 +491,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
         String doubleSpendSql = "select a.tx_hash from ins a, ins b where a.prev_tx_hash=b.prev_tx_hash and a.prev_out_sn=b.prev_out_sn and a.tx_hash<>b.tx_hash and b.tx_hash=?";
         String blockTimeSql = "select block_time from blocks where block_no=?";
         String updateTxTimeThatMoreThanBlockTime = "update txs set tx_time=? where block_no=? and tx_time>?";
-        IDb db = this.getWriteDb();
+        IDb db = this.getWritableDatabase();
         db.beginTransaction();
         for (byte[] txHash : txHashes) {
             final int[] cnt = {0};
@@ -605,7 +605,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
     public List<Tx> getUnconfirmedTxWithAddress(String address) {
         final List<Tx> txes = Lists.newArrayList();
         final HashMap<Sha256Hash, Tx> txHashMap = Maps.newHashMap();
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         String sql = "select b.* from addresses_txs a, txs b where a.tx_hash=b.tx_hash and a.address=? and b.block_no is null order by b.block_no desc";
         this.execQueryLoop(db, sql, new String[]{address}, new Function<ICursor, Void>() {
             @Nullable
@@ -708,7 +708,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
     public List<Tx> getRecentlyTxsByAddress(String address, int greateThanBlockNo, int limit) {
         final List<Tx> txes = Lists.newArrayList();
         String sql = Utils.format("select b.* from addresses_txs a, txs b where a.tx_hash=b.tx_hash and a.address='%s' and ((b.block_no is null) or (b.block_no is not null and b.block_no>%d)) order by ifnull(b.block_no,4294967295) desc, b.tx_time desc limit %d", address, greateThanBlockNo, limit);
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         this.execQueryLoop(db, sql, null, new Function<ICursor, Void>() {
             @Nullable
             @Override
@@ -726,7 +726,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
 
     @Override
     public void clearAllTx() {
-        IDb db = this.getWriteDb();
+        IDb db = this.getWritableDatabase();
         db.beginTransaction();
         this.execUpdate(db, "drop table " + Tables.TXS + ";", null);
         this.execUpdate(db, "drop table " + Tables.OUTS + ";", null);
@@ -746,7 +746,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
 
     @Override
     public void completeInSignature(List<In> ins) {
-        IDb db = this.getWriteDb();
+        IDb db = this.getWritableDatabase();
         db.beginTransaction();
         String sql = "update ins set in_signature=? where tx_hash=? and in_sn=? and ifnull(in_signature,'')=''";
         for (In in : ins) {
@@ -1083,7 +1083,7 @@ public abstract class TxProviderWrapper extends ProviderWrapper implements ITxPr
         for (In in : tx.getIns()) {
             String queryPrevTxHashSql = "select tx_hash from ins where prev_tx_hash=? and prev_out_sn=?";
             final HashSet<String> each = Sets.newHashSet();
-            this.execQueryOneRecord(this.getReadDb(), queryPrevTxHashSql, new String[]{Base58.encode(in.getPrevTxHash())
+            this.execQueryOneRecord(this.getReadableDatabase(), queryPrevTxHashSql, new String[]{Base58.encode(in.getPrevTxHash())
                     , Integer.toString(in.getPrevOutSn())}, new Function<ICursor, Void>() {
                 @Nullable
                 @Override

@@ -1,5 +1,8 @@
 package com.dasset.wallet.core.wallet.hd;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.core.Address;
@@ -44,18 +47,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class HDAccount extends Address {
+public class HDAccount extends Address implements Parcelable {
 
-    public static final String HD_ACCOUNT_PLACE_HOLDER = "HDAccount";
-    public static final String HD_ACCOUNT_MONITORED_PLACE_HOLDER = "HDAccountMonitored";
+    private static final String HD_ACCOUNT_PLACE_HOLDER = "HDAccount";
+    private static final String HD_ACCOUNT_MONITORED_PLACE_HOLDER = "HDAccountMonitored";
     public static final int MAX_UNUSED_NEW_ADDRESS_COUNT = 20;
     private static final double GENERATION_PRE_START_PROGRESS = 0.01;
-    private static final int LOOK_AHEAD_SIZE = 100;
+    private static final int LOOK_AHEAD_SIZE = 1;
     private long balance = 0;
-    protected transient byte[] mnemonicSeed;
-    protected transient byte[] hdSeed;
-    protected int hdSeedId = -1;
-    protected boolean isFromXRandom;
+    private transient byte[] mnemonicSeed;
+    private transient byte[] hdSeed;
+    private int hdSeedId = -1;
+    private boolean isFromXRandom;
     private boolean hasSeed;
 
     public interface HDAccountGenerationDelegate {
@@ -224,7 +227,7 @@ public class HDAccount extends Address {
     }
 
     @Override
-    public String getFullEncryptPrivKey() {
+    public String getFullEncryptPrivateKey() {
         if (!hasPrivateKey()) {
             return null;
         }
@@ -232,18 +235,18 @@ public class HDAccount extends Address {
         return PrivateKeyUtil.getFullencryptHDMKeyChain(isFromXRandom, encryptPrivKey);
     }
 
-    public String getQRCodeFullEncryptPrivKey() {
+    public String getQRCodeFullEncryptPrivateKey() {
         if (!hasPrivateKey()) {
             return null;
         }
-        return MnemonicCode.getInstance().getMnemonicDictionary().getHDQRCodeFlag() + getFullEncryptPrivKey();
+        return MnemonicCode.getInstance().getMnemonicDictionary().getHDQRCodeFlag() + getFullEncryptPrivateKey();
     }
 
-    public byte[] getInternalPub() {
+    public byte[] getInternalPublicKey() {
         return BaseProvider.iHDAccountProvider.getInternalPublicKey(hdSeedId);
     }
 
-    public byte[] getExternalPub() {
+    public byte[] getExternalPublicKey() {
         return BaseProvider.iHDAccountProvider.getExternalPublicKey(hdSeedId);
     }
 
@@ -266,7 +269,7 @@ public class HDAccount extends Address {
     }
 
     private void supplyNewInternalKey(int count, boolean isSyncedComplete) {
-        DeterministicKey root = HDKeyDerivation.createMasterPubKeyFromExtendedBytes(getInternalPub());
+        DeterministicKey root = HDKeyDerivation.createMasterPubKeyFromExtendedBytes(getInternalPublicKey());
         int firstIndex = allGeneratedInternalAddressCount();
         ArrayList<HDAddress> hdAddresses = Lists.newArrayList();
         for (int i = firstIndex; i < firstIndex + count; i++) {
@@ -277,7 +280,7 @@ public class HDAccount extends Address {
     }
 
     private void supplyNewExternalKey(int count, boolean isSyncedComplete) {
-        DeterministicKey root = HDKeyDerivation.createMasterPubKeyFromExtendedBytes(getExternalPub());
+        DeterministicKey root = HDKeyDerivation.createMasterPubKeyFromExtendedBytes(getExternalPublicKey());
         int firstIndex = allGeneratedExternalAddressCount();
         ArrayList<HDAddress> hdAddresses = Lists.newArrayList();
         for (int i = firstIndex; i < firstIndex + count; i++) {
@@ -862,8 +865,8 @@ public class HDAccount extends Address {
         return isFromXRandom;
     }
 
-    public static final boolean checkDuplicated(byte[] ex, byte[] in) {
-        return BaseProvider.iHDAccountProvider.isPublicKeyExist(ex, in);
+    public static final boolean checkDuplicated(byte[] externalPublicKey, byte[] internalPublicKey) {
+        return BaseProvider.iHDAccountProvider.isPublicKeyExist(externalPublicKey, internalPublicKey);
     }
 
     public List<HDAddress> getHdHotAddresses(int page, PathType pathType, CharSequence password) {
@@ -883,8 +886,34 @@ public class HDAccount extends Address {
             return addresses;
         } catch (KeyCrypterException e) {
             throw new PasswordException(e);
-        } catch (Exception e) {
+        } catch (MnemonicException.MnemonicLengthException e) {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public int describeContents() { return 0; }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.balance);
+        dest.writeInt(this.hdSeedId);
+        dest.writeByte(this.isFromXRandom ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.hasSeed ? (byte) 1 : (byte) 0);
+    }
+
+    protected HDAccount(Parcel in) {
+        this.balance = in.readLong();
+        this.hdSeedId = in.readInt();
+        this.isFromXRandom = in.readByte() != 0;
+        this.hasSeed = in.readByte() != 0;
+    }
+
+    public static final Parcelable.Creator<HDAccount> CREATOR = new Parcelable.Creator<HDAccount>() {
+        @Override
+        public HDAccount createFromParcel(Parcel source) {return new HDAccount(source);}
+
+        @Override
+        public HDAccount[] newArray(int size) {return new HDAccount[size];}
+    };
 }

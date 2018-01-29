@@ -144,7 +144,7 @@ public final class AccountStorageFactory {
 //                        accountInfo.setAddress2(account.getAddress2());
 //                        accountInfo.setPrivateKey(account.getPrivateKey());
 //                        accountInfo.setPublicKey(account.getPublicKey());
-//                        accountInfo.setPassword(account.getPassword());
+//                        accountInfo.setPassword(account.getOperation());
 //                        accountInfo.setTime2(account.getTime2());
 //                        LogUtil.getInstance().print(accountInfo.toString());
 //                        accountInfos.add(accountInfo);

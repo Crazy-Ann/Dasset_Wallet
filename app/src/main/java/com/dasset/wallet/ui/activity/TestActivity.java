@@ -40,7 +40,7 @@ public class TestActivity extends ActivityViewImplement<TestContract.Presenter> 
         btnTest = ViewUtil.getInstance().findViewAttachOnclick(this, R.id.btnTest, this);
         tvPrivateKey = ViewUtil.getInstance().findView(this, R.id.tvPrivateKey);
         tvPublicKey = ViewUtil.getInstance().findView(this, R.id.tvPublicKey);
-        tvAddress = ViewUtil.getInstance().findView(this, R.id.tvAddress);
+        tvAddress = ViewUtil.getInstance().findView(this, R.id.tvWalletAddress);
         tvSignature = ViewUtil.getInstance().findView(this, R.id.tvSignature);
         tvSignatureResult = ViewUtil.getInstance().findView(this, R.id.tvSignatureResult);
     }

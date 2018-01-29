@@ -69,11 +69,11 @@ public class AccountInfoPresenter extends BasePresenterImplement implements Acco
                         break;
                     case Constant.StateCode.ACCOUNT_DELETE_SUCCESS:
                         activity.hideLoadingPromptDialog();
-                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT_SUCCESS);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET_SUCCESS);
                         break;
                     case Constant.StateCode.ACCOUNT_DELETE_FAILED:
                         activity.hideLoadingPromptDialog();
-                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_DELETE_ACCOUNT_FAILED);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET_FAILED);
                         break;
                     case Constant.StateCode.QRCODE_SAVE_SUCCESS:
                         activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_SUCCESS);
@@ -151,7 +151,7 @@ public class AccountInfoPresenter extends BasePresenterImplement implements Acco
 //            public void run() {
 //                if (accountInfo != null) {
 //                    try {
-//                        AccountStorageFactory.getInstance().exportAccountToExternalStorageDirectory(accountInfo.getAddress2(), accountInfo.getPassword());
+//                        AccountStorageFactory.getInstance().exportAccountToExternalStorageDirectory(accountInfo.getAddress2(), accountInfo.getOperation());
 //                        accountInfoHandler.sendMessage(MessageUtil.getMessage(Constant.StateCode.ACCOUNT_EXPORT_SUCCESS, String.format("备份文件已存储在：%s", AccountStorageFactory.getInstance().getBackupsDirectory().getAbsolutePath())));
 //                    } catch (PasswordException | IOException e) {
 //                        accountInfoHandler.sendMessage(MessageUtil.getErrorMessage(Constant.StateCode.ACCOUNT_EXPORT_FAILED, e, context.getString(R.string.dialog_prompt_unknow_error)));

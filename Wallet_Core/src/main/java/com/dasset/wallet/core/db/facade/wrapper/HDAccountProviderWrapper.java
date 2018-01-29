@@ -40,7 +40,7 @@ public abstract class HDAccountProviderWrapper extends ProviderWrapper implement
         if (this.isPublicKeyExist(externalPublicKey, internalPublicKey)) {
             return -1;
         }
-        IDb writeDb = this.getWriteDb();
+        IDb writeDb = this.getWritableDatabase();
         writeDb.beginTransaction();
         int hdAccountId = this.insertHDAccountToDb(writeDb, encryptedMnemonicSeed, encryptSeed, firstAddress, isXrandom, externalPublicKey, internalPublicKey);
         if (!this.hasPasswordSeed(writeDb) && !Utils.isEmpty(addressOfPS)) {
@@ -61,7 +61,7 @@ public abstract class HDAccountProviderWrapper extends ProviderWrapper implement
         if (this.isPublicKeyExist(externalPublicKey, internalPublicKey)) {
             return -1;
         }
-        IDb writeDb = this.getWriteDb();
+        IDb writeDb = this.getWritableDatabase();
         writeDb.beginTransaction();
         int hdAccountId = this.insertMonitorHDAccountToDb(writeDb, firstAddress, isXrandom, externalPublicKey, internalPublicKey);
         writeDb.endTransaction();

@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
+import com.dasset.wallet.components.utils.BundleUtil;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
@@ -146,12 +147,6 @@ public class PasswordActivity extends ActivityViewImplement<PasswordContract.Pre
     }
 
     @Override
-    public void startCreateWalletResultActivity() {
-        startActivityForResult(CreateWalletResultActivity.class, Constant.RequestCode.CREATE_WALLET);
-        onFinish("startCreateWalletResultActivity");
-    }
-
-    @Override
     public void onLeftIconEvent() {
         onFinish("onLeftIconEvent");
     }
@@ -163,7 +158,17 @@ public class PasswordActivity extends ActivityViewImplement<PasswordContract.Pre
 
     @Override
     public void onInputFinish(String password) {
-        //TODO
+        switch (passwordPresenter.getOperation()) {
+            case Constant.BundleValue.GENERATE_WALLET:
+                Bundle bundle = new Bundle();
+                bundle.putString(Constant.BundleKey.WALLET_PASSWORD, password);
+                bundle.putString(Constant.BundleKey.WALLET_NAME, BundleUtil.getInstance().getStringData(this, Constant.BundleKey.WALLET_NAME));
+                startActivity(ConfirmPasswordActivity.class, bundle);
+                break;
+            //TODO
+            default:
+                break;
+        }
     }
 
     @Override

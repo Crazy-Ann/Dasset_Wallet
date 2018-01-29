@@ -262,7 +262,7 @@ public class Address implements Comparable<Address> {
         BaseProvider.iAddressProvider.updatePrivateKey(getAddress(), encryptPriv);
     }
 
-    public String getFullEncryptPrivKey() {
+    public String getFullEncryptPrivateKey() {
         String encryptPrivKeyString = BaseProvider.iAddressProvider.getEncryptPrivateKey(getAddress());
         if (Utils.isEmpty(encryptPrivKeyString)) {
             return "";
@@ -347,7 +347,7 @@ public class Address implements Comparable<Address> {
 
     public List<byte[]> signHashes(List<byte[]> unsignedInHashes, CharSequence passphrase, SigHash sigHash) throws
             PasswordException {
-        ECKey key = PrivateKeyUtil.getECKeyFromSingleString(this.getFullEncryptPrivKey(), passphrase);
+        ECKey key = PrivateKeyUtil.getECKeyFromSingleString(this.getFullEncryptPrivateKey(), passphrase);
         if (key == null) {
             throw new PasswordException("do not decrypt eckey");
         }
@@ -369,7 +369,7 @@ public class Address implements Comparable<Address> {
 
     public String signMessage(String msg, CharSequence passphrase) {
 
-        ECKey key = PrivateKeyUtil.getECKeyFromSingleString(this.getFullEncryptPrivKey(), passphrase);
+        ECKey key = PrivateKeyUtil.getECKeyFromSingleString(this.getFullEncryptPrivateKey(), passphrase);
         if (key == null) {
             throw new PasswordException("do not decrypt eckey");
         }

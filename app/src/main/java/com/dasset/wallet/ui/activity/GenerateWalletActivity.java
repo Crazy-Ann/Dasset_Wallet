@@ -101,7 +101,7 @@ public class GenerateWalletActivity extends ActivityViewImplement<GenerateWallet
             case R.id.btnCreateWallet:
                 if (editTextValidator.validate(this)) {
                     Bundle bundle = new Bundle();
-                    bundle.putString(Constant.BundleKey.OPERATION, Constant.BundleValue.GENERATE_WALLET);
+                    bundle.putString(Constant.BundleKey.WALLET_OPERATION, Constant.BundleValue.GENERATE_WALLET);
                     bundle.putString(Constant.BundleKey.WALLET_NAME, etWalletName.getText().toString().trim());
                     startPasswordActivity(bundle);
                 }

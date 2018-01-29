@@ -35,7 +35,7 @@ public abstract class HDAccountAddressProviderWrapper extends ProviderWrapper im
     @Override
     public void addAddress(List<HDAddress> hdAddresses) {
         String sql = "insert into hd_account_addresses(hd_account_id,path_type,address_index,is_issued,address,publicKey,is_synced) values(?,?,?,?,?,?,?)";
-        IDb writeDb = this.getWriteDb();
+        IDb writeDb = this.getWritableDatabase();
         writeDb.beginTransaction();
         for (HDAddress hdAddress : hdAddresses) {
             this.execUpdate(writeDb, sql, new String[]{
@@ -360,7 +360,7 @@ public abstract class HDAccountAddressProviderWrapper extends ProviderWrapper im
         String sql = "select distinct a.* from txs a,addresses_txs b,hd_account_addresses c  where a.tx_hash=b.tx_hash and b.address=c.address and c.hd_account_id=? and a.block_no is null order by a.tx_hash";
         final List<Tx> txes = Lists.newArrayList();
         final HashMap<Sha256Hash, Tx> txHashMap = Maps.newHashMap();
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         this.execQueryLoop(db, sql, new String[]{Integer.toString(hdAccountId)}, new Function<ICursor, Void>() {
             @Nullable
             @Override
@@ -464,7 +464,7 @@ public abstract class HDAccountAddressProviderWrapper extends ProviderWrapper im
     public List<Tx> getRecentlyTxsByAccount(int hdAccountId, int greaterThanBlockNo, int limit) {
         final List<Tx> txes = Lists.newArrayList();
         String sql = "select distinct a.* from txs a, addresses_txs b, hd_account_addresses c where a.tx_hash=b.tx_hash and b.address=c.address and ((a.block_no is null) or (a.block_no is not null and a.block_no>?)) and c.hd_account_id=? order by ifnull(a.block_no,4294967295) desc, a.tx_time desc limit ?";
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         this.execQueryLoop(db, sql, new String[]{Integer.toString(greaterThanBlockNo)
                 , Integer.toString(hdAccountId), Integer.toString(limit)}, new Function<ICursor, Void>() {
             @Nullable
@@ -533,7 +533,7 @@ public abstract class HDAccountAddressProviderWrapper extends ProviderWrapper im
         final List<Tx> txes = Lists.newArrayList();
         final HashMap<Sha256Hash, Tx> txHashMap = Maps.newHashMap();
         String sql = "select distinct a.* from txs a,addresses_txs b,hd_account_addresses c where a.tx_hash=b.tx_hash and b.address=c.address and c.hd_account_id=? order by ifnull(block_no,4294967295) desc,a.tx_hash";
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         final StringBuilder stringBuilder = new StringBuilder();
         this.execQueryLoop(db, sql, new String[]{Integer.toString(hdAccountId)}, new Function<ICursor, Void>() {
             @Nullable
@@ -585,7 +585,7 @@ public abstract class HDAccountAddressProviderWrapper extends ProviderWrapper im
         final List<Tx> txes = Lists.newArrayList();
         final HashMap<Sha256Hash, Tx> txHashMap = Maps.newHashMap();
         String sql = "select distinct a.* from txs a,addresses_txs b,hd_account_addresses c where a.tx_hash=b.tx_hash and b.address=c.address and c.hd_account_id=? order by ifnull(block_no,4294967295) desc,a.tx_hash limit ?,?";
-        IDb db = this.getReadDb();
+        IDb db = this.getReadableDatabase();
         final StringBuilder stringBuilder = new StringBuilder();
         this.execQueryLoop(db, sql, new String[]{
                 Integer.toString(hdAccountId)

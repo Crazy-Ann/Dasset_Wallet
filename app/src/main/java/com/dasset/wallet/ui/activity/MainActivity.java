@@ -410,7 +410,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
     @Override
     public void onViewClick(int position, View view, RecyclerView.ViewHolder viewHolder) {
         switch (view.getId()) {
-            case R.id.tvAddress:
+            case R.id.tvWalletAddress:
                 PopWindowUtil.getInstance().showPopWindow(((AccountHolder) viewHolder).tvAddress, view, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true, com.dasset.wallet.components.constant.Constant.View.POP_WINDOW_RIGHT);
                 break;
             case R.id.ivAddressQRCode:

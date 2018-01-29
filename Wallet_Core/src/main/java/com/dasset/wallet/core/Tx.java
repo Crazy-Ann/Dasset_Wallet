@@ -790,7 +790,7 @@ public class Tx extends Message implements Comparable<Tx> {
                                  "want" + ".");
             }
             // Find the signing key we'll need to use.
-            ECKey key = PrivateKeyUtil.getECKeyFromSingleString(address.getFullEncryptPrivKey(),
+            ECKey key = PrivateKeyUtil.getECKeyFromSingleString(address.getFullEncryptPrivateKey(),
                                                                 password);//input.getOutpoint().getConnectedKey(address);
             // This assert should never fire. If it does, it means the wallet is inconsistent.
             checkNotNull(key, "Transaction exists in wallet that we cannot redeem: %s",
@@ -910,7 +910,7 @@ public class Tx extends Message implements Comparable<Tx> {
             }
             // Find the signing key we'll need to use.
             Script pubKeyScript = new Script(input.getPrevOutScript());
-            ECKey  key          = PrivateKeyUtil.getECKeyFromSingleString(addressMap.get(pubKeyScript.getToAddress()).getFullEncryptPrivKey(), password);
+            ECKey  key          = PrivateKeyUtil.getECKeyFromSingleString(addressMap.get(pubKeyScript.getToAddress()).getFullEncryptPrivateKey(), password);
             //input.getOutpoint().getConnectedKey(address);
             // This assert should never fire. If it does, it means the wallet is inconsistent.
             checkNotNull(key, "Transaction exists in wallet that we cannot redeem: %s",

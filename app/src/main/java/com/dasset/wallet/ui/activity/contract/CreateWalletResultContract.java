@@ -9,13 +9,18 @@ public interface CreateWalletResultContract {
 
         boolean isActive();
 
+        void showAddressQRCodePromptDialog(byte[] data, String prompt);
+        
     }
 
     interface Presenter extends BasePresenter {
 
-        void exportAccount(String password);
+        void generateAddresQRCode();
 
-        void deleteBackupsAccount();
+        void save();
 
+        void share();
+
+        void backupsWallet();
     }
 }

@@ -27,10 +27,10 @@ public class PasswordPresenter extends BasePresenterImplement implements Passwor
 
     private PasswordContract.View view;
     private PasswordHandler passwordHandler;
-    private String opreation;
+    private String operation;
 
-    public String getOpreation() {
-        return opreation;
+    public String getOperation() {
+        return operation;
     }
 
     private class PasswordHandler extends ActivityHandler<PasswordActivity> {
@@ -67,7 +67,7 @@ public class PasswordPresenter extends BasePresenterImplement implements Passwor
     public void initialize() {
         super.initialize();
         passwordHandler = new PasswordHandler((PasswordActivity) view);
-        opreation = BundleUtil.getInstance().getStringData((Activity) view, Constant.BundleKey.OPERATION);
+        operation = BundleUtil.getInstance().getStringData((Activity) view, Constant.BundleKey.WALLET_OPERATION);
     }
 
     @Override

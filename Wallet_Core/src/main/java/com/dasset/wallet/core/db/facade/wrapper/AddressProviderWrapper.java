@@ -36,7 +36,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
 
     @Override
     public boolean changePassword(CharSequence oldPassword, CharSequence newPassword) {
-        IDb readDb = this.getReadDb();
+        IDb readDb = this.getReadableDatabase();
         final HashMap<String, String> addressPrivateKeyHashMap = Maps.newHashMap();
         String sql = "select address,encrypt_private_key,pub_key,is_xrandom from addresses where encrypt_private_key is not null";
         this.execQueryLoop(readDb, sql, null, new Function<ICursor, Void>() {
@@ -195,7 +195,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
             return passwordSeeds[0].changePassword(oldPassword, newPassword);
         }
 
-        IDb writeDb = this.getWriteDb();
+        IDb writeDb = this.getWritableDatabase();
         writeDb.beginTransaction();
         sql = "update addresses set encrypt_private_key=? where address=?";
         for (Map.Entry<String, String> entry : addressPrivateKeyHashMap.entrySet()) {
@@ -297,7 +297,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
 
     @Override
     public boolean hasPasswordSeed() {
-        return this.hasPasswordSeed(this.getReadDb());
+        return this.hasPasswordSeed(this.getReadableDatabase());
     }
 
     public void addPasswordSeed(IDb db, PasswordSeed passwordSeed) {
@@ -429,7 +429,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
 
     @Override
     public int addHDKey(String encryptedMnemonicSeed, String encryptHdSeed, String firstAddress, boolean isXrandom, String addressOfPS) {
-        IDb db = this.getWriteDb();
+        IDb db = this.getWritableDatabase();
         db.beginTransaction();
         int seedId = this.insertHDKeyToDb(db, encryptedMnemonicSeed, encryptHdSeed, firstAddress, isXrandom);
         if (!hasPasswordSeed(db) && !Utils.isEmpty(addressOfPS)) {
@@ -443,7 +443,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
 
     @Override
     public int addEnterpriseHDKey(String encryptedMnemonicSeed, String encryptHdSeed, String firstAddress, boolean isXrandom, String addressOfPS) {
-        IDb writeDb = this.getWriteDb();
+        IDb writeDb = this.getWritableDatabase();
         writeDb.beginTransaction();
         int seedId = this.insertEnterpriseHDKeyToDb(writeDb, encryptedMnemonicSeed, encryptHdSeed, firstAddress, isXrandom);
         if (!hasPasswordSeed(writeDb) && !Utils.isEmpty(addressOfPS)) {
@@ -500,7 +500,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
         });
         if (!isExist[0]) {
             String encryptedPasswordString = hdmBid.getEncryptedBitherPasswordString();
-            IDb writeDb = this.getWriteDb();
+            IDb writeDb = this.getWritableDatabase();
             sql = "insert into hdm_bid(hdm_bid,encrypt_bither_password) values(?,?)";
             writeDb.beginTransaction();
             this.execUpdate(writeDb, sql, new String[]{hdmBid.getAddress(), encryptedPasswordString});
@@ -510,7 +510,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
             writeDb.endTransaction();
         } else {
             String encryptedPasswordString = hdmBid.getEncryptedBitherPasswordString();
-            IDb writeDb = this.getWriteDb();
+            IDb writeDb = this.getWritableDatabase();
             sql = "update hdm_bid set encrypt_bither_password=? where hdm_bid=?";
             writeDb.beginTransaction();
             ;
@@ -563,7 +563,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
             }
         }
         if (!isExist[0]) {
-            IDb writeDb = this.getWriteDb();
+            IDb writeDb = this.getWritableDatabase();
             writeDb.beginTransaction();
             for (int i = 0; i < pubsList.size(); i++) {
                 HDMAddress.Pubs pubs = pubsList.get(i);
@@ -668,7 +668,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
             }
         }
         if (isExist[0]) {
-            IDb writeDb = this.getWriteDb();
+            IDb writeDb = this.getWritableDatabase();
             writeDb.beginTransaction();
             sql = "update hdm_addresses set pub_key_remote=?,address=? where hd_seed_id=? and hd_seed_index=?";
             for (int i = 0; i < addresses.size(); i++) {
@@ -681,7 +681,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
 
     @Override
     public void recoverHDMAddresses(int hdSeedId, List<HDMAddress> addresses) {
-        IDb writeDb = this.getWriteDb();
+        IDb writeDb = this.getWritableDatabase();
         writeDb.beginTransaction();
         for (int i = 0; i < addresses.size(); i++) {
             HDMAddress hdmAddress = addresses.get(i);
@@ -741,7 +741,7 @@ public abstract class AddressProviderWrapper extends ProviderWrapper implements 
 
     @Override
     public void addAddress(Address address) {
-        IDb writeDb = this.getWriteDb();
+        IDb writeDb = this.getWritableDatabase();
         writeDb.beginTransaction();
         this.insertAddressToDb(writeDb, address);
         if (address.hasPrivateKey()) {

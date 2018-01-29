@@ -1,7 +1,7 @@
 package com.dasset.wallet.net.response;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dasset.wallet.model.CreateAccount;
+import com.dasset.wallet.model.WalletInfo;
 import com.dasset.wallet.base.http.response.JSONObjectResponse;
 import com.dasset.wallet.components.utils.LogUtil;
 
@@ -10,11 +10,11 @@ import okhttp3.Response;
 
 public class CreateAccountResponse extends JSONObjectResponse {
 
-    public CreateAccount createAccount;
+    public WalletInfo walletInfo;
 
     public CreateAccountResponse() {
         super();
-        this.createAccount = new CreateAccount();
+        this.walletInfo = new WalletInfo();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class CreateAccountResponse extends JSONObjectResponse {
 
     @Override
     public void onParseData(JSONObject object) {
-        createAccount.parse(object);
+        walletInfo.parse(object);
     }
 
     @Override
