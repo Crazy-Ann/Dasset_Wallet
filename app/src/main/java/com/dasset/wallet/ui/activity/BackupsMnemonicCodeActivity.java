@@ -7,13 +7,19 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.dasset.wallet.R;
+import com.dasset.wallet.base.application.BaseApplication;
+import com.dasset.wallet.base.http.model.BaseEntity;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
+import com.dasset.wallet.model.WalletInfo;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.BackupsMnemonicCodeContract;
 import com.dasset.wallet.ui.activity.presenter.BackupsMnemonicCodePresenter;
+
+import java.util.Collections;
+import java.util.List;
 
 public class BackupsMnemonicCodeActivity extends ActivityViewImplement<BackupsMnemonicCodeContract.Presenter> implements BackupsMnemonicCodeContract.View, OnLeftIconEventListener, View.OnClickListener {
 
@@ -26,6 +32,7 @@ public class BackupsMnemonicCodeActivity extends ActivityViewImplement<BackupsMn
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_backups_mnemonic_code);
+        getSavedInstanceState(savedInstanceState);
         findViewById();
         initialize(savedInstanceState);
         setListener();
@@ -45,13 +52,13 @@ public class BackupsMnemonicCodeActivity extends ActivityViewImplement<BackupsMn
         backupsMnemonicCodePresenter.initialize();
         setBasePresenterImplement(backupsMnemonicCodePresenter);
 
-        if (backupsMnemonicCodePresenter.getWalletInfo() != null && backupsMnemonicCodePresenter.getWalletInfo().getMnemonicCodes() != null) {
+        if (BaseApplication.getInstance().getWalletInfo() != null && ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getMnemonicCodes() != null) {
             StringBuffer stringBuffer = new StringBuffer();
-            for (String mnemonicCodes : backupsMnemonicCodePresenter.getWalletInfo().getMnemonicCodes()) {
+            for (String mnemonicCodes : ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getMnemonicCodes()) {
                 stringBuffer.append(String.format("%s  ", mnemonicCodes));
             }
             tvBackupsMnemonicCode.setText(stringBuffer.toString());
-            LogUtil.getInstance().print(String.format("mnemonicCodes:%s" , stringBuffer.toString()));
+            LogUtil.getInstance().print(String.format("mnemonicCodes:%s", stringBuffer.toString()));
         }
     }
 
@@ -64,12 +71,29 @@ public class BackupsMnemonicCodeActivity extends ActivityViewImplement<BackupsMn
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnNext:
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(Constant.BundleKey.WALLET_INFO, backupsMnemonicCodePresenter.getWalletInfo());
-                startActivity(ConfirmBackupsMnemonicCodeActivity.class, bundle);
+                List<String> mnemonicCode = ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getMnemonicCodes();
+                Collections.shuffle(mnemonicCode);
+                ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).setShuffleMnemonicCodes(mnemonicCode);
+                startActivity(ConfirmBackupsMnemonicCodeActivity.class);
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    protected void getSavedInstanceState(Bundle savedInstanceState) {
+        super.getSavedInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            BaseApplication.getInstance().setWalletInfo((BaseEntity) savedInstanceState.getParcelable(Constant.BundleKey.WALLET_INFO));
+        }
+    }
+
+    @Override
+    protected void setSavedInstanceState(Bundle savedInstanceState) {
+        super.setSavedInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            savedInstanceState.putParcelable(Constant.BundleKey.WALLET_INFO, BaseApplication.getInstance().getWalletInfo());
         }
     }
 

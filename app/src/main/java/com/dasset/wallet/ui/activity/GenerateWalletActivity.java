@@ -38,6 +38,7 @@ public class GenerateWalletActivity extends ActivityViewImplement<GenerateWallet
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generate_wallet);
+        getSavedInstanceState(savedInstanceState);
         findViewById();
         initialize(savedInstanceState);
         setListener();

@@ -66,7 +66,7 @@
                     android:drawableEnd="@mipmap/icon_qrcode"
                     android:drawablePadding="@dimen/dp_10"
                     android:maxLines="1"
-                    android:textColor="@color/color_f5a623"
+                    android:textColor="@color/color_9b9b9b"
                     android:textSize="@dimen/sp_12"/>
 
             </LinearLayout>

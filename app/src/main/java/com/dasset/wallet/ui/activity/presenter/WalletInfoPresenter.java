@@ -1,6 +1,5 @@
 package com.dasset.wallet.ui.activity.presenter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,10 +9,8 @@ import android.os.Message;
 import com.dasset.wallet.R;
 import com.dasset.wallet.base.handler.ActivityHandler;
 import com.dasset.wallet.components.constant.Regex;
-import com.dasset.wallet.components.utils.BundleUtil;
 import com.dasset.wallet.components.utils.FileProviderUtil;
 import com.dasset.wallet.constant.Constant;
-import com.dasset.wallet.model.WalletInfo;
 import com.dasset.wallet.ui.BasePresenterImplement;
 import com.dasset.wallet.ui.activity.WalletInfoActivity;
 import com.dasset.wallet.ui.activity.contract.WalletInfoContract;
@@ -24,11 +21,6 @@ public class WalletInfoPresenter extends BasePresenterImplement implements Walle
 
     private WalletInfoContract.View view;
     private WalletInfoHandler walletInfoHandler;
-    private WalletInfo walletInfo;
-
-    public WalletInfo getWalletInfo() {
-        return walletInfo;
-    }
 
     private class WalletInfoHandler extends ActivityHandler<WalletInfoActivity> {
 
@@ -57,11 +49,11 @@ public class WalletInfoPresenter extends BasePresenterImplement implements Walle
                         activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET_FAILED);
                         break;
                     case Constant.StateCode.QRCODE_SAVE_SUCCESS:
-                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_SUCCESS);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_SAVE_QRCODE_SUCCESS);
                         activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(Regex.FILE_URI.getRegext() + Environment.getExternalStorageDirectory())));
                         break;
                     case Constant.StateCode.QRCODE_SAVE_FAILED:
-                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_ERROR);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_SAVE_QRCODE_ERROR);
                         break;
                     case Constant.StateCode.QRCODE_SHARE_SUCCESS:
                         activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(Regex.FILE_URI.getRegext() + Environment.getExternalStorageDirectory())));
@@ -73,14 +65,14 @@ public class WalletInfoPresenter extends BasePresenterImplement implements Walle
                             if (intent.resolveActivity(activity.getPackageManager()) != null) {
                                 activity.startActivityForResult(Intent.createChooser(intent, activity.getString(R.string.dialog_prompt_import_account_to)), Constant.RequestCode.EXPORT_QRCODE);
                             } else {
-                                activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
+                                activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_SHARE_QRCODE_ERROR);
                             }
                         } else {
-                            activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
+                            activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_SHARE_QRCODE_ERROR);
                         }
                         break;
                     case Constant.StateCode.QRCODE_SHARE_FAILED:
-                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_SHARE_QRCODE_ERROR);
                         break;
                     default:
                         break;
@@ -98,7 +90,6 @@ public class WalletInfoPresenter extends BasePresenterImplement implements Walle
     public void initialize() {
         super.initialize();
         walletInfoHandler = new WalletInfoHandler((WalletInfoActivity) view);
-        walletInfo = BundleUtil.getInstance().getParcelableData((Activity) view, Constant.BundleKey.WALLET_INFO);
     }
 
     @Override

@@ -48,6 +48,7 @@
     <string name="backups_mnemonic_code_prompt2">助记词由12组随机英文单词组成。便与恢复钱包，请将它抄写下来保存到安全的地方。</string>
     <string name="backups_mnemonic_code_prompt3">请确认您的钱包助记词</string>
     <string name="backups_mnemonic_code_prompt4">请按保存的助记词顺序，依次点击下列助记词，以确认您的备份助记词填写正确。</string>
+    <string name="dialog_prompt_verify_backups_mnemonic_code_error">助记词校验失败，请检查备份。</string>
     <string name="how_to_backups">如何备份</string>
     <string name="delete_wallet">删除钱包</string>
     <string name="next">下一步</string>

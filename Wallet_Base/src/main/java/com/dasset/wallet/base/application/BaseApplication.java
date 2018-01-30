@@ -8,6 +8,7 @@ import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.text.TextUtils;
 
+import com.dasset.wallet.base.http.model.BaseEntity;
 import com.dasset.wallet.components.constant.Constant;
 import com.dasset.wallet.components.constant.Regex;
 import com.dasset.wallet.components.http.Configuration;
@@ -38,6 +39,7 @@ public class BaseApplication extends MultiDexApplication implements Application.
 
     private static BaseApplication application;
     private String encryptKey = Regex.NONE.getRegext();
+    private BaseEntity walletInfo;
 
     public String getEncryptKey() {
         return encryptKey;
@@ -48,7 +50,14 @@ public class BaseApplication extends MultiDexApplication implements Application.
             this.encryptKey = encryptKey;
         }
     }
+    public BaseEntity getWalletInfo() {
+        return walletInfo;
+    }
 
+    public void setWalletInfo(BaseEntity walletInfo) {
+        this.walletInfo = walletInfo;
+    }
+    
     public static BaseApplication getInstance() {
         return application;
     }

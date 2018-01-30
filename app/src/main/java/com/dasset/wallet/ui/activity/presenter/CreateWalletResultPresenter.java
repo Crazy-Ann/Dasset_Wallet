@@ -1,6 +1,5 @@
 package com.dasset.wallet.ui.activity.presenter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,9 +11,9 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 
 import com.dasset.wallet.R;
+import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.base.handler.ActivityHandler;
 import com.dasset.wallet.components.constant.Regex;
-import com.dasset.wallet.components.utils.BundleUtil;
 import com.dasset.wallet.components.utils.FileProviderUtil;
 import com.dasset.wallet.components.utils.IOUtil;
 import com.dasset.wallet.components.utils.MessageUtil;
@@ -39,11 +38,6 @@ public class CreateWalletResultPresenter extends BasePresenterImplement implemen
 
     private CreateWalletResultContract.View view;
     private CreateAccountResultHandler createAccountResultHandler;
-    private WalletInfo walletInfo;
-
-    public WalletInfo getWalletInfo() {
-        return walletInfo;
-    }
 
     private class CreateAccountResultHandler extends ActivityHandler<CreateWalletResultActivity> {
 
@@ -56,11 +50,11 @@ public class CreateWalletResultPresenter extends BasePresenterImplement implemen
             if (activity != null) {
                 switch (message.what) {
                     case Constant.StateCode.QRCODE_SAVE_SUCCESS:
-                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_SUCCESS);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_SAVE_QRCODE_SUCCESS);
                         activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(Regex.FILE_URI.getRegext() + Environment.getExternalStorageDirectory())));
                         break;
                     case Constant.StateCode.QRCODE_SAVE_FAILED:
-                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_ERROR);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_SAVE_QRCODE_ERROR);
                         break;
                     case Constant.StateCode.QRCODE_SHARE_SUCCESS:
                         activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse(Regex.FILE_URI.getRegext() + Environment.getExternalStorageDirectory())));
@@ -72,14 +66,14 @@ public class CreateWalletResultPresenter extends BasePresenterImplement implemen
                             if (intent.resolveActivity(activity.getPackageManager()) != null) {
                                 activity.startActivityForResult(Intent.createChooser(intent, activity.getString(R.string.dialog_prompt_import_account_to)), Constant.RequestCode.EXPORT_QRCODE);
                             } else {
-                                activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
+                                activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_SHARE_QRCODE_ERROR);
                             }
                         } else {
-                            activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
+                            activity.showPromptDialog(R.string.dialog_prompt_qrcode_share_error, false, false, Constant.RequestCode.DIALOG_PROMPT_SHARE_QRCODE_ERROR);
                         }
                         break;
                     case Constant.StateCode.QRCODE_SHARE_FAILED:
-                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
+                        activity.showPromptDialog(message.obj.toString(), false, false, Constant.RequestCode.DIALOG_PROMPT_SHARE_QRCODE_ERROR);
                         break;
                     default:
                         break;
@@ -97,13 +91,12 @@ public class CreateWalletResultPresenter extends BasePresenterImplement implemen
     public void initialize() {
         super.initialize();
         createAccountResultHandler = new CreateAccountResultHandler((CreateWalletResultActivity) view);
-        walletInfo = BundleUtil.getInstance().getParcelableData((Activity) context, Constant.BundleKey.WALLET_INFO);
     }
 
     @Override
     public void generateAddresQRCode() {
-        if (walletInfo != null) {
-            view.showAddressQRCodePromptDialog(QRCodeEncode.createQRCode(walletInfo.getHdAccount().getFirstAddressFromDb(), ViewUtil.getInstance().dp2px(context, 160)), walletInfo.getHdAccount().getFirstAddressFromDb());
+        if (BaseApplication.getInstance().getWalletInfo() != null) {
+            view.showAddressQRCodePromptDialog(QRCodeEncode.createQRCode(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb(), ViewUtil.getInstance().dp2px(context, 160)), ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb());
         } else {
             view.showPromptDialog(context.getString(R.string.dialog_prompt_get_qrcode_bitmap_error), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR);
         }
@@ -111,19 +104,19 @@ public class CreateWalletResultPresenter extends BasePresenterImplement implemen
 
     @Override
     public void save() {
-        if (walletInfo != null) {
+        if (BaseApplication.getInstance().getWalletInfo() != null) {
             ThreadPoolUtil.execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (!TextUtils.isEmpty(walletInfo.getHdAccount().getFirstAddressFromDb())) {
+                    if (!TextUtils.isEmpty(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb())) {
                         OutputStream outputStream = null;
                         InputStream inputStream = null;
                         try {
-                            inputStream = new ByteArrayInputStream(QRCodeEncode.createQRCode(walletInfo.getHdAccount().getFirstAddressFromDb(), ViewUtil.getInstance().dp2px(context, 160)));
+                            inputStream = new ByteArrayInputStream(QRCodeEncode.createQRCode(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb(), ViewUtil.getInstance().dp2px(context, 160)));
                             SoftReference softReference = new SoftReference(BitmapFactory.decodeStream(inputStream));
                             Bitmap bitmap = (Bitmap) softReference.get();
                             if (bitmap != null) {
-                                String fileName = walletInfo.getHdAccount().getFirstAddressFromDb() + Regex.IMAGE_JPG.getRegext();
+                                String fileName = ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb() + Regex.IMAGE_JPG.getRegext();
                                 File file = new File(IOUtil.getInstance().getExternalStorageDirectory(Constant.FilePath.IMAGE_CACHE), fileName);
                                 outputStream = new FileOutputStream(file);
                                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
@@ -155,13 +148,13 @@ public class CreateWalletResultPresenter extends BasePresenterImplement implemen
                 }
             });
         } else {
-            view.showPromptDialog(context.getString(R.string.dialog_prompt_qrcode_save_error), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_ERROR);
+            view.showPromptDialog(context.getString(R.string.dialog_prompt_qrcode_save_error), false, false, Constant.RequestCode.DIALOG_PROMPT_SAVE_QRCODE_ERROR);
         }
     }
 
     @Override
     public void share() {
-        if (walletInfo != null) {
+        if (BaseApplication.getInstance().getWalletInfo() != null) {
             ThreadPoolUtil.execute(new Runnable() {
 
                 @Override
@@ -169,12 +162,12 @@ public class CreateWalletResultPresenter extends BasePresenterImplement implemen
                     OutputStream outputStream = null;
                     InputStream inputStream = null;
                     try {
-                        if (!TextUtils.isEmpty(walletInfo.getHdAccount().getFirstAddressFromDb())) {
-                            inputStream = new ByteArrayInputStream(QRCodeEncode.createQRCode(walletInfo.getHdAccount().getFirstAddressFromDb(), ViewUtil.getInstance().dp2px(context, 160)));
+                        if (!TextUtils.isEmpty(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb())) {
+                            inputStream = new ByteArrayInputStream(QRCodeEncode.createQRCode(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb(), ViewUtil.getInstance().dp2px(context, 160)));
                             SoftReference softReference = new SoftReference(BitmapFactory.decodeStream(inputStream));
                             Bitmap bitmap = (Bitmap) softReference.get();
                             if (bitmap != null) {
-                                String fileName = walletInfo.getHdAccount().getFirstAddressFromDb() + Regex.IMAGE_JPG.getRegext();
+                                String fileName = ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb() + Regex.IMAGE_JPG.getRegext();
                                 File file = new File(IOUtil.getInstance().getExternalStorageDirectory(Constant.FilePath.IMAGE_CACHE), fileName);
                                 outputStream = new FileOutputStream(file);
                                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
@@ -204,7 +197,7 @@ public class CreateWalletResultPresenter extends BasePresenterImplement implemen
                 }
             });
         } else {
-            view.showPromptDialog(context.getString(R.string.dialog_prompt_qrcode_share_error), false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR);
+            view.showPromptDialog(context.getString(R.string.dialog_prompt_qrcode_share_error), false, false, Constant.RequestCode.DIALOG_PROMPT_SHARE_QRCODE_ERROR);
         }
     }
 

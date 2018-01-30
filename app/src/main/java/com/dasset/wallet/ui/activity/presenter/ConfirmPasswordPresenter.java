@@ -2,10 +2,10 @@ package com.dasset.wallet.ui.activity.presenter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
 import android.os.Message;
 
 import com.dasset.wallet.R;
+import com.dasset.wallet.base.application.BaseApplication;
 import com.dasset.wallet.base.handler.ActivityHandler;
 import com.dasset.wallet.components.utils.BundleUtil;
 import com.dasset.wallet.components.utils.MessageUtil;
@@ -44,9 +44,8 @@ public class ConfirmPasswordPresenter extends BasePresenterImplement implements 
                 switch (message.what) {
                     case Constant.StateCode.CREATE_WALLET_SUCCESS:
                         activity.hideLoadingPromptDialog();
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelable(Constant.BundleKey.WALLET_INFO, (WalletInfo) message.obj);
-                        view.startGenerateWalletResultActivity(bundle);
+                        BaseApplication.getInstance().setWalletInfo((WalletInfo) message.obj);
+                        view.startGenerateWalletResultActivity();
                         break;
                     case Constant.StateCode.CREATE_WALLET_FAILED:
                         activity.hideLoadingPromptDialog();

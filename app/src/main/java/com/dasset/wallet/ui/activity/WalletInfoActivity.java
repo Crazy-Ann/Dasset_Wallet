@@ -9,12 +9,15 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.dasset.wallet.R;
+import com.dasset.wallet.base.application.BaseApplication;
+import com.dasset.wallet.base.http.model.BaseEntity;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.base.toolbar.listener.OnRightTextEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
+import com.dasset.wallet.model.WalletInfo;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.WalletInfoContract;
 import com.dasset.wallet.ui.activity.presenter.WalletInfoPresenter;
@@ -76,13 +79,13 @@ public class WalletInfoActivity extends ActivityViewImplement<WalletInfoContract
     protected void initialize(Bundle savedInstanceState) {
         walletInfoPresenter = new WalletInfoPresenter(this, this);
         walletInfoPresenter.initialize();
-        initializeToolbar(android.R.color.white, true, R.mipmap.icon_back_black, this, android.R.color.black, false, walletInfoPresenter.getWalletInfo().getWalletName(), null, true, android.R.color.black, getString(R.string.toolbar_save), this);
+        initializeToolbar(android.R.color.white, true, R.mipmap.icon_back_black, this, android.R.color.black, false, ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getWalletName(), null, true, android.R.color.black, getString(R.string.toolbar_save), this);
         setBasePresenterImplement(walletInfoPresenter);
 
-        if (walletInfoPresenter.getWalletInfo() != null && walletInfoPresenter.getWalletInfo().getHdAccount() != null) {
-            tvWalletName1.setText(walletInfoPresenter.getWalletInfo().getWalletName());
-            tvWalleAddress.setText(walletInfoPresenter.getWalletInfo().getHdAccount().getFirstAddressFromDb());
-            tvWalletName2.setText(walletInfoPresenter.getWalletInfo().getWalletName());
+        if (BaseApplication.getInstance().getWalletInfo() != null && ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount() != null) {
+            tvWalletName1.setText(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getWalletName());
+            tvWalleAddress.setText(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb());
+            tvWalletName2.setText(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getWalletName());
         } else {
             tvWalletName1.setText(getString(R.string.dialog_prompt_account_info_error));
             tvWalleAddress.setText(R.string.dialog_prompt_account_info_error);
@@ -99,9 +102,7 @@ public class WalletInfoActivity extends ActivityViewImplement<WalletInfoContract
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnBackupsMnemonicCode:
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(Constant.BundleKey.WALLET_INFO, walletInfoPresenter.getWalletInfo());
-                startActivity(BackupsMnemonicCodeActivity.class, bundle);
+                startActivity(BackupsMnemonicCodeActivity.class);
                 break;
             case R.id.btnDeleteWallet:
                 PromptDialog.createBuilder(getSupportFragmentManager())
@@ -116,6 +117,22 @@ public class WalletInfoActivity extends ActivityViewImplement<WalletInfoContract
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    protected void getSavedInstanceState(Bundle savedInstanceState) {
+        super.getSavedInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            BaseApplication.getInstance().setWalletInfo((BaseEntity) savedInstanceState.getParcelable(Constant.BundleKey.WALLET_INFO));
+        }
+    }
+
+    @Override
+    protected void setSavedInstanceState(Bundle savedInstanceState) {
+        super.setSavedInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            savedInstanceState.putParcelable(Constant.BundleKey.WALLET_INFO, BaseApplication.getInstance().getWalletInfo());
         }
     }
 

@@ -199,11 +199,11 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
             case Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET_FAILED:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_DIALOG_PROMPT_DELETE_ACCOUNT_FAILED");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
+            case Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT");
                 accountInfoPresenter.share();
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT_ERROR:
+            case Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT_ERROR");
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR:
@@ -227,7 +227,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
             case Constant.RequestCode.DIALOG_PROMPT_DELETE_WALLET:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_DELETE_ACCOUNT");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
+            case Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT");
                 accountInfoPresenter.save();
                 break;
@@ -289,7 +289,7 @@ public class AccountInfoActivity extends ActivityViewImplement<AccountInfoContra
                 .setNegativeButtonText(this, R.string.dialog_prompt_save)
                 .setCancelable(true)
                 .setCancelableOnTouchOutside(false)
-                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE)
                 .showAllowingStateLoss(this);
     }
 

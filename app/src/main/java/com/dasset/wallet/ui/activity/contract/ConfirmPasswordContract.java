@@ -1,7 +1,5 @@
 package com.dasset.wallet.ui.activity.contract;
 
-import android.os.Bundle;
-
 import com.dasset.wallet.base.presenter.BasePresenter;
 import com.dasset.wallet.base.view.BaseView;
 
@@ -11,7 +9,7 @@ public interface ConfirmPasswordContract {
 
         boolean isActive();
 
-        void startGenerateWalletResultActivity(Bundle bundle);
+        void startGenerateWalletResultActivity();
     }
 
     interface Presenter extends BasePresenter {

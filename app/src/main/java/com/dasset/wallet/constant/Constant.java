@@ -50,12 +50,12 @@ public final class Constant {
         public static final int DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR = 0x1020;
         public static final int DIALOG_PROMPT_FILE_MANAGER_ERROR = 0x1021;
         public static final int DIALOG_PROMPT_ACCOUNT_INFO_ERROR = 0x1022;
-        public static final int DIALOG_PROMPT_QRCODE_EXPORT = 0x1023;
-        public static final int DIALOG_PROMPT_QRCODE_EXPORT_ERROR = 0x1024;
-        public static final int DIALOG_PROMPT_QRCODE_SAVE_SUCCESS = 0x1025;
-        public static final int DIALOG_PROMPT_QRCODE_SAVE_ERROR = 0x1026;
-        public static final int DIALOG_PROMPT_QRCODE_SHARE_SUCCESS = 0x1027;
-        public static final int DIALOG_PROMPT_QRCODE_SHARE_ERROR = 0x1028;
+        public static final int DIALOG_PROMPT_EXPORT_QRCODE = 0x1023;
+        public static final int DIALOG_PROMPT_EXPORT_QRCODE_ERROR = 0x1024;
+        public static final int DIALOG_PROMPT_SAVE_QRCODE_SUCCESS = 0x1025;
+        public static final int DIALOG_PROMPT_SAVE_QRCODE_ERROR = 0x1026;
+        public static final int DIALOG_PROMPT_SHARE_QRCODE_SUCCESS = 0x1027;
+        public static final int DIALOG_PROMPT_SHARE_QRCODE_ERROR = 0x1028;
         public static final int DIALOG_PROMPT_GET_VERSION = 0x1029;
         public static final int DIALOG_PROMPT_GET_VERSION_ERROR = 0x1030;
         public static final int DIALOG_PROMPT_GET_VERSION_SUCCESS = 0x1031;
@@ -65,6 +65,7 @@ public final class Constant {
         public static final int DIALOG_PROMPT_INSTALL = 0x1035;
         public static final int DIALOG_PROMPT_INSTALL_ERROR = 0x1036;
         public static final int DIALOG_PROMPT_PASSWORD_ERROR = 0x1037;
+        public static final int DIALOG_PROMPT_VERIFY_BACKUPS_MNEMONIC_CODE_ERROR = 0x1038;
         public static final int CREATE_WALLET = 0x2000;
         public static final int IMPORT_WALLET = 0x2001;
         public static final int QRCODE_RECOGNITION = 0x2002;

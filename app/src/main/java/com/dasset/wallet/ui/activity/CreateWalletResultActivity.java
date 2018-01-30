@@ -9,11 +9,14 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.dasset.wallet.R;
+import com.dasset.wallet.base.application.BaseApplication;
+import com.dasset.wallet.base.http.model.BaseEntity;
 import com.dasset.wallet.base.toolbar.listener.OnLeftIconEventListener;
 import com.dasset.wallet.components.permission.listener.PermissionCallback;
 import com.dasset.wallet.components.utils.LogUtil;
 import com.dasset.wallet.components.utils.ViewUtil;
 import com.dasset.wallet.constant.Constant;
+import com.dasset.wallet.model.WalletInfo;
 import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.CreateWalletResultContract;
 import com.dasset.wallet.ui.activity.presenter.CreateWalletResultPresenter;
@@ -35,6 +38,7 @@ public class CreateWalletResultActivity extends ActivityViewImplement<CreateWall
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_wallet_result);
+        getSavedInstanceState(savedInstanceState);
         findViewById();
         initialize(savedInstanceState);
         setListener();
@@ -76,9 +80,9 @@ public class CreateWalletResultActivity extends ActivityViewImplement<CreateWall
         createWalletResultPresenter.initialize();
         setBasePresenterImplement(createWalletResultPresenter);
 
-        if (createWalletResultPresenter.getWalletInfo() != null && createWalletResultPresenter.getWalletInfo().getHdAccount() != null) {
-            tvWalletName.setText(createWalletResultPresenter.getWalletInfo().getWalletName());
-            tvWalletAddress.setText(createWalletResultPresenter.getWalletInfo().getHdAccount().getFirstAddressFromDb());
+        if (BaseApplication.getInstance().getWalletInfo() != null && ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount() != null) {
+            tvWalletName.setText(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getWalletName());
+            tvWalletAddress.setText(((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getHdAccount().getFirstAddressFromDb());
         } else {
             tvWalletName.setText(getString(R.string.dialog_prompt_account_info_error));
             tvWalletAddress.setText(R.string.dialog_prompt_account_info_error);
@@ -88,6 +92,22 @@ public class CreateWalletResultActivity extends ActivityViewImplement<CreateWall
     @Override
     protected void setListener() {
 
+    }
+
+    @Override
+    protected void getSavedInstanceState(Bundle savedInstanceState) {
+        super.getSavedInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            BaseApplication.getInstance().setWalletInfo((BaseEntity) savedInstanceState.getParcelable(Constant.BundleKey.WALLET_INFO));
+        }
+    }
+
+    @Override
+    protected void setSavedInstanceState(Bundle savedInstanceState) {
+        super.setSavedInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            savedInstanceState.putParcelable(Constant.BundleKey.WALLET_INFO, BaseApplication.getInstance().getWalletInfo());
+        }
     }
 
     @Override
@@ -142,13 +162,13 @@ public class CreateWalletResultActivity extends ActivityViewImplement<CreateWall
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_EXPORT_ACCOUNT");
                 //TODO
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_SUCCESS:
+            case Constant.RequestCode.DIALOG_PROMPT_SAVE_QRCODE_SUCCESS:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SAVE_SUCCESS");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_ERROR:
+            case Constant.RequestCode.DIALOG_PROMPT_SAVE_QRCODE_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SAVE_ERROR");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR:
+            case Constant.RequestCode.DIALOG_PROMPT_SHARE_QRCODE_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SHARE_ERROR");
                 break;
             default:
@@ -174,9 +194,7 @@ public class CreateWalletResultActivity extends ActivityViewImplement<CreateWall
                 createWalletResultPresenter.generateAddresQRCode();
                 break;
             case R.id.btnBackupsWallet:
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(Constant.BundleKey.WALLET_INFO, createWalletResultPresenter.getWalletInfo());
-                startActivity(WalletInfoActivity.class, bundle);
+                startActivity(WalletInfoActivity.class);
                 break;
             case R.id.btnHowToBackups:
                 break;
@@ -200,7 +218,7 @@ public class CreateWalletResultActivity extends ActivityViewImplement<CreateWall
                 .setNegativeButtonText(this, R.string.dialog_prompt_save)
                 .setCancelable(true)
                 .setCancelableOnTouchOutside(false)
-                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE)
                 .showAllowingStateLoss(this);
     }
 

@@ -12,7 +12,28 @@ android {
             abiFilters "armeabi"
         }
     }
-
+    signingConfigs {
+        debug {}
+        release {
+            storeFile
+            storePassword
+            keyAlias
+            keyPassword
+        }
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            zipAlignEnabled false
+            signingConfig signingConfigs.debug
+        }
+        release {
+            minifyEnabled false
+            zipAlignEnabled true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
     buildTypes {
         debug {
             buildConfigField 'String', 'SERVICE_URL_166', '"http://192.168.2.166/DigitalAssetMch/Api/v1/ClientApp/Post"'
@@ -21,6 +42,8 @@ android {
             buildConfigField 'String', 'SERVICE_URL_105', '"https://merch.heemoney.com/Api/ClientApp"'
             buildConfigField 'String', 'AES_DECRYPT_KEY', '"7E7B619F1E6EA64D33361E94D656EB61"'
             minifyEnabled false
+            zipAlignEnabled false
+            signingConfig signingConfigs.debug
         }
         release {
             buildConfigField 'String', 'SERVICE_URL_166', '"http://192.168.2.166/DigitalAssetMch/Api/v1/ClientApp/Post"'
@@ -29,6 +52,8 @@ android {
             buildConfigField 'String', 'SERVICE_URL_105', '"https://merch.heemoney.com/Api/ClientApp"'
             buildConfigField 'String', 'AES_DECRYPT_KEY', '"7E7B619F1E6EA64D33361E94D656EB61"'
             minifyEnabled true
+            zipAlignEnabled true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

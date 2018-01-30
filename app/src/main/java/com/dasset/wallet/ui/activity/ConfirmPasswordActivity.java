@@ -152,8 +152,8 @@ public class ConfirmPasswordActivity extends ActivityViewImplement<ConfirmPasswo
     }
 
     @Override
-    public void startGenerateWalletResultActivity(Bundle bundle) {
-        startActivity(CreateWalletResultActivity.class, bundle);
+    public void startGenerateWalletResultActivity() {
+        startActivity(CreateWalletResultActivity.class);
         onFinish("startGenerateWalletResultActivity");
     }
 

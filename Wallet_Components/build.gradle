@@ -12,12 +12,25 @@ android {
             abiFilters "armeabi"
         }
     }
+    signingConfigs {
+        debug {}
+        release {
+            storeFile
+            storePassword
+            keyAlias
+            keyPassword
+        }
+    }
     buildTypes {
         debug {
             minifyEnabled false
+            zipAlignEnabled false
+            signingConfig signingConfigs.debug
         }
         release {
             minifyEnabled true
+            zipAlignEnabled true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -63,7 +76,6 @@ dependencies {
     api deps.JsBridge
     api deps.NumericKeyboard
     api deps.Password
+    api project(":TagView")
     api deps.objectbox
-//    debugImplementation deps.objectbox_browser
-//    releaseImplementation deps.objectbox
 }

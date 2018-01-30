@@ -187,7 +187,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                 break;
             case Constant.RequestCode.EXPORT_QRCODE:
                 if (data != null) {
-                    showPromptDialog(R.string.dialog_prompt_qrcode_share_success, false, false, Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT_ERROR);
+                    showPromptDialog(R.string.dialog_prompt_qrcode_share_success, false, false, Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE_ERROR);
                 }
                 break;
             default:
@@ -243,20 +243,20 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
             case Constant.RequestCode.DIALOG_PROMPT_FILE_MANAGER_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_FILE_MANAGER_ERROR");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
+            case Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT");
                 mainPresenter.share();
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT_ERROR:
+            case Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT_ERROR");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_SUCCESS:
+            case Constant.RequestCode.DIALOG_PROMPT_SAVE_QRCODE_SUCCESS:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SAVE_SUCCESS");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SAVE_ERROR:
+            case Constant.RequestCode.DIALOG_PROMPT_SAVE_QRCODE_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SAVE_ERROR");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_SHARE_ERROR:
+            case Constant.RequestCode.DIALOG_PROMPT_SHARE_QRCODE_ERROR:
                 LogUtil.getInstance().print("onPositiveButtonClicked_DIALOG_PROMPT_QRCODE_SHARE_ERROR");
                 break;
             case Constant.RequestCode.DIALOG_PROMPT_QRCODE_BITMAP_GET_ERROR:
@@ -283,7 +283,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
             case Constant.RequestCode.DIALOG_PROMPT_IMPORT_ACCOUNT1:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_IMPORT_ACCOUNT");
                 break;
-            case Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT:
+            case Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE:
                 LogUtil.getInstance().print("onNegativeButtonClicked_DIALOG_PROMPT_QRCODE_EXPORT");
                 mainPresenter.save();
                 break;
@@ -354,7 +354,7 @@ public class MainActivity extends ActivityViewImplement<MainContract.Presenter> 
                 .setNegativeButtonText(this, R.string.dialog_prompt_save)
                 .setCancelable(true)
                 .setCancelableOnTouchOutside(false)
-                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_QRCODE_EXPORT)
+                .setRequestCode(Constant.RequestCode.DIALOG_PROMPT_EXPORT_QRCODE)
                 .showAllowingStateLoss(this);
     }
 

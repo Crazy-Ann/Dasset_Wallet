@@ -18,12 +18,25 @@ android {
             abiFilters "armeabi"
         }
     }
+    signingConfigs {
+        debug {}
+        release {
+            storeFile
+            storePassword
+            keyAlias
+            keyPassword
+        }
+    }
     buildTypes {
         debug {
             minifyEnabled false
+            zipAlignEnabled false
+            signingConfig signingConfigs.debug
         }
         release {
             minifyEnabled true
+            zipAlignEnabled true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
