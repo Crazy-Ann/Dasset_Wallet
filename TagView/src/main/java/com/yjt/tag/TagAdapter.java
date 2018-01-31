@@ -42,7 +42,6 @@ public abstract class TagAdapter<T> {
         this.onTagUnselectedPositionListener = onTagUnselectedPositionListener;
     }
 
-    @Deprecated
     public void setSelectedPositions(int... selectedPositions) {
         Set<Integer> positions = new HashSet<>();
         for (int position : selectedPositions) {

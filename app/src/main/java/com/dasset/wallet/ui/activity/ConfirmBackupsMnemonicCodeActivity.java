@@ -32,6 +32,7 @@ import com.yjt.tag.listener.OnTagSelectedPositionListener;
 import com.yjt.tag.listener.OnTagUnselectedPositionListener;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -96,9 +97,11 @@ public class ConfirmBackupsMnemonicCodeActivity extends ActivityViewImplement<Co
         setBasePresenterImplement(confirmBackupsMnemonicCodePresenter);
 
         if (BaseApplication.getInstance().getWalletInfo() != null && ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getMnemonicCodes() != null) {
+            shuffleBackupsMnemonicCodes = Lists.newArrayList();
             unverifiedBackupsMnemonicCodes = Lists.newArrayList();
             backupsMnemonicCodes = ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getMnemonicCodes();
-            shuffleBackupsMnemonicCodes = ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getShuffleMnemonicCodes();
+            shuffleBackupsMnemonicCodes.addAll(backupsMnemonicCodes);
+            Collections.shuffle(shuffleBackupsMnemonicCodes);
             tagAdapter2 = new TagAdapter<String>(shuffleBackupsMnemonicCodes) {
                 @Override
                 public View getView(FlowLayout parent, int position, String s) {

@@ -13,7 +13,6 @@ public class WalletInfo extends BaseEntity {
     private String walletName;
     private HDAccount hdAccount;
     private List<String> MnemonicCodes;
-    private List<String> shuffleMnemonicCodes;
 
     public String getWalletName() {
         return walletName;
@@ -39,14 +38,6 @@ public class WalletInfo extends BaseEntity {
         MnemonicCodes = mnemonicCodes;
     }
 
-    public List<String> getShuffleMnemonicCodes() {
-        return shuffleMnemonicCodes;
-    }
-
-    public void setShuffleMnemonicCodes(List<String> shuffleMnemonicCodes) {
-        this.shuffleMnemonicCodes = shuffleMnemonicCodes;
-    }
-    
     @Override
     public String toString() {
         if (BuildConfig.DEBUG) {
@@ -54,7 +45,6 @@ public class WalletInfo extends BaseEntity {
                     "walletName=" + walletName +
                     ", hdAccount=" + hdAccount.getAddress() +
                     ", MnemonicCodes=" + MnemonicCodes +
-                    ", shuffleMnemonicCodes=" + shuffleMnemonicCodes +
                     '}';
         } else {
             return super.toString();
@@ -73,7 +63,6 @@ public class WalletInfo extends BaseEntity {
         dest.writeString(this.walletName);
         dest.writeParcelable(this.hdAccount, flags);
         dest.writeStringList(this.MnemonicCodes);
-        dest.writeStringList(this.shuffleMnemonicCodes);
     }
 
     protected WalletInfo(Parcel in) {
@@ -81,7 +70,6 @@ public class WalletInfo extends BaseEntity {
         this.walletName = in.readString();
         this.hdAccount = in.readParcelable(HDAccount.class.getClassLoader());
         this.MnemonicCodes = in.createStringArrayList();
-        this.shuffleMnemonicCodes = in.createStringArrayList();
     }
 
     public static final Creator<WalletInfo> CREATOR = new Creator<WalletInfo>() {

@@ -129,7 +129,7 @@ public class TagFlowLayout extends FlowLayout implements OnTagDataChangedListene
         this.selectedPositions.addAll(selectedPosition);
     }
 
-    private void setChildSelected(int position, TagView view, boolean isSelected) {
+    public void setChildSelected(int position, TagView view, boolean isSelected) {
         view.setChecked(isSelected);
         if (isSelected) {
             this.tagAdapter.onSelected(position, view.getTagView());

@@ -18,9 +18,6 @@ import com.dasset.wallet.ui.ActivityViewImplement;
 import com.dasset.wallet.ui.activity.contract.BackupsMnemonicCodeContract;
 import com.dasset.wallet.ui.activity.presenter.BackupsMnemonicCodePresenter;
 
-import java.util.Collections;
-import java.util.List;
-
 public class BackupsMnemonicCodeActivity extends ActivityViewImplement<BackupsMnemonicCodeContract.Presenter> implements BackupsMnemonicCodeContract.View, OnLeftIconEventListener, View.OnClickListener {
 
     private BackupsMnemonicCodePresenter backupsMnemonicCodePresenter;
@@ -71,9 +68,6 @@ public class BackupsMnemonicCodeActivity extends ActivityViewImplement<BackupsMn
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnNext:
-                List<String> mnemonicCode = ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).getMnemonicCodes();
-                Collections.shuffle(mnemonicCode);
-                ((WalletInfo) BaseApplication.getInstance().getWalletInfo()).setShuffleMnemonicCodes(mnemonicCode);
                 startActivity(ConfirmBackupsMnemonicCodeActivity.class);
                 break;
             default:
